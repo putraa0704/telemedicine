@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Telemedicine POC</title>
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <!-- Status bar online/offline -->
+    <div id="status-bar" class="status-online">
+      <span id="status-text">🟢 Online</span>
+    </div>
+
+    <main>
+      <h1>Form Konsultasi</h1>
+
+      <form id="konsultasi-form">
+        <label
+          >Nama Pasien
+          <input type="text" id="nama" placeholder="Nama lengkap" required />
+        </label>
+
+        <label
+          >Keluhan
+          <textarea
+            id="keluhan"
+            rows="4"
+            placeholder="Deskripsikan keluhan..."
+            required
+          ></textarea>
+        </label>
+
+        <button type="submit">Kirim Konsultasi</button>
+        <button
+          type="button"
+          id="sync-btn"
+          style="background: #64748b; margin-top: 0.5rem"
+        >
+          🔄 Sync Manual
+        </button>
+      </form>
+
+      <!-- Antrian sync -->
+      <section id="queue-section">
+        <h2>Antrian Sinkronisasi</h2>
+        <ul id="queue-list">
+          <li class="empty">Tidak ada data pending</li>
+        </ul>
+      </section>
+
+      <!-- Riwayat tersinkronisasi -->
+      <section id="history-section">
+        <h2>Riwayat Konsultasi</h2>
+        <ul id="history-list">
+          <li class="empty">Belum ada riwayat</li>
+        </ul>
+      </section>
+    </main>
+
+    <!-- Load Dexie.js dari CDN -->
+    <script src="https://unpkg.com/dexie@3.2.4/dist/dexie.js"></script>
+    <script src="/app.js"></script>
+  </body>
+</html>
