@@ -5,116 +5,166 @@
 <div class="space-y-6">
 
     {{-- Header --}}
-    <div>
-        <h1 class="text-xl font-semibold text-gray-800">Dashboard Pasien</h1>
-        <p class="text-gray-500 text-sm">Konsultasi kesehatan Anda</p>
+    <div class="card p-6" style="background:linear-gradient(135deg,#0d9488,#0284c7)">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white text-xl font-bold" id="avatar-initial">Z</div>
+            <div>
+                <p class="text-white/80 text-sm">Selamat datang,</p>
+                <h1 class="text-white text-xl font-bold" id="user-name">Pasien</h1>
+            </div>
+            <div class="ml-auto text-right">
+                <p class="text-white/70 text-xs">Status</p>
+                <p class="text-white text-sm font-medium" id="conn-status">Online</p>
+            </div>
+        </div>
     </div>
 
-    {{-- Form Konsultasi --}}
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <h2 class="font-medium text-gray-700 mb-4">Form Konsultasi Baru</h2>
-        <div class="space-y-3">
+    {{-- Tabs --}}
+    <div class="flex gap-2 bg-white rounded-xl p-1 card">
+        <button onclick="showTab('konsultasi')" id="tab-konsultasi"
+            class="flex-1 py-2 px-4 rounded-lg text-sm font-medium transition tab-active">
+            Konsultasi Baru
+        </button>
+        <button onclick="showTab('riwayat')" id="tab-riwayat"
+            class="flex-1 py-2 px-4 rounded-lg text-sm font-medium transition text-slate-500 hover:text-slate-700">
+            Riwayat & Jawaban
+        </button>
+        <button onclick="showTab('pending')" id="tab-pending"
+            class="flex-1 py-2 px-4 rounded-lg text-sm font-medium transition text-slate-500 hover:text-slate-700 relative">
+            Antrian
+            <span id="pending-badge" class="hidden absolute -top-1 -right-1 w-4 h-4 bg-amber-400 text-white text-xs rounded-full flex items-center justify-center"></span>
+        </button>
+    </div>
+
+    {{-- Tab: Konsultasi Baru --}}
+    <div id="panel-konsultasi" class="card p-6">
+        <h2 class="font-semibold text-slate-700 mb-1">Form Konsultasi</h2>
+        <p class="text-slate-400 text-xs mb-4">Ceritakan keluhan Anda secara detail agar dokter dapat memberikan saran yang tepat</p>
+
+        <div class="space-y-4">
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Keluhan</label>
-                <textarea id="keluhan" rows="4" placeholder="Deskripsikan keluhan Anda secara detail..."
-                    class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">Keluhan Anda</label>
+                <textarea id="keluhan" rows="5"
+                    placeholder="Contoh: Saya mengalami sakit kepala sejak 2 hari yang lalu, disertai demam dan mual..."
+                    class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition resize-none"></textarea>
             </div>
-            <button onclick="submitKonsultasi()"
-                class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2.5 rounded-lg text-sm transition">
-                Kirim Konsultasi
+
+            <div class="bg-teal-50 border border-teal-100 rounded-xl px-4 py-3 flex items-start gap-3">
+                <span class="text-teal-500 mt-0.5">ℹ</span>
+                <p class="text-xs text-teal-700">Form ini dapat diisi meskipun Anda sedang offline. Data akan otomatis terkirim saat koneksi kembali.</p>
+            </div>
+
+            <button onclick="submitKonsultasi()" id="submit-btn"
+                class="w-full text-white font-medium py-3 rounded-xl text-sm transition hover:opacity-90 active:scale-95 flex items-center justify-center gap-2"
+                style="background:linear-gradient(135deg,#0d9488,#0284c7)">
+                <span>Kirim Konsultasi</span>
             </button>
         </div>
     </div>
 
-    {{-- Antrian Pending --}}
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <h2 class="font-medium text-gray-700 mb-3">
-            Antrian Sinkronisasi
-            <span id="pending-count" class="ml-2 bg-yellow-100 text-yellow-700 text-xs px-2 py-0.5 rounded-full">0</span>
-        </h2>
-        <ul id="pending-list" class="space-y-2">
-            <li class="text-sm text-gray-400 italic">Tidak ada data pending</li>
-        </ul>
+    {{-- Tab: Riwayat --}}
+    <div id="panel-riwayat" class="hidden space-y-3">
+        <div id="history-list">
+            <div class="card p-8 text-center text-slate-400 text-sm">Memuat riwayat...</div>
+        </div>
     </div>
 
-    {{-- Riwayat Konsultasi --}}
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <h2 class="font-medium text-gray-700 mb-3">Riwayat Konsultasi</h2>
-        <ul id="history-list" class="space-y-3">
-            <li class="text-sm text-gray-400 italic">Memuat riwayat...</li>
-        </ul>
+    {{-- Tab: Pending --}}
+    <div id="panel-pending" class="hidden">
+        <div class="card p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-semibold text-slate-700">Antrian Sinkronisasi</h2>
+                <span id="pending-count" class="text-xs bg-amber-100 text-amber-700 px-3 py-1 rounded-full font-medium">0 item</span>
+            </div>
+            <ul id="pending-list">
+                <li class="text-sm text-slate-400 italic text-center py-4">Tidak ada data pending</li>
+            </ul>
+        </div>
     </div>
 
 </div>
+
+<style>
+.tab-active { background: linear-gradient(135deg,#0d9488,#0284c7); color: white; }
+</style>
 @endsection
 
 @section('scripts')
 <script src="https://unpkg.com/dexie@3.2.4/dist/dexie.js"></script>
 <script>
-// Auth guard
-// const token = localStorage.getItem('auth_token');
-// const user  = JSON.parse(localStorage.getItem('auth_user') || 'null');
 if (!token || !user) window.location.href = '/login';
 if (user && user.role !== 'pasien') window.location.href = '/dokter';
 
+// Update header
+if (user) {
+    document.getElementById('user-name').textContent = user.name;
+    document.getElementById('avatar-initial').textContent = user.name.charAt(0).toUpperCase();
+}
+
 const API = 'http://localhost:8000/api';
 
-// IndexedDB
 const db = new Dexie('telemedicine');
 db.version(2).stores({
     konsultasi: 'id, status, created_at',
     auth: 'key'
 });
 
-// Simpan token ke IndexedDB supaya SW bisa akses
 async function saveAuthToIndexedDB() {
-    await db.table('auth').put({
-        key:   'session',
-        token: token,
-        user:  user
-    });
+    await db.table('auth').put({ key: 'session', token, user });
 }
 saveAuthToIndexedDB();
 
-// Register SW
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').catch(console.error);
-    navigator.serviceWorker.addEventListener('message', e => {
-        if (e.data.type === 'SYNC_SUCCESS') renderUI();
+// Tab management
+function showTab(name) {
+    ['konsultasi','riwayat','pending'].forEach(t => {
+        document.getElementById(`panel-${t}`).classList.add('hidden');
+        const btn = document.getElementById(`tab-${t}`);
+        btn.classList.remove('tab-active');
+        btn.classList.add('text-slate-500');
     });
+    document.getElementById(`panel-${name}`).classList.remove('hidden');
+    const activeBtn = document.getElementById(`tab-${name}`);
+    activeBtn.classList.add('tab-active');
+    activeBtn.classList.remove('text-slate-500');
+
+    if (name === 'riwayat') loadRiwayat();
+    if (name === 'pending') loadPending();
 }
 
-// Online/offline sync
+// Online/offline
+function updateConnStatus() {
+    const el = document.getElementById('conn-status');
+    el.textContent = navigator.onLine ? '🟢 Online' : '🔴 Offline';
+}
 window.addEventListener('online', async () => {
-    console.log('[App] Kembali online, sync semua pending...');
+    updateConnStatus();
     await syncPending();
     await renderUI();
 });
+window.addEventListener('offline', updateConnStatus);
+updateConnStatus();
 
-// Polling fallback setiap 30 detik
+// Polling
 setInterval(async () => {
     if (navigator.onLine) {
-        const pending = await db.konsultasi
-            .where('status').equals('pending').toArray();
+        const pending = await db.konsultasi.where('status').equals('pending').toArray();
         if (pending.length > 0) {
-            console.log('[App] Polling sync:', pending.length, 'items');
             await syncPending();
             await renderUI();
         }
     }
 }, 30000);
 
-// Coba sync saat halaman pertama kali dibuka
-document.addEventListener('DOMContentLoaded', async () => {
-    if (navigator.onLine) {
-        await syncPending();
-        await renderUI();
-    }
-});
-
 async function submitKonsultasi() {
     const keluhan = document.getElementById('keluhan').value.trim();
-    if (!keluhan) return alert('Keluhan tidak boleh kosong');
+    if (!keluhan) {
+        alert('Keluhan tidak boleh kosong');
+        return;
+    }
+
+    const btn = document.getElementById('submit-btn');
+    btn.innerHTML = '<span>Menyimpan...</span>';
+    btn.disabled = true;
 
     const data = {
         id:         'loc_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
@@ -132,14 +182,17 @@ async function submitKonsultasi() {
     if (navigator.onLine) {
         await syncPending();
     } else {
-        // Daftarkan background sync
         if ('serviceWorker' in navigator && 'SyncManager' in window) {
             const reg = await navigator.serviceWorker.ready;
             await reg.sync.register('sync-konsultasi');
         }
     }
 
-    renderUI();
+    btn.innerHTML = '<span>Kirim Konsultasi</span>';
+    btn.disabled = false;
+
+    await renderUI();
+    showTab('riwayat');
 }
 
 async function syncPending() {
@@ -149,7 +202,7 @@ async function syncPending() {
             const res = await fetch(`${API}/konsultasi`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type':  'application/json',
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
@@ -159,7 +212,6 @@ async function syncPending() {
                     created_at: item.created_at
                 })
             });
-
             if (res.ok || res.status === 409) {
                 const result = await res.json();
                 await db.konsultasi.update(item.id, {
@@ -169,79 +221,113 @@ async function syncPending() {
                 });
             }
         } catch (err) {
-            console.warn('[App] Sync gagal untuk:', item.id);
+            console.warn('[App] Sync gagal:', item.id);
         }
     }
 }
 
-async function renderUI() {
-    const all     = await db.konsultasi.orderBy('created_at').reverse().toArray();
-    const pending = all.filter(d => d.status === 'pending');
-    const synced  = all.filter(d => d.status === 'synced');
-
-    // Pending count badge
-    document.getElementById('pending-count').textContent = pending.length;
-
-    // Pending list
-    const pendingList = document.getElementById('pending-list');
-    pendingList.innerHTML = pending.length === 0
-        ? '<li class="text-sm text-gray-400 italic">Tidak ada data pending</li>'
-        : pending.map(item => `
-            <li class="flex items-start justify-between bg-yellow-50 rounded-lg px-4 py-3">
-                <div>
-                    <p class="text-sm text-gray-700">${item.keluhan.slice(0, 60)}...</p>
-                    <p class="text-xs text-gray-400 mt-1">${new Date(item.created_at).toLocaleString('id-ID')}</p>
-                </div>
-                <span class="text-xs bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded-full ml-3 shrink-0">pending</span>
-            </li>
-        `).join('');
-
-    // History — ambil dari server kalau online, dari IndexedDB kalau offline
-    const historyList = document.getElementById('history-list');
+async function loadRiwayat() {
+    const list = document.getElementById('history-list');
     if (navigator.onLine) {
         try {
             const res  = await fetch(`${API}/konsultasi/saya`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await res.json();
-            historyList.innerHTML = data.length === 0
-                ? '<li class="text-sm text-gray-400 italic">Belum ada riwayat</li>'
-                : data.map(item => `
-                    <li class="border border-gray-100 rounded-xl p-4">
-                        <div class="flex justify-between items-start mb-2">
-                            <p class="text-sm font-medium text-gray-700">${item.keluhan}</p>
-                            <span class="text-xs px-2 py-0.5 rounded-full ml-3 shrink-0 ${
-                                item.status === 'done'
-                                    ? 'bg-green-100 text-green-700'
-                                    : 'bg-blue-100 text-blue-700'
-                            }">${item.status}</span>
+
+            if (data.length === 0) {
+                list.innerHTML = `
+                    <div class="card p-8 text-center">
+                        <p class="text-4xl mb-3">📋</p>
+                        <p class="text-slate-500 text-sm">Belum ada riwayat konsultasi</p>
+                        <p class="text-slate-400 text-xs mt-1">Mulai konsultasi pertama Anda</p>
+                    </div>`;
+                return;
+            }
+
+            list.innerHTML = data.map(item => `
+                <div class="card p-5 mb-3">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <p class="text-xs text-slate-400">${new Date(item.created_at).toLocaleDateString('id-ID', {day:'numeric',month:'long',year:'numeric'})}</p>
                         </div>
-                        ${item.jawaban_dokter
-                            ? `<div class="bg-green-50 rounded-lg px-3 py-2 mt-2">
-                                <p class="text-xs text-green-600 font-medium mb-1">Jawaban Dokter:</p>
-                                <p class="text-sm text-gray-700">${item.jawaban_dokter}</p>
-                               </div>`
-                            : '<p class="text-xs text-gray-400 mt-1">Menunggu jawaban dokter...</p>'
-                        }
-                        <p class="text-xs text-gray-400 mt-2">${new Date(item.created_at).toLocaleString('id-ID')}</p>
-                    </li>
-                `).join('');
+                        <span class="badge-${item.status}">${item.status === 'done' ? 'Selesai' : 'Menunggu'}</span>
+                    </div>
+
+                    <div class="bg-slate-50 rounded-xl px-4 py-3 mb-3">
+                        <p class="text-xs text-slate-400 mb-1 font-medium">KELUHAN</p>
+                        <p class="text-sm text-slate-700">${item.keluhan}</p>
+                    </div>
+
+                    ${item.jawaban_dokter ? `
+                        <div class="bg-teal-50 border border-teal-100 rounded-xl px-4 py-3">
+                            <p class="text-xs text-teal-600 mb-1 font-medium">💊 JAWABAN DOKTER</p>
+                            <p class="text-sm text-slate-700">${item.jawaban_dokter}</p>
+                        </div>
+                    ` : `
+                        <div class="flex items-center gap-2 text-slate-400">
+                            <div class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></div>
+                            <p class="text-xs">Menunggu jawaban dokter...</p>
+                        </div>
+                    `}
+                </div>
+            `).join('');
         } catch (err) {
-            historyList.innerHTML = '<li class="text-sm text-gray-400 italic">Gagal memuat dari server</li>';
+            list.innerHTML = '<div class="card p-6 text-center text-slate-400 text-sm">Gagal memuat data</div>';
         }
     } else {
-        historyList.innerHTML = synced.length === 0
-            ? '<li class="text-sm text-gray-400 italic">Data offline — sambungkan internet untuk lihat riwayat lengkap</li>'
-            : synced.map(item => `
-                <li class="border border-gray-100 rounded-xl p-4">
-                    <p class="text-sm text-gray-700">${item.keluhan}</p>
-                    <p class="text-xs text-gray-400 mt-1">${new Date(item.created_at).toLocaleString('id-ID')}</p>
-                    <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">tersimpan lokal</span>
-                </li>
-            `).join('');
+        list.innerHTML = `
+            <div class="card p-8 text-center">
+                <p class="text-4xl mb-3">📵</p>
+                <p class="text-slate-500 text-sm">Sedang offline</p>
+                <p class="text-slate-400 text-xs mt-1">Sambungkan internet untuk melihat riwayat</p>
+            </div>`;
     }
 }
 
+async function loadPending() {
+    const pending = await db.konsultasi.where('status').equals('pending').orderBy('created_at').reverse().toArray();
+    const list    = document.getElementById('pending-list');
+
+    if (pending.length === 0) {
+        list.innerHTML = '<li class="text-sm text-slate-400 italic text-center py-6">✅ Semua data sudah tersinkronisasi</li>';
+    } else {
+        list.innerHTML = pending.map(item => `
+            <li class="flex items-start justify-between bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 mb-2">
+                <div class="flex-1 mr-3">
+                    <p class="text-sm text-slate-700">${item.keluhan.slice(0, 80)}${item.keluhan.length > 80 ? '...' : ''}</p>
+                    <p class="text-xs text-slate-400 mt-1">${new Date(item.created_at).toLocaleString('id-ID')}</p>
+                </div>
+                <span class="badge-pending shrink-0">pending</span>
+            </li>
+        `).join('');
+    }
+}
+
+async function renderUI() {
+    const pending = await db.konsultasi.where('status').equals('pending').toArray();
+    const count   = pending.length;
+
+    document.getElementById('pending-count').textContent = `${count} item`;
+
+    const badge = document.getElementById('pending-badge');
+    if (count > 0) {
+        badge.textContent = count;
+        badge.classList.remove('hidden');
+    } else {
+        badge.classList.add('hidden');
+    }
+
+    // Refresh panel yang sedang aktif
+    const riwayatPanel = document.getElementById('panel-riwayat');
+    if (!riwayatPanel.classList.contains('hidden')) loadRiwayat();
+
+    const pendingPanel = document.getElementById('panel-pending');
+    if (!pendingPanel.classList.contains('hidden')) loadPending();
+}
+
+// Init
+if (navigator.onLine) syncPending();
 renderUI();
 </script>
 @endsection
