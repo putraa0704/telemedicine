@@ -2,49 +2,57 @@
 @section('title', 'Daftar')
 
 @section('content')
-<div class="max-w-md mx-auto mt-10">
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-        <h1 class="text-2xl font-semibold text-gray-800 mb-1">Daftar Akun</h1>
-        <p class="text-gray-500 text-sm mb-6">Buat akun pasien baru</p>
+<div class="min-h-[80vh] flex items-center justify-center py-8">
+<div class="w-full max-w-md">
 
-        <div id="error-msg" class="hidden bg-red-50 text-red-600 text-sm px-4 py-3 rounded-lg mb-4"></div>
+    <div class="text-center mb-8">
+        <div class="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold" style="background:linear-gradient(135deg,#0d9488,#0284c7)">T</div>
+        <h1 class="text-2xl font-bold text-slate-800">Buat Akun Baru</h1>
+        <p class="text-slate-500 text-sm mt-1">Daftar sebagai pasien telemedicine</p>
+    </div>
+
+    <div class="card p-8">
+        <div id="error-msg" class="hidden bg-red-50 border border-red-100 text-red-600 text-sm px-4 py-3 rounded-xl mb-5"></div>
 
         <div class="space-y-4">
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
-                <input id="name" type="text" placeholder="Nama lengkap"
-                    class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">Nama Lengkap</label>
+                <input id="name" type="text" placeholder="Nama lengkap Anda"
+                    class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition"/>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
                 <input id="email" type="email" placeholder="email@example.com"
-                    class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                    class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition"/>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">No. HP</label>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">No. HP</label>
                 <input id="no_hp" type="tel" placeholder="08xxxxxxxxxx"
-                    class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                    class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition"/>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                <input id="password" type="password" placeholder="Min. 8 karakter"
-                    class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
+                <input id="password" type="password" placeholder="Minimal 8 karakter"
+                    class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition"/>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password</label>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">Konfirmasi Password</label>
                 <input id="password_confirmation" type="password" placeholder="Ulangi password"
-                    class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                    class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition"/>
             </div>
             <button onclick="doRegister()"
-                class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2.5 rounded-lg text-sm transition">
-                Daftar
+                class="w-full text-white font-medium py-3 rounded-xl text-sm transition hover:opacity-90 active:scale-95"
+                style="background:linear-gradient(135deg,#0d9488,#0284c7)">
+                Buat Akun
             </button>
         </div>
 
-        <p class="text-center text-sm text-gray-500 mt-4">
-            Sudah punya akun? <a href="/login" class="text-blue-500 hover:underline">Masuk</a>
+        <p class="text-center text-sm text-slate-500 mt-5">
+            Sudah punya akun?
+            <a href="/login" class="text-teal-600 font-medium hover:underline">Masuk di sini</a>
         </p>
     </div>
+</div>
 </div>
 @endsection
 

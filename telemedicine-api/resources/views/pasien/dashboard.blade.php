@@ -86,8 +86,30 @@ if ('serviceWorker' in navigator) {
 
 // Online/offline sync
 window.addEventListener('online', async () => {
+    console.log('[App] Kembali online, sync semua pending...');
     await syncPending();
-    renderUI();
+    await renderUI();
+});
+
+// Polling fallback setiap 30 detik
+setInterval(async () => {
+    if (navigator.onLine) {
+        const pending = await db.konsultasi
+            .where('status').equals('pending').toArray();
+        if (pending.length > 0) {
+            console.log('[App] Polling sync:', pending.length, 'items');
+            await syncPending();
+            await renderUI();
+        }
+    }
+}, 30000);
+
+// Coba sync saat halaman pertama kali dibuka
+document.addEventListener('DOMContentLoaded', async () => {
+    if (navigator.onLine) {
+        await syncPending();
+        await renderUI();
+    }
 });
 
 async function submitKonsultasi() {
