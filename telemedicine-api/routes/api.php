@@ -2,47 +2,69 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DokterController;
+use App\Http\Controllers\Api\JadwalController;
+use App\Http\Controllers\Api\KonsultasiController;
 use App\Http\Controllers\Api\SyncController;
+use App\Http\Controllers\Api\TimDokterController;
 use Illuminate\Support\Facades\Route;
 
-// Health check
+// ── Health check ──
 Route::get('/ping', fn() => response()->json(['status' => 'ok', 'time' => now()]));
 
-// ── Auth (public) ──────────────────────────────────────────
+// ── Auth (public) ──────────────────────────────────────────────────────────
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login',    [AuthController::class, 'login']);
 });
 
-// ── Protected routes ───────────────────────────────────────
+// ── Protected routes ───────────────────────────────────────────────────────
 Route::middleware('auth:sanctum')->group(function () {
 
     // Auth
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/auth/me',      [AuthController::class, 'me']);
 
-    // Pasien — kirim konsultasi
+    // ── Tim Dokter (semua role bisa lihat) ──
+    Route::get('/tim-dokter',       [TimDokterController::class, 'index']);
+    Route::get('/tim-dokter/{id}',  [TimDokterController::class, 'show']);
+
+    // ── Jadwal (semua role bisa lihat) ──
+    Route::get('/jadwal',             [JadwalController::class, 'index']);
+    Route::get('/jadwal/mingguan',    [JadwalController::class, 'mingguan']);
+    Route::get('/jadwal/booking-saya',[JadwalController::class, 'bookingSaya']);
+
+    // ── Konsultasi (Pasien) ──
+    Route::get('/konsultasi/saya',    [KonsultasiController::class, 'milikSaya']);
+    Route::get('/konsultasi/{id}',    [KonsultasiController::class, 'show']);
+    Route::delete('/konsultasi/{id}', [KonsultasiController::class, 'destroy']);
+
+    // Sync offline → tetap pakai SyncController
     Route::post('/konsultasi', [SyncController::class, 'sync']);
 
-    // Pasien — lihat konsultasi milik sendiri
-    Route::get('/konsultasi/saya', function (Illuminate\Http\Request $req) {
-        return response()->json(
-            \App\Models\Konsultasi::where('user_id', $req->user()->id)
-                ->latest()->get()
-        );
-    });
+    // Booking jadwal (pasien)
+    Route::post('/jadwal/{id}/booking',      [JadwalController::class, 'booking']);
+    Route::delete('/jadwal/booking/{id}',    [JadwalController::class, 'batalBooking']);
 
-    // Dokter only
+    // ── Dokter & Admin only ──
     Route::middleware('role:dokter,admin')->group(function () {
-        Route::get('/dokter/konsultasi',          [DokterController::class, 'index']);
-        Route::post('/dokter/konsultasi/{id}/jawab', [DokterController::class, 'jawab']);
+
+        // Konsultasi management
+        Route::get('/dokter/konsultasi',                  [DokterController::class, 'index']);
+        Route::post('/dokter/konsultasi/{id}/jawab',      [DokterController::class, 'jawab']);
+        Route::put('/dokter/konsultasi/{id}/status',      [DokterController::class, 'updateStatus']);
+
+        // Kelola jadwal sendiri
+        Route::post('/jadwal',            [JadwalController::class, 'store']);
+        Route::put('/jadwal/{id}',        [JadwalController::class, 'update']);
+        Route::delete('/jadwal/{id}',     [JadwalController::class, 'destroy']);
     });
 
-    // Debug (hapus saat production)
-    Route::get('/konsultasi', fn() =>
-        response()->json(\App\Models\Konsultasi::latest()->get())
-    );
-    Route::get('/sync-logs', fn() =>
-        response()->json(\App\Models\SyncLog::latest()->get())
-    );
+    // ── Admin only ──
+    Route::middleware('role:admin')->group(function () {
+        Route::put('/tim-dokter/{id}/status', [TimDokterController::class, 'updateStatus']);
+
+        // Debug routes (hapus saat production)
+        Route::get('/konsultasi',  fn() => response()->json(\App\Models\Konsultasi::latest()->get()));
+        Route::get('/sync-logs',   fn() => response()->json(\App\Models\SyncLog::latest()->get()));
+    });
 });

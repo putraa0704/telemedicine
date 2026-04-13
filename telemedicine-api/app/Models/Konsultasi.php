@@ -16,11 +16,13 @@ class Konsultasi extends Model
         'status',
         'jawaban_dokter',
         'dokter_id',
+        'dijawab_at',
         'client_created_at',
     ];
 
     protected $casts = [
         'client_created_at' => 'datetime',
+        'dijawab_at'        => 'datetime',
     ];
 
     public function pasien()
