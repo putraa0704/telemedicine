@@ -15,14 +15,12 @@
 
 <div class="w-full max-w-sm">
 
-    {{-- Logo --}}
     <div class="text-center mb-6">
         <div class="w-14 h-14 rounded-2xl bg-brand-600 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3">M</div>
         <h1 class="text-2xl font-bold text-slate-800">MediConnect</h1>
         <p class="text-slate-400 text-sm mt-1">Selamat datang kembali</p>
     </div>
 
-    {{-- Card --}}
     <div class="bg-white rounded-2xl border border-slate-200 p-7 shadow-sm">
 
         <div id="error-msg" class="hidden bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2.5 rounded-lg mb-4"></div>
@@ -57,7 +55,9 @@
     // Redirect jika sudah login
     var t = localStorage.getItem('auth_token');
     var u = JSON.parse(localStorage.getItem('auth_user') || 'null');
-    if (t && u) window.location.href = (u.role === 'dokter' || u.role === 'admin') ? '/dokter' : '/pasien';
+    if (t && u) {
+        window.location.href = (u.role === 'dokter' || u.role === 'admin') ? '/dokter' : '/welcome';
+    }
 
     async function doLogin() {
         var email    = document.getElementById('email').value.trim();
@@ -85,7 +85,13 @@
 
             localStorage.setItem('auth_token', data.token);
             localStorage.setItem('auth_user',  JSON.stringify(data.user));
-            window.location.href = (data.role === 'dokter' || data.role === 'admin') ? '/dokter' : '/pasien';
+
+            // Pasien → welcome chat dulu, dokter/admin → langsung dashboard
+            if (data.role === 'dokter' || data.role === 'admin') {
+                window.location.href = '/dokter';
+            } else {
+                window.location.href = '/welcome';
+            }
 
         } catch (e) {
             errDiv.textContent = 'Gagal terhubung ke server.';
