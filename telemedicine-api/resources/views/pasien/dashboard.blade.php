@@ -57,7 +57,7 @@
 </div>
 
 {{-- Form Konsultasi Baru --}}
-<div class="bg-white rounded-xl border border-slate-200 p-5 max-w-xl">
+{{-- <div class="bg-white rounded-xl border border-slate-200 p-5 max-w-xl">
     <h2 class="text-[13px] font-semibold text-slate-800 mb-4">Konsultasi Baru</h2>
     <div class="space-y-3">
         <div>
@@ -70,7 +70,7 @@
             Kirim Konsultasi
         </button>
     </div>
-</div>
+</div> --}}
 
 @endsection
 
