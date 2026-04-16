@@ -2,61 +2,43 @@
 
 @section('title', 'Riwayat Konsultasi')
 @section('page_title', 'Riwayat')
-@section('page_sub', 'Konsultasi yang sudah selesai')
-@section('nav_riwayat', 'active-nav')
+@section('page_sub', 'Daftar semua konsultasi Anda')
+@section('nav_riwayat', 'active')
 
 @section('content')
 
-{{-- Stat Cards --}}
-<div class="grid grid-cols-4 gap-4 mb-5">
-    <div class="bg-white rounded-xl border border-slate-200 p-4">
-        <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Total Konsultasi</div>
-        <div class="text-3xl font-bold text-slate-800 leading-none" id="stat-total">—</div>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-5">
+    <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+        <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Total</div>
+        <div class="text-2xl sm:text-3xl font-bold text-slate-800" id="stat-total">—</div>
     </div>
-    <div class="bg-white rounded-xl border border-slate-200 p-4">
-        <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Selesai</div>
-        <div class="text-3xl font-bold text-teal-600 leading-none" id="stat-done">—</div>
+    <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+        <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Selesai</div>
+        <div class="text-2xl sm:text-3xl font-bold text-emerald-600" id="stat-done">—</div>
     </div>
-    <div class="bg-white rounded-xl border border-slate-200 p-4">
-        <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Menunggu Jawaban</div>
-        <div class="text-3xl font-bold text-amber-600 leading-none" id="stat-pending">—</div>
+    <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+        <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Menunggu</div>
+        <div class="text-2xl sm:text-3xl font-bold text-amber-600" id="stat-pending">—</div>
     </div>
-    <div class="bg-white rounded-xl border border-slate-200 p-4">
-        <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Sudah Dijawab</div>
-        <div class="text-3xl font-bold text-blue-700 leading-none" id="stat-answered">—</div>
+    <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+        <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Dijawab</div>
+        <div class="text-2xl sm:text-3xl font-bold text-blue-600" id="stat-answered">—</div>
     </div>
 </div>
 
-{{-- Filter Bar --}}
-<div class="flex items-center gap-3 mb-4">
-    <span class="text-[13px] font-semibold text-slate-800 mr-1">Riwayat Konsultasi</span>
-    <div class="flex gap-1.5 ml-auto">
-        <button onclick="setFilter('all')" id="f-all"
-            class="filter-btn text-[11px] font-semibold px-3 py-1.5 rounded-lg border border-slate-200 transition-colors bg-blue-700 text-white border-blue-700">
-            Semua
-        </button>
-        <button onclick="setFilter('done')" id="f-done"
-            class="filter-btn text-[11px] font-semibold px-3 py-1.5 rounded-lg border border-slate-200 transition-colors text-slate-600 hover:bg-slate-50">
-            Selesai
-        </button>
-        <button onclick="setFilter('received')" id="f-received"
-            class="filter-btn text-[11px] font-semibold px-3 py-1.5 rounded-lg border border-slate-200 transition-colors text-slate-600 hover:bg-slate-50">
-            Menunggu
-        </button>
-        <button onclick="setFilter('in_review')" id="f-in_review"
-            class="filter-btn text-[11px] font-semibold px-3 py-1.5 rounded-lg border border-slate-200 transition-colors text-slate-600 hover:bg-slate-50">
-            Ditinjau
-        </button>
+<div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+    <div class="px-4 sm:px-5 py-3.5 border-b border-slate-100 flex flex-wrap items-center gap-2">
+        <span class="text-[13px] font-semibold text-slate-800 mr-auto">Riwayat Konsultasi</span>
+        <div class="flex gap-1.5 flex-wrap">
+            <button onclick="setFilter('all')" id="f-all" class="filter-btn text-[11px] font-semibold px-3 py-1.5 rounded-lg border transition-colors bg-brand-600 text-white border-brand-600">Semua</button>
+            <button onclick="setFilter('done')" id="f-done" class="filter-btn text-[11px] font-semibold px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">Selesai</button>
+            <button onclick="setFilter('received')" id="f-received" class="filter-btn text-[11px] font-semibold px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">Menunggu</button>
+            <button onclick="setFilter('in_review')" id="f-in_review" class="filter-btn text-[11px] font-semibold px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">Ditinjau</button>
+        </div>
+        <button onclick="loadData()" class="text-[11px] font-semibold text-brand-600 border border-brand-200 hover:bg-blue-50 px-2.5 py-1.5 rounded-lg transition-colors">↻</button>
     </div>
-    <button onclick="loadData()" class="text-[11px] font-semibold text-blue-700 border border-blue-200 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">
-        ↻ Refresh
-    </button>
-</div>
-
-{{-- List --}}
-<div id="riwayat-list" class="space-y-3">
-    <div class="bg-white rounded-xl border border-slate-200 px-4 py-8 text-center text-sm text-slate-400">
-        Memuat riwayat konsultasi...
+    <div id="riwayat-list">
+        <div class="px-4 py-10 text-center text-[12px] text-slate-400">Memuat riwayat...</div>
     </div>
 </div>
 
@@ -68,32 +50,27 @@
     var user  = JSON.parse(localStorage.getItem('auth_user') || 'null');
     if (!token || !user) window.location.href = '/login';
 
-    var allData    = [];
+    var allData = [];
     var activeFilter = 'all';
 
     function setFilter(f) {
         activeFilter = f;
         document.querySelectorAll('.filter-btn').forEach(function(btn) {
-            btn.classList.remove('bg-blue-700', 'text-white', 'border-blue-700');
-            btn.classList.add('text-slate-600', 'hover:bg-slate-50');
+            btn.classList.remove('bg-brand-600','text-white','border-brand-600');
+            btn.classList.add('text-slate-600','border-slate-200','hover:bg-slate-50');
         });
         var active = document.getElementById('f-' + f);
         if (active) {
-            active.classList.add('bg-blue-700', 'text-white', 'border-blue-700');
-            active.classList.remove('text-slate-600', 'hover:bg-slate-50');
+            active.classList.add('bg-brand-600','text-white','border-brand-600');
+            active.classList.remove('text-slate-600','border-slate-200','hover:bg-slate-50');
         }
         renderList();
     }
 
-    function badgeClass(s) {
-        if (s === 'done')      return 'bg-teal-50 text-teal-700 border border-teal-200';
-        if (s === 'in_review') return 'bg-blue-50 text-blue-700 border border-blue-200';
-        return 'bg-amber-50 text-amber-700 border border-amber-200';
-    }
-    function badgeLabel(s) {
-        if (s === 'done')      return 'Selesai';
-        if (s === 'in_review') return 'Ditinjau';
-        return 'Menunggu';
+    function statusBadge(s) {
+        if (s === 'done') return '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Selesai</span>';
+        if (s === 'in_review') return '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">Ditinjau</span>';
+        return '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">Menunggu</span>';
     }
 
     function renderList() {
@@ -101,76 +78,52 @@
         var filtered = activeFilter === 'all' ? allData : allData.filter(function(d) { return d.status === activeFilter; });
 
         if (!filtered.length) {
-            list.innerHTML = '<div class="bg-white rounded-xl border border-slate-200 px-4 py-10 text-center">' +
-                '<p class="text-sm text-slate-400 italic">Belum ada konsultasi' +
-                (activeFilter !== 'all' ? ' dengan status ini' : '') + '</p>' +
-                '<a href="/konsultasi/baru" class="inline-block mt-3 text-xs font-semibold text-blue-700 border border-blue-200 hover:bg-blue-50 px-4 py-2 rounded-lg transition-colors">+ Buat Konsultasi Baru</a>' +
-                '</div>';
+            list.innerHTML = '<div class="px-4 py-10 text-center"><p class="text-sm text-slate-400 mb-3">Belum ada konsultasi' + (activeFilter !== 'all' ? ' dengan status ini' : '') + '</p><a href="/konsultasi/baru" class="inline-block text-[12px] font-semibold text-brand-600 bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-xl transition-colors">+ Buat Konsultasi Baru</a></div>';
             return;
         }
 
         list.innerHTML = filtered.map(function(item) {
-            var dijawab = item.dijawab_at ? new Date(item.dijawab_at).toLocaleString('id-ID') : null;
-            var dibuat  = new Date(item.created_at).toLocaleString('id-ID');
             var hasJawaban = item.jawaban_dokter || item.jawaban;
             var jawaban    = item.jawaban_dokter || item.jawaban || '';
+            var dibuat     = new Date(item.created_at).toLocaleString('id-ID');
+            var dokterName = item.dokter ? (item.dokter.name || item.dokter) : null;
 
-            return '<div class="bg-white rounded-xl border border-slate-200 overflow-hidden">' +
+            var jawabanHtml = hasJawaban
+                ? '<div class="mx-4 sm:mx-5 mb-4 bg-blue-50 border-l-4 border-blue-400 rounded-r-xl px-4 py-3"><p class="text-[11px] font-bold text-blue-700 mb-1">Jawaban Dokter' + (dokterName ? ' (' + dokterName + ')' : '') + ':</p><p class="text-[12px] text-slate-700 leading-relaxed">' + jawaban + '</p></div>'
+                : '<div class="mx-4 sm:mx-5 mb-4 bg-slate-50 border-l-4 border-slate-200 rounded-r-xl px-4 py-2.5"><p class="text-[12px] text-slate-400 italic">Menunggu jawaban dokter...</p></div>';
 
-                // Header
-                '<div class="px-4 py-3 border-b border-slate-100">' +
-                    '<div class="flex justify-between items-start mb-1.5">' +
-                        '<div class="flex items-center gap-2">' +
-                            '<span class="text-[13px] font-semibold text-slate-800">' + (item.nama || item.nama_pasien || user.name) + '</span>' +
-                            '<span class="text-[11px] text-slate-400">#KSL-' + String(item.id).padStart(3,'0') + '</span>' +
+            return '<div class="border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors">' +
+                '<div class="px-4 sm:px-5 py-4">' +
+                    '<div class="flex flex-wrap items-start justify-between gap-2 mb-2">' +
+                        '<div class="flex items-center gap-2 flex-wrap">' +
+                            '<span class="text-[13px] font-semibold text-slate-800">' + (item.nama || item.nama_pasien || (user ? user.name : '')) + '</span>' +
+                            '<span class="text-[10px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">#KSL-' + String(item.id).padStart(3,'0') + '</span>' +
                         '</div>' +
-                        '<span class="text-[11px] text-slate-400">' + dibuat + '</span>' +
+                        '<span class="text-[10px] text-slate-400">' + dibuat + '</span>' +
                     '</div>' +
-                    '<p class="text-[12px] text-slate-600 mb-2 leading-relaxed">' + item.keluhan + '</p>' +
-                    '<div class="flex items-center gap-2">' +
-                        '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ' + badgeClass(item.status) + '">' + badgeLabel(item.status) + '</span>' +
-                        (item.dokter ? '<span class="text-[11px] text-slate-400">· ' + (item.dokter.name || item.dokter) + '</span>' : '') +
-                        (dijawab ? '<span class="text-[11px] text-slate-400 ml-auto">Dijawab: ' + dijawab + '</span>' : '') +
+                    '<p class="text-[13px] text-slate-600 mb-3 leading-relaxed">' + item.keluhan + '</p>' +
+                    '<div class="flex flex-wrap items-center gap-2">' + statusBadge(item.status) +
+                        (dokterName ? '<span class="text-[11px] text-slate-400">· ' + dokterName + '</span>' : '') +
                     '</div>' +
                 '</div>' +
-
-                // Jawaban Dokter
-                (hasJawaban
-                    ? '<div class="px-4 py-3 bg-blue-50 border-l-4 border-blue-400">' +
-                          '<div class="flex items-center gap-1.5 mb-1.5">' +
-                              '<span class="text-[11px] font-bold text-blue-700">Jawaban Dokter</span>' +
-                              (item.dokter ? '<span class="text-[11px] text-blue-500">· ' + (item.dokter.name || item.dokter) + '</span>' : '') +
-                          '</div>' +
-                          '<p class="text-[12px] text-slate-700 leading-relaxed">' + jawaban + '</p>' +
-                      '</div>'
-                    : '<div class="px-4 py-3 bg-slate-50 border-l-4 border-slate-200">' +
-                          '<p class="text-[12px] text-slate-400 italic">Menunggu jawaban dokter...</p>' +
-                      '</div>'
-                ) +
-            '</div>';
+                jawabanHtml + '</div>';
         }).join('');
     }
 
     async function loadData() {
-        var list = document.getElementById('riwayat-list');
-        list.innerHTML = '<div class="bg-white rounded-xl border border-slate-200 px-4 py-8 text-center text-sm text-slate-400">Memuat...</div>';
-
+        document.getElementById('riwayat-list').innerHTML = '<div class="px-4 py-10 text-center text-[12px] text-slate-400">Memuat...</div>';
         try {
             var res  = await fetch('/api/konsultasi/saya', { headers: { 'Authorization': 'Bearer ' + token } });
             allData  = await res.json();
-
-            // Update stats
             document.getElementById('stat-total').textContent    = allData.length;
             document.getElementById('stat-done').textContent     = allData.filter(function(d) { return d.status === 'done'; }).length;
             document.getElementById('stat-pending').textContent  = allData.filter(function(d) { return d.status === 'received'; }).length;
             document.getElementById('stat-answered').textContent = allData.filter(function(d) { return d.jawaban_dokter || d.jawaban; }).length;
-
             renderList();
         } catch(e) {
-            list.innerHTML = '<div class="bg-white rounded-xl border border-slate-200 px-4 py-8 text-center text-sm text-red-400">Gagal memuat data. Periksa koneksi internet Anda.</div>';
+            document.getElementById('riwayat-list').innerHTML = '<div class="px-4 py-10 text-center text-[12px] text-red-400">Gagal memuat data</div>';
         }
     }
-
     loadData();
 </script>
 @endsection
