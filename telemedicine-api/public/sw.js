@@ -1,27 +1,35 @@
-const CACHE_NAME = 'telemedicine-v2';
+const CACHE_NAME = 'telemedicine-v3';
 const API_BASE   = 'http://localhost:8000';
 
-// Aset yang di-cache saat install
+// Hanya cache aset lokal — JANGAN masukkan URL CDN eksternal
 const ASSETS_TO_CACHE = [
     '/',
     '/login',
     '/pasien',
     '/register',
-    'https://cdn.tailwindcss.com',
-    'https://unpkg.com/dexie@3.2.4/dist/dexie.js',
+    '/welcome',
+];
+
+// Domain yang di-skip (tidak di-cache, langsung network)
+const SKIP_CACHE_DOMAINS = [
+    'cdn.tailwindcss.com',
+    'unpkg.com',
+    'fonts.googleapis.com',
+    'fonts.gstatic.com',
+    'cdnjs.cloudflare.com',
+    'placehold.co',
 ];
 
 // ─── 1. INSTALL ───────────────────────────────────────────
 self.addEventListener('install', event => {
-    console.log('[SW] Installing v2...');
+    console.log('[SW] Installing v3...');
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => {
-            // addAll gagal total kalau satu URL error
-            // Gunakan individual add dengan catch
+            // Gunakan individual add + catch supaya 1 URL gagal tidak block semua
             return Promise.allSettled(
                 ASSETS_TO_CACHE.map(url =>
                     cache.add(url).catch(err =>
-                        console.warn('[SW] Failed to cache:', url, err)
+                        console.warn('[SW] Failed to cache:', url, err.message)
                     )
                 )
             );
@@ -32,13 +40,16 @@ self.addEventListener('install', event => {
 
 // ─── 2. ACTIVATE ──────────────────────────────────────────
 self.addEventListener('activate', event => {
-    console.log('[SW] Activating v2...');
+    console.log('[SW] Activating v3...');
     event.waitUntil(
         caches.keys().then(keys =>
             Promise.all(
                 keys
                     .filter(key => key !== CACHE_NAME)
-                    .map(key => caches.delete(key))
+                    .map(key => {
+                        console.log('[SW] Deleting old cache:', key);
+                        return caches.delete(key);
+                    })
             )
         )
     );
@@ -49,26 +60,31 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
 
-    // Skip non-GET requests
+    // Skip non-GET
     if (event.request.method !== 'GET') return;
 
-    // Skip browser extension requests
+    // Skip non-http(s)
     if (!url.protocol.startsWith('http')) return;
 
-    // API Laravel → Network-First
-    if (url.hostname === 'localhost' && url.port === '8000') {
+    // Skip CDN eksternal — biarkan browser handle langsung (no cache)
+    if (SKIP_CACHE_DOMAINS.some(domain => url.hostname.includes(domain))) {
+        return; // tidak intercept, browser fetch normal
+    }
+
+    // API Laravel (localhost:8000/api/*) → Network-First, tidak di-cache
+    if (url.hostname === 'localhost' && url.port === '8000' && url.pathname.startsWith('/api/')) {
         event.respondWith(networkFirst(event.request));
         return;
     }
 
-    // Halaman & aset → Cache-First dengan Network fallback
+    // Halaman & aset lokal → Cache-First dengan Network fallback
     event.respondWith(cacheFirst(event.request));
 });
 
+// ── Cache-First ──
 async function cacheFirst(request) {
     const cached = await caches.match(request);
     if (cached) {
-        console.log('[SW] Cache hit:', request.url);
         return cached;
     }
     try {
@@ -79,8 +95,8 @@ async function cacheFirst(request) {
         }
         return response;
     } catch (err) {
-        console.warn('[SW] Offline, no cache:', request.url);
-        // Fallback ke halaman login kalau halaman tidak ada di cache
+        console.warn('[SW] Offline, no cache for:', request.url);
+        // Fallback ke halaman login
         const fallback = await caches.match('/login');
         return fallback || new Response(
             '<h1>Offline</h1><p>Sambungkan internet untuk melanjutkan.</p>',
@@ -89,39 +105,49 @@ async function cacheFirst(request) {
     }
 }
 
+// ── Network-First (untuk API) ──
 async function networkFirst(request) {
     try {
         return await fetch(request);
     } catch (err) {
-        const cached = await caches.match(request);
-        if (cached) return cached;
+        // API tidak di-cache, kembalikan error JSON
         return new Response(
-            JSON.stringify({ error: 'Offline' }),
-            { status: 503, headers: { 'Content-Type': 'application/json' } }
+            JSON.stringify({ error: 'Offline', message: 'Tidak ada koneksi internet' }),
+            {
+                status: 503,
+                headers: { 'Content-Type': 'application/json' }
+            }
         );
     }
 }
 
 // ─── 4. BACKGROUND SYNC ───────────────────────────────────
 self.addEventListener('sync', event => {
-    console.log('[SW] Sync triggered:', event.tag);
+    console.log('[SW] Background sync triggered:', event.tag);
     if (event.tag === 'sync-konsultasi') {
         event.waitUntil(syncKonsultasi());
     }
 });
 
 async function syncKonsultasi() {
-    const db          = await openDB();
+    let db;
+    try {
+        db = await openDB();
+    } catch (err) {
+        console.error('[SW] Gagal buka IndexedDB:', err);
+        return;
+    }
+
     const pendingData = await getAllPending(db);
+    console.log('[SW] Pending items to sync:', pendingData.length);
 
-    console.log('[SW] Pending items:', pendingData.length);
+    if (!pendingData.length) return;
 
-    // Ambil token dari IndexedDB
     const authData = await getAuthData(db);
     const token    = authData?.token;
 
     if (!token) {
-        console.warn('[SW] Tidak ada token, skip sync');
+        console.warn('[SW] Tidak ada token auth, skip sync');
         return;
     }
 
@@ -144,17 +170,27 @@ async function syncKonsultasi() {
             if (response.ok || response.status === 409) {
                 const result = await response.json();
                 await updateStatus(db, item.id, 'synced', result.server_id);
-                notifyClients({ type: 'SYNC_SUCCESS', local_id: item.id });
-                console.log('[SW] Synced:', item.id);
+
+                // Beritahu semua tab yang terbuka
+                notifyClients({
+                    type:      'SYNC_SUCCESS',
+                    local_id:  item.id,
+                    server_id: result.server_id,
+                });
+
+                console.log('[SW] Synced item:', item.id, '→ server_id:', result.server_id);
+            } else {
+                console.warn('[SW] Sync HTTP error', response.status, 'for item:', item.id);
             }
         } catch (err) {
-            console.error('[SW] Sync failed:', item.id, err);
+            console.error('[SW] Sync failed for item:', item.id, err.message);
+            // Lanjut ke item berikutnya
         }
     }
 }
 
 async function notifyClients(message) {
-    const clients = await self.clients.matchAll();
+    const clients = await self.clients.matchAll({ includeUncontrolled: true });
     clients.forEach(client => client.postMessage(message));
 }
 
@@ -170,7 +206,6 @@ function openDB() {
                 const store = db.createObjectStore('konsultasi', { keyPath: 'id' });
                 store.createIndex('status', 'status', { unique: false });
             }
-            // Store untuk auth token
             if (!db.objectStoreNames.contains('auth')) {
                 db.createObjectStore('auth', { keyPath: 'key' });
             }
@@ -184,7 +219,7 @@ function getAllPending(db) {
         const store   = tx.objectStore('konsultasi');
         const index   = store.index('status');
         const request = index.getAll('pending');
-        request.onsuccess = () => resolve(request.result);
+        request.onsuccess = () => resolve(request.result || []);
         request.onerror   = () => reject(request.error);
     });
 }
@@ -194,7 +229,7 @@ function getAuthData(db) {
         const tx      = db.transaction('auth', 'readonly');
         const store   = tx.objectStore('auth');
         const request = store.get('session');
-        request.onsuccess = () => resolve(request.result);
+        request.onsuccess = () => resolve(request.result || null);
         request.onerror   = () => reject(request.error);
     });
 }
@@ -205,8 +240,9 @@ function updateStatus(db, id, status, server_id = null) {
         const store = tx.objectStore('konsultasi');
         const req   = store.get(id);
         req.onsuccess = () => {
-            const item    = req.result;
-            item.status   = status;
+            const item     = req.result;
+            if (!item) { resolve(); return; }
+            item.status    = status;
             if (server_id) item.server_id = server_id;
             item.synced_at = new Date().toISOString();
             store.put(item);
