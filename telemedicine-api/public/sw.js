@@ -8,6 +8,11 @@ const ASSETS_TO_CACHE = [
     '/pasien',
     '/register',
     '/welcome',
+    '/konsultasi/baru',  // ← tambah ini
+    '/konsultasi',
+    '/riwayat',
+    '/jadwal',
+    '/tim',
 ];
 
 // Domain yang di-skip (tidak di-cache, langsung network)
@@ -97,7 +102,7 @@ async function cacheFirst(request) {
     } catch (err) {
         console.warn('[SW] Offline, no cache for:', request.url);
         // Fallback ke halaman login
-        const fallback = await caches.match('/login');
+        const fallback = await caches.match('/pasien') || await caches.match('/login');
         return fallback || new Response(
             '<h1>Offline</h1><p>Sambungkan internet untuk melanjutkan.</p>',
             { headers: { 'Content-Type': 'text/html' } }
