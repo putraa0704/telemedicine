@@ -10,6 +10,9 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    // Durasi token awal (harus sama dengan IDLE_MINUTES di CheckTokenExpiration)
+    const TOKEN_MINUTES = 30;
+
     // Register pasien
     public function register(Request $request)
     {
@@ -33,7 +36,7 @@ class AuthController extends Controller
         $token = $user->createToken(
             'auth_token',
             ['*'],
-            now()->addMinutes(2)
+            now()->addMinutes(self::TOKEN_MINUTES)
         )->plainTextToken;
 
         return response()->json([
@@ -64,7 +67,7 @@ class AuthController extends Controller
         $token = $user->createToken(
             'auth_token',
             ['*'],
-            now()->addMinutes(2)
+            now()->addMinutes(self::TOKEN_MINUTES)
         )->plainTextToken;
 
         return response()->json([

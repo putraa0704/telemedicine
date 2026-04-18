@@ -27,9 +27,8 @@
     </script>
     <style>
         * { font-family: 'Plus Jakarta Sans', sans-serif; }
-        :root {
-            --sidebar-w: 220px;
-        }
+        :root { --sidebar-w: 220px; }
+
         .nav-link {
             display: flex; align-items: center; gap: 10px;
             padding: 8px 12px; border-radius: 10px;
@@ -41,14 +40,12 @@
         .nav-link svg { flex-shrink: 0; opacity: 0.75; }
         .nav-link.active svg { opacity: 1; }
 
-        /* Mobile overlay */
         #sidebar-overlay {
             display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
             z-index: 40; backdrop-filter: blur(2px);
         }
         #sidebar-overlay.show { display: block; }
 
-        /* Sidebar mobile */
         @media (max-width: 1023px) {
             #main-sidebar {
                 position: fixed; left: -100%; top: 0; bottom: 0; z-index: 50;
@@ -57,12 +54,10 @@
             #main-sidebar.open { left: 0; }
         }
 
-        /* Scrollbar */
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 4px; }
 
-        /* Offline banner */
         #offline-banner {
             background: linear-gradient(90deg, #f59e0b, #d97706);
             color: white; font-size: 12px; font-weight: 500;
@@ -72,11 +67,9 @@
         }
         #offline-banner.show { display: block; }
 
-        /* Page fade in */
         main { animation: fadeIn 0.2s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
-        /* Mobile bottom nav */
         #bottom-nav { display: none; }
         @media (max-width: 767px) {
             #bottom-nav { display: flex; }
@@ -174,7 +167,7 @@
                 </div>
             </div>
 
-            {{-- Admin --}}
+            {{-- Admin (disembunyikan, dishow via JS jika role admin) --}}
             <div id="nav-admin-section" class="hidden">
                 <div class="text-[10px] font-semibold uppercase tracking-widest text-white/30 px-3 mb-2">Admin</div>
                 <div class="space-y-0.5">
@@ -310,17 +303,81 @@
     var token = localStorage.getItem('auth_token');
     var user  = JSON.parse(localStorage.getItem('auth_user') || 'null');
 
-    // ── Interceptor global handle 401 ──
+    // ─────────────────────────────────────────────────────────────
+    // 1. Simpan referensi fetch asli SEBELUM apapun menggunakannya
+    // ─────────────────────────────────────────────────────────────
     const originalFetch = window.fetch;
-    window.fetch = async function(...args) {
 
-        // Tambahkan token otomatis ke semua request
-        if (args[1] && args[1].headers) {
-            // headers sudah ada, biarkan
-        } else if (args[1]) {
-            args[1].headers = args[1].headers || {};
+    // ─────────────────────────────────────────────────────────────
+    // 2. Idle Timeout
+    //    Harus sinkron dengan IDLE_MINUTES di CheckTokenExpiration.php
+    // ─────────────────────────────────────────────────────────────
+    const IDLE_TIMEOUT_MS = 30 * 60 * 1000; // 30 menit
+    const WARN_BEFORE_MS  =  2 * 60 * 1000; //  2 menit sebelum timeout
+
+    var idleTimer    = null;
+    var warnTimer    = null;
+    var warnBannerEl = null;
+    var sessionEnded = false; // guard agar handleSessionExpired tidak dipanggil 2x
+
+    function resetIdleTimer() {
+        if (sessionEnded) return;
+        clearTimeout(idleTimer);
+        clearTimeout(warnTimer);
+        hideWarnBanner();
+
+        warnTimer = setTimeout(showWarnBanner,    IDLE_TIMEOUT_MS - WARN_BEFORE_MS);
+        idleTimer = setTimeout(handleSessionExpired, IDLE_TIMEOUT_MS);
+    }
+
+    function showWarnBanner() {
+        if (sessionEnded) return;
+        if (!warnBannerEl) {
+            warnBannerEl = document.createElement('div');
+            warnBannerEl.id = 'idle-warn-banner';
+            warnBannerEl.style.cssText = [
+                'position:fixed;top:0;left:0;right:0',
+                'background:#f59e0b;color:white',
+                'font-size:13px;font-weight:600',
+                'text-align:center;padding:10px 16px',
+                'z-index:9998',
+                'display:flex;align-items:center;justify-content:center;gap:12px',
+            ].join(';');
+            warnBannerEl.innerHTML =
+                '⚠️ Sesi Anda akan berakhir dalam 2 menit karena tidak aktif. ' +
+                '<button onclick="keepAlive()" style="background:white;color:#92400e;' +
+                'border:none;border-radius:6px;padding:4px 12px;font-size:12px;' +
+                'font-weight:700;cursor:pointer;">Tetap Login</button>';
+            document.body.prepend(warnBannerEl);
         }
+        warnBannerEl.style.display = 'flex';
+    }
 
+    function hideWarnBanner() {
+        if (warnBannerEl) warnBannerEl.style.display = 'none';
+    }
+
+    // Ping server → perpanjang token dari sisi server juga
+    async function keepAlive() {
+        var t = localStorage.getItem('auth_token');
+        if (!t) return;
+        try {
+            await originalFetch('/api/auth/me', {
+                headers: { 'Authorization': 'Bearer ' + t, 'Accept': 'application/json' }
+            });
+        } catch(e) { /* offline — timer sudah di-reset di bawah */ }
+        resetIdleTimer();
+    }
+
+    // Reset timer pada setiap interaksi pengguna (tanpa ping server)
+    ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(function(evt) {
+        document.addEventListener(evt, resetIdleTimer, { passive: true });
+    });
+
+    // ─────────────────────────────────────────────────────────────
+    // 3. Interceptor fetch — tangkap 401 dari server
+    // ─────────────────────────────────────────────────────────────
+    window.fetch = async function(...args) {
         let response;
         try {
             response = await originalFetch(...args);
@@ -328,15 +385,13 @@
             throw e;
         }
 
-        // Handle 401 - session expired atau unauthenticated
         if (response.status === 401) {
             const clone = response.clone();
             try {
                 const data = await clone.json();
                 if (
                     data.message === 'Sesi telah berakhir, silakan login kembali.' ||
-                    data.message === 'Unauthenticated.' ||
-                    data.success === false
+                    data.message === 'Unauthenticated.'
                 ) {
                     handleSessionExpired();
                     return response;
@@ -350,93 +405,83 @@
         return response;
     };
 
+    // ─────────────────────────────────────────────────────────────
+    // 4. Handler sesi berakhir (dipanggil oleh timer ATAU interceptor)
+    // ─────────────────────────────────────────────────────────────
     function handleSessionExpired() {
+        if (sessionEnded) return; // cegah double call
+        sessionEnded = true;
+
+        clearTimeout(idleTimer);
+        clearTimeout(warnTimer);
+        if (warnBannerEl) warnBannerEl.style.display = 'none';
+
         localStorage.removeItem('auth_token');
         localStorage.removeItem('auth_user');
-        
-        // Tampilkan notifikasi
-        showExpiredNotif();
-        
-        // Redirect setelah 2 detik
-        setTimeout(function() {
-            window.location.href = '/login';
-        }, 2000);
-    }
 
-    function showExpiredNotif() {
-        // Hapus notif lama kalau ada
+        // Tampilkan notifikasi
         var existing = document.getElementById('session-expired-notif');
         if (existing) existing.remove();
 
         var notif = document.createElement('div');
         notif.id = 'session-expired-notif';
-        notif.style.cssText = `
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #ef4444;
-            color: white;
-            padding: 14px 24px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            z-index: 9999;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            text-align: center;
-        `;
-        notif.innerHTML = '⚠️ Sesi Anda telah berakhir.<br>Mengalihkan ke halaman login...';
+        notif.style.cssText = [
+            'position:fixed;top:20px;left:50%;transform:translateX(-50%)',
+            'background:#ef4444;color:white',
+            'padding:14px 24px;border-radius:12px',
+            'font-size:14px;font-weight:600',
+            'z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.3)',
+            'text-align:center;white-space:nowrap',
+        ].join(';');
+        notif.innerHTML = '⏱️ Sesi berakhir karena tidak aktif.<br>Mengalihkan ke halaman login...';
         document.body.appendChild(notif);
+
+        setTimeout(function() { window.location.href = '/login'; }, 2000);
     }
 
-    // ── Cek token setiap 30 detik ──
-    function checkTokenValid() {
-        var t = localStorage.getItem('auth_token');
-        if (!t) return;
-
-        // Ping ke server untuk cek token masih valid
-        originalFetch('/api/auth/me', {
-            headers: {
-                'Authorization': 'Bearer ' + t,
-                'Accept': 'application/json'
-            }
-        }).then(function(res) {
-            if (res.status === 401) {
-                handleSessionExpired();
-            }
-        }).catch(function() {
-            // Offline, skip
-        });
-    }
-
-    // Jalankan pengecekan token setiap 30 detik
-    setInterval(checkTokenValid, 30000);
-
-    // ── Setup user info di navbar ──
+    // ─────────────────────────────────────────────────────────────
+    // 5. Setup navbar user info
+    // ─────────────────────────────────────────────────────────────
     if (user) {
-        var initials = user.name.split(' ').map(function(w){ return w[0]; }).join('').substring(0,2).toUpperCase();
-        if(document.getElementById('nav-avatar'))    document.getElementById('nav-avatar').textContent    = initials;
-        if(document.getElementById('mobile-avatar')) document.getElementById('mobile-avatar').textContent = initials;
-        if(document.getElementById('nav-name'))      document.getElementById('nav-name').textContent      = user.name;
-        if(document.getElementById('nav-role'))      document.getElementById('nav-role').textContent      = user.role;
+        var initials = user.name
+            .split(' ')
+            .map(function(w) { return w[0] || ''; })
+            .join('')
+            .substring(0, 2)
+            .toUpperCase();
 
-        var dashLink = document.getElementById('nav-dashboard');
-        if (dashLink) {
-            if (user.role === 'dokter' || user.role === 'admin') dashLink.href = '/dokter';
+        var navAvatar   = document.getElementById('nav-avatar');
+        var mobileAvat  = document.getElementById('mobile-avatar');
+        var navName     = document.getElementById('nav-name');
+        var navRole     = document.getElementById('nav-role');
+        var navDashLink = document.getElementById('nav-dashboard');
+
+        if (navAvatar)   navAvatar.textContent  = initials;
+        if (mobileAvat)  mobileAvat.textContent  = initials;
+        if (navName)     navName.textContent      = user.name;
+        if (navRole)     navRole.textContent      = user.role;
+
+        // Ubah link dashboard sesuai role
+        if (navDashLink && (user.role === 'dokter' || user.role === 'admin')) {
+            navDashLink.href = '/dokter';
         }
+
+        // Tampilkan menu admin
         if (user.role === 'admin') {
             var adminSection = document.getElementById('nav-admin-section');
             if (adminSection) adminSection.classList.remove('hidden');
         }
     }
 
-    // ── Active nav ──
+    // ─────────────────────────────────────────────────────────────
+    // 6. Active nav highlight
+    // ─────────────────────────────────────────────────────────────
     var path = window.location.pathname;
+
     document.querySelectorAll('.nav-link').forEach(function(el) {
         if (el.getAttribute('href') === path) el.classList.add('active');
     });
 
-    // ── Bottom nav active ──
     document.querySelectorAll('#bottom-nav a').forEach(function(el) {
         if (el.getAttribute('href') === path) {
             el.classList.add('text-brand-600');
@@ -444,53 +489,63 @@
         }
     });
 
-    // ── Sidebar toggle ──
+    // ─────────────────────────────────────────────────────────────
+    // 7. Sidebar toggle
+    // ─────────────────────────────────────────────────────────────
     function toggleSidebar() {
-        var sidebar = document.getElementById('main-sidebar');
-        var overlay = document.getElementById('sidebar-overlay');
-        sidebar.classList.toggle('open');
-        overlay.classList.toggle('show');
+        document.getElementById('main-sidebar').classList.toggle('open');
+        document.getElementById('sidebar-overlay').classList.toggle('show');
     }
     function closeSidebar() {
         document.getElementById('main-sidebar').classList.remove('open');
         document.getElementById('sidebar-overlay').classList.remove('show');
     }
 
-    // ── Offline banner ──
+    // ─────────────────────────────────────────────────────────────
+    // 8. Offline banner
+    // ─────────────────────────────────────────────────────────────
     function updateOnlineStatus() {
         var b = document.getElementById('offline-banner');
-        if (!navigator.onLine) b.classList.add('show');
-        else b.classList.remove('show');
+        if (!b) return;
+        navigator.onLine ? b.classList.remove('show') : b.classList.add('show');
     }
-    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('online',  updateOnlineStatus);
     window.addEventListener('offline', updateOnlineStatus);
     updateOnlineStatus();
 
-    // ── Logout ──
+    // ─────────────────────────────────────────────────────────────
+    // 9. Logout
+    // ─────────────────────────────────────────────────────────────
     async function logout() {
         var t = localStorage.getItem('auth_token');
         if (t) {
-            try { 
-                await originalFetch('/api/auth/logout', { 
-                    method: 'POST', 
-                    headers: { 
-                        'Authorization': 'Bearer ' + t,
-                        'Accept': 'application/json'
-                    } 
-                }); 
-            } catch(e) {}
+            try {
+                await originalFetch('/api/auth/logout', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + t, 'Accept': 'application/json' }
+                });
+            } catch(e) { /* abaikan error jaringan */ }
         }
         localStorage.removeItem('auth_token');
         localStorage.removeItem('auth_user');
         window.location.href = '/login';
     }
 
-    // ── Service Worker ──
+    // ─────────────────────────────────────────────────────────────
+    // 10. Service Worker
+    // ─────────────────────────────────────────────────────────────
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js').catch(console.error);
         navigator.serviceWorker.addEventListener('message', function(e) {
             if (e.data.type === 'SYNC_SUCCESS' && typeof renderUI === 'function') renderUI();
         });
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // 11. Mulai idle timer (hanya jika user sudah login)
+    // ─────────────────────────────────────────────────────────────
+    if (token && user) {
+        resetIdleTimer();
     }
 </script>
 
