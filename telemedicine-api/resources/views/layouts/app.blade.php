@@ -142,7 +142,7 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
                             <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
                         </svg>
-                        Jadwal Dokter
+                        Jadwal Saya
                     </a>
                     <a href="/tim" class="nav-link @yield('nav_tim')">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
@@ -150,7 +150,7 @@
                             <circle cx="9" cy="7" r="4"/>
                             <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
                         </svg>
-                        Tim Dokter
+                        Jadwal Dokter Lainnya
                     </a>
                 </div>
             </div>
@@ -310,12 +310,115 @@
     var token = localStorage.getItem('auth_token');
     var user  = JSON.parse(localStorage.getItem('auth_user') || 'null');
 
+    // ── Interceptor global handle 401 ──
+    const originalFetch = window.fetch;
+    window.fetch = async function(...args) {
+
+        // Tambahkan token otomatis ke semua request
+        if (args[1] && args[1].headers) {
+            // headers sudah ada, biarkan
+        } else if (args[1]) {
+            args[1].headers = args[1].headers || {};
+        }
+
+        let response;
+        try {
+            response = await originalFetch(...args);
+        } catch(e) {
+            throw e;
+        }
+
+        // Handle 401 - session expired atau unauthenticated
+        if (response.status === 401) {
+            const clone = response.clone();
+            try {
+                const data = await clone.json();
+                if (
+                    data.message === 'Sesi telah berakhir, silakan login kembali.' ||
+                    data.message === 'Unauthenticated.' ||
+                    data.success === false
+                ) {
+                    handleSessionExpired();
+                    return response;
+                }
+            } catch(e) {
+                handleSessionExpired();
+                return response;
+            }
+        }
+
+        return response;
+    };
+
+    function handleSessionExpired() {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('auth_user');
+        
+        // Tampilkan notifikasi
+        showExpiredNotif();
+        
+        // Redirect setelah 2 detik
+        setTimeout(function() {
+            window.location.href = '/login';
+        }, 2000);
+    }
+
+    function showExpiredNotif() {
+        // Hapus notif lama kalau ada
+        var existing = document.getElementById('session-expired-notif');
+        if (existing) existing.remove();
+
+        var notif = document.createElement('div');
+        notif.id = 'session-expired-notif';
+        notif.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ef4444;
+            color: white;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 9999;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            text-align: center;
+        `;
+        notif.innerHTML = '⚠️ Sesi Anda telah berakhir.<br>Mengalihkan ke halaman login...';
+        document.body.appendChild(notif);
+    }
+
+    // ── Cek token setiap 30 detik ──
+    function checkTokenValid() {
+        var t = localStorage.getItem('auth_token');
+        if (!t) return;
+
+        // Ping ke server untuk cek token masih valid
+        originalFetch('/api/auth/me', {
+            headers: {
+                'Authorization': 'Bearer ' + t,
+                'Accept': 'application/json'
+            }
+        }).then(function(res) {
+            if (res.status === 401) {
+                handleSessionExpired();
+            }
+        }).catch(function() {
+            // Offline, skip
+        });
+    }
+
+    // Jalankan pengecekan token setiap 30 detik
+    setInterval(checkTokenValid, 30000);
+
+    // ── Setup user info di navbar ──
     if (user) {
         var initials = user.name.split(' ').map(function(w){ return w[0]; }).join('').substring(0,2).toUpperCase();
-        if(document.getElementById('nav-avatar')) document.getElementById('nav-avatar').textContent = initials;
+        if(document.getElementById('nav-avatar'))    document.getElementById('nav-avatar').textContent    = initials;
         if(document.getElementById('mobile-avatar')) document.getElementById('mobile-avatar').textContent = initials;
-        if(document.getElementById('nav-name')) document.getElementById('nav-name').textContent = user.name;
-        if(document.getElementById('nav-role')) document.getElementById('nav-role').textContent = user.role;
+        if(document.getElementById('nav-name'))      document.getElementById('nav-name').textContent      = user.name;
+        if(document.getElementById('nav-role'))      document.getElementById('nav-role').textContent      = user.role;
 
         var dashLink = document.getElementById('nav-dashboard');
         if (dashLink) {
@@ -327,13 +430,13 @@
         }
     }
 
-    // Active nav
+    // ── Active nav ──
     var path = window.location.pathname;
     document.querySelectorAll('.nav-link').forEach(function(el) {
         if (el.getAttribute('href') === path) el.classList.add('active');
     });
 
-    // Bottom nav active
+    // ── Bottom nav active ──
     document.querySelectorAll('#bottom-nav a').forEach(function(el) {
         if (el.getAttribute('href') === path) {
             el.classList.add('text-brand-600');
@@ -341,7 +444,7 @@
         }
     });
 
-    // Sidebar toggle
+    // ── Sidebar toggle ──
     function toggleSidebar() {
         var sidebar = document.getElementById('main-sidebar');
         var overlay = document.getElementById('sidebar-overlay');
@@ -353,7 +456,7 @@
         document.getElementById('sidebar-overlay').classList.remove('show');
     }
 
-    // Offline
+    // ── Offline banner ──
     function updateOnlineStatus() {
         var b = document.getElementById('offline-banner');
         if (!navigator.onLine) b.classList.add('show');
@@ -363,17 +466,26 @@
     window.addEventListener('offline', updateOnlineStatus);
     updateOnlineStatus();
 
-    // Logout
+    // ── Logout ──
     async function logout() {
-        if (token) {
-            try { await fetch('/api/auth/logout', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } }); } catch(e) {}
+        var t = localStorage.getItem('auth_token');
+        if (t) {
+            try { 
+                await originalFetch('/api/auth/logout', { 
+                    method: 'POST', 
+                    headers: { 
+                        'Authorization': 'Bearer ' + t,
+                        'Accept': 'application/json'
+                    } 
+                }); 
+            } catch(e) {}
         }
         localStorage.removeItem('auth_token');
         localStorage.removeItem('auth_user');
         window.location.href = '/login';
     }
 
-    // SW
+    // ── Service Worker ──
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js').catch(console.error);
         navigator.serviceWorker.addEventListener('message', function(e) {

@@ -25,12 +25,16 @@ class AuthController extends Controller
             'name'     => $request->name,
             'email'    => $request->email,
             'password' => Hash::make($request->password),
-            'role'     => 'pasien', // default selalu pasien
+            'role'     => 'pasien',
             'no_hp'    => $request->no_hp,
             'alamat'   => $request->alamat,
         ]);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $user->createToken(
+            'auth_token',
+            ['*'],
+            now()->addMinutes(2)
+        )->plainTextToken;
 
         return response()->json([
             'success' => true,
@@ -57,7 +61,11 @@ class AuthController extends Controller
 
         // Hapus token lama, buat baru
         $user->tokens()->delete();
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $user->createToken(
+            'auth_token',
+            ['*'],
+            now()->addMinutes(2)
+        )->plainTextToken;
 
         return response()->json([
             'success' => true,
