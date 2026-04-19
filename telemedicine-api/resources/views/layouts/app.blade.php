@@ -312,8 +312,8 @@
     // 2. Idle Timeout
     //    Harus sinkron dengan IDLE_MINUTES di CheckTokenExpiration.php
     // ─────────────────────────────────────────────────────────────
-    const IDLE_TIMEOUT_MS = 30 * 60 * 1000; // 30 menit
-    const WARN_BEFORE_MS  =  2 * 60 * 1000; //  2 menit sebelum timeout
+    const IDLE_TIMEOUT_MS = 30 * 60 * 1000; // 2 menit (untuk testing)
+    const WARN_BEFORE_MS  = 30 * 1000;     // 30 detik sebelum timeout
 
     var idleTimer    = null;
     var warnTimer    = null;
@@ -326,6 +326,7 @@
         clearTimeout(warnTimer);
         hideWarnBanner();
 
+        console.log('⏱️ Idle timer reset - Token active for next 2 minutes');
         warnTimer = setTimeout(showWarnBanner,    IDLE_TIMEOUT_MS - WARN_BEFORE_MS);
         idleTimer = setTimeout(handleSessionExpired, IDLE_TIMEOUT_MS);
     }
@@ -385,18 +386,18 @@
             throw e;
         }
 
+        // Jika response 401 (Unauthorized), token sudah expired
         if (response.status === 401) {
+            console.warn('🔴 401 Unauthorized detected - handling session expiration');
             const clone = response.clone();
             try {
                 const data = await clone.json();
-                if (
-                    data.message === 'Sesi telah berakhir, silakan login kembali.' ||
-                    data.message === 'Unauthenticated.'
-                ) {
-                    handleSessionExpired();
-                    return response;
-                }
+                console.warn('401 Response:', data);
+                handleSessionExpired();
+                return response;
             } catch(e) {
+                // Jika response bukan JSON, tangkap juga sebagai 401
+                console.warn('401 Response (non-JSON):', response.statusText);
                 handleSessionExpired();
                 return response;
             }
@@ -411,6 +412,7 @@
     function handleSessionExpired() {
         if (sessionEnded) return; // cegah double call
         sessionEnded = true;
+        console.error('❌ SESSION EXPIRED - Redirecting to login...');
 
         clearTimeout(idleTimer);
         clearTimeout(warnTimer);
@@ -436,7 +438,10 @@
         notif.innerHTML = '⏱️ Sesi berakhir karena tidak aktif.<br>Mengalihkan ke halaman login...';
         document.body.appendChild(notif);
 
-        setTimeout(function() { window.location.href = '/login'; }, 2000);
+        setTimeout(function() { 
+            console.log('Redirecting to /login');
+            window.location.href = '/login'; 
+        }, 2000);
     }
 
     // ─────────────────────────────────────────────────────────────
