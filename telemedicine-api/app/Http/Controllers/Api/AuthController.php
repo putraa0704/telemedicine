@@ -17,20 +17,38 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'no_hp'    => 'nullable|string|max:20',
-            'alamat'   => 'nullable|string',
+            'no_hp' => 'nullable|string|max:20',
+            'alamat' => 'nullable|string',
+            'role' => 'nullable|in:pasien,dokter',
+            'spesialisasi' => 'nullable|string|max:100',
+            'no_str' => 'nullable|string|max:100',
         ]);
 
+        $targetRole = 'pasien';
+        $requestedRole = $request->input('role');
+        if ($requestedRole === 'dokter') {
+            $actor = auth('sanctum')->user();
+            if (!$actor || $actor->role !== 'admin') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Hanya admin yang dapat membuat akun dokter.',
+                ], 403);
+            }
+            $targetRole = 'dokter';
+        }
+
         $user = User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
+            'name' => $request->name,
+            'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role'     => 'pasien',
-            'no_hp'    => $request->no_hp,
-            'alamat'   => $request->alamat,
+            'role' => $targetRole,
+            'no_hp' => $request->no_hp,
+            'alamat' => $request->alamat,
+            'spesialisasi' => $targetRole === 'dokter' ? $request->spesialisasi : null,
+            'no_str' => $targetRole === 'dokter' ? $request->no_str : null,
         ]);
 
         $token = $user->createToken(
@@ -41,8 +59,39 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'user'    => $user,
-            'token'   => $token,
+            'user' => $user,
+            'token' => $token,
+        ], 201);
+    }
+
+    // Register dokter (admin only)
+    public function registerDokter(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+            'no_hp' => 'nullable|string|max:20',
+            'alamat' => 'nullable|string',
+            'spesialisasi' => 'nullable|string|max:100',
+            'no_str' => 'nullable|string|max:100',
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => 'dokter',
+            'no_hp' => $request->no_hp,
+            'alamat' => $request->alamat,
+            'spesialisasi' => $request->spesialisasi,
+            'no_str' => $request->no_str,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Dokter berhasil ditambahkan',
+            'user' => $user,
         ], 201);
     }
 
@@ -50,7 +99,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email'    => 'required|email',
+            'email' => 'required|email',
             'password' => 'required|string',
         ]);
 
@@ -72,9 +121,9 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'user'    => $user,
-            'token'   => $token,
-            'role'    => $user->role,
+            'user' => $user,
+            'token' => $token,
+            'role' => $user->role,
         ]);
     }
 

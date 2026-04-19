@@ -152,7 +152,8 @@
             }
             localStorage.setItem('auth_token', data.token);
             localStorage.setItem('auth_user', JSON.stringify(data.user));
-            window.location.href = '/pasien';
+            // Pasien baru → chatbot welcome
+            window.location.href = '/welcome';
         } catch (e) {
             errDiv.textContent = 'Gagal terhubung ke server.';
             errDiv.classList.add('show');

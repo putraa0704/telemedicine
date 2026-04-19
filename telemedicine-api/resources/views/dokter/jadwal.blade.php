@@ -1,83 +1,77 @@
 @extends('layouts.app')
 
-@section('title', 'Jadwal Dokter')
-@section('page_title', 'Jadwal Dokter')
-@section('page_sub', 'Lihat jadwal dokter yang tersedia')
-@section('nav_jadwal', 'active')
+@section('title', 'Kelola Jadwal Dokter')
+@section('page_title', 'Kelola Jadwal Dokter')
+@section('page_sub', 'Halaman pengaturan jadwal khusus admin')
 
 @section('content')
 
-{{-- Date Picker --}}
-<div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 mb-5">
-    <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-        <div class="flex items-center gap-3 flex-1">
-            <div class="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
-                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
-                </svg>
-            </div>
-            <div>
-                <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Pilih Tanggal</label>
-                <input type="date" id="tanggal-picker" value="{{ date('Y-m-d') }}"
-                    class="text-sm font-medium text-slate-800 border-none outline-none bg-transparent p-0 mt-0.5"/>
-            </div>
-        </div>
-        <div class="flex items-center gap-2">
-            <span id="hari-label" class="text-[12px] text-slate-400 font-medium"></span>
-            <button onclick="loadJadwal()"
-                class="px-4 py-2 bg-brand-600 hover:bg-brand-800 text-white text-[12px] font-semibold rounded-xl transition-colors">
-                Cari Jadwal
-            </button>
-        </div>
+{{-- Hari Ini Card --}}
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5" id="stat-cards">
+    <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm col-span-2 sm:col-span-1">
+        <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Hari Ini</div>
+        <div class="text-xl font-bold text-brand-600" id="stat-hari">—</div>
+        <div class="text-[11px] text-slate-400 mt-1" id="stat-tanggal">—</div>
+    </div>
+    <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+        <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Jadwal Aktif</div>
+        <div class="text-2xl font-bold text-emerald-600" id="stat-aktif">—</div>
+        <div class="text-[11px] text-slate-400 mt-1">slot/minggu</div>
+    </div>
+    <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+        <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Hari Praktik</div>
+        <div class="text-2xl font-bold text-slate-800" id="stat-hari-praktik">—</div>
+        <div class="text-[11px] text-slate-400 mt-1">hari/minggu</div>
+    </div>
+    <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+        <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Jam Hari Ini</div>
+        <div class="text-[13px] font-bold text-amber-600" id="stat-jam-hari-ini">—</div>
     </div>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-4">
-
-    {{-- KIRI: Slot Hari Ini --}}
-    <div class="space-y-4">
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-            <div class="px-4 py-3.5 border-b border-slate-100">
-                <h2 class="text-[13px] font-semibold text-slate-800">Jadwal Tersedia</h2>
-            </div>
-            <div id="jadwal-list" class="p-3 space-y-2">
-                <div class="py-6 text-center text-[12px] text-slate-400">Memuat jadwal...</div>
-            </div>
-        </div>
-
-        {{-- Tim Dokter --}}
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-            <div class="px-4 py-3.5 border-b border-slate-100">
-                <h2 class="text-[13px] font-semibold text-slate-800">Tim Dokter Aktif</h2>
-            </div>
-            <div id="dokter-list" class="p-3 space-y-2">
-                <div class="py-4 text-center text-[12px] text-slate-400">Memuat...</div>
-            </div>
+{{-- Jadwal Per Hari --}}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div class="space-y-3" id="jadwal-list-left">
+        <div class="bg-white rounded-2xl border border-slate-100 p-6 text-center text-slate-400 text-sm">
+            Memuat jadwal...
         </div>
     </div>
+    <div class="space-y-3" id="jadwal-list-right"></div>
+</div>
 
-    {{-- KANAN: Tabel Mingguan --}}
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div class="px-4 py-3.5 border-b border-slate-100">
-            <h2 class="text-[13px] font-semibold text-slate-800">Jadwal Minggu Ini</h2>
+{{-- Tambah Jadwal --}}
+<div class="mt-5 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+    <div class="px-5 py-3.5 border-b border-slate-100">
+        <span class="text-[13px] font-semibold text-slate-800">Tambah Jadwal Baru</span>
+    </div>
+    <div class="p-5">
+        <div id="jadwal-success" class="hidden bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm px-4 py-3 rounded-xl mb-4"></div>
+        <div id="jadwal-error" class="hidden bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl mb-4"></div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Hari</label>
+                <select id="f-hari" class="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-brand-600 bg-slate-50">
+                    <option value="senin">Senin</option>
+                    <option value="selasa">Selasa</option>
+                    <option value="rabu">Rabu</option>
+                    <option value="kamis">Kamis</option>
+                    <option value="jumat">Jumat</option>
+                    <option value="sabtu">Sabtu</option>
+                    <option value="minggu">Minggu</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Jam Mulai</label>
+                <input id="f-mulai" type="time" value="08:00" class="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-brand-600 bg-slate-50"/>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Jam Selesai</label>
+                <input id="f-selesai" type="time" value="09:00" class="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-brand-600 bg-slate-50"/>
+            </div>
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-[11px]" style="min-width:420px;">
-                <thead class="bg-slate-50 border-b border-slate-100">
-                    <tr>
-                        <th class="px-3 py-3 text-left font-semibold text-slate-500">Waktu</th>
-                        <th class="px-2 py-3 text-center font-semibold text-slate-500">Senin</th>
-                        <th class="px-2 py-3 text-center font-semibold text-slate-500">Selasa</th>
-                        <th class="px-2 py-3 text-center font-semibold text-slate-500">Rabu</th>
-                        <th class="px-2 py-3 text-center font-semibold text-slate-500">Kamis</th>
-                        <th class="px-2 py-3 text-center font-semibold text-slate-500">Jumat</th>
-                    </tr>
-                </thead>
-                <tbody id="tabel-mingguan" class="divide-y divide-slate-50">
-                    <tr><td colspan="6" class="px-3 py-6 text-center text-slate-400">Memuat...</td></tr>
-                </tbody>
-            </table>
-        </div>
+        <button onclick="tambahJadwal()" class="mt-4 bg-brand-600 hover:bg-brand-800 text-white font-semibold px-6 py-2.5 rounded-xl text-sm transition-colors">
+            + Tambah Jadwal
+        </button>
     </div>
 </div>
 
@@ -88,100 +82,216 @@
     var token = localStorage.getItem('auth_token');
     var user  = JSON.parse(localStorage.getItem('auth_user') || 'null');
     if (!token || !user) window.location.href = '/login';
+    if (user && user.role === 'pasien') window.location.href = '/pasien';
+    if (user && user.role === 'dokter') window.location.href = '/dokter/jadwal-saya';
+    if (user && user.role !== 'admin') window.location.href = '/login';
 
-    const HARI      = ['minggu','senin','selasa','rabu','kamis','jumat','sabtu'];
+    const HARI_LIST  = ['senin','selasa','rabu','kamis','jumat','sabtu','minggu'];
     const HARI_LABEL = { senin:'Senin', selasa:'Selasa', rabu:'Rabu', kamis:'Kamis', jumat:'Jumat', sabtu:'Sabtu', minggu:'Minggu' };
+    const DAY_TO_NAMA = ['minggu','senin','selasa','rabu','kamis','jumat','sabtu'];
+
+    var todayNama = DAY_TO_NAMA[new Date().getDay()];
+    var todayFull = new Date().toLocaleDateString('id-ID', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+    // Update stat cards
+    document.getElementById('stat-hari').textContent = HARI_LABEL[todayNama] || '—';
+    document.getElementById('stat-tanggal').textContent = todayFull;
+
+    var allJadwal = [];
 
     async function loadJadwal() {
-        var tanggal = document.getElementById('tanggal-picker').value;
-        if (!tanggal) return;
-        var hariIdx = new Date(tanggal + 'T12:00:00').getDay();
-        document.getElementById('hari-label').textContent = HARI_LABEL[HARI[hariIdx]] || '';
-        document.getElementById('jadwal-list').innerHTML = '<div class="py-4 text-center text-[12px] text-slate-400">Memuat...</div>';
         try {
-            var res  = await fetch('/api/jadwal?tanggal=' + tanggal, { headers: { 'Authorization': 'Bearer ' + token } });
-            var data = await res.json();
-            renderJadwal(data.jadwal || []);
+            var res = await fetch('/api/jadwal/mingguan', { headers: { 'Authorization': 'Bearer ' + token } });
+            var mingguan = await res.json();
+
+            // Filter hanya jadwal dokter ini dari mingguan
+            // Kita juga perlu fetch detail dokter untuk filter by dokter_id
+            var resDetail = await fetch('/api/tim-dokter/' + user.id, { headers: { 'Authorization': 'Bearer ' + token } });
+            var dokterDetail = await resDetail.json();
+            var myJadwal = dokterDetail.jadwal || [];
+
+            // Group my jadwal per hari
+            var grouped = {};
+            myJadwal.forEach(function(hari_data) {
+                grouped[hari_data.hari ? hari_data.hari.toLowerCase() : ''] = hari_data.slots || [];
+            });
+
+            // Hitung stats
+            var totalSlots = 0;
+            var hariAktif = 0;
+            var jamHariIni = [];
+
+            HARI_LIST.forEach(function(hari) {
+                var slots = grouped[hari] || [];
+                if (slots.length) {
+                    totalSlots += slots.length;
+                    hariAktif++;
+                }
+                if (hari === todayNama) {
+                    jamHariIni = slots;
+                }
+            });
+
+            document.getElementById('stat-aktif').textContent = totalSlots;
+            document.getElementById('stat-hari-praktik').textContent = hariAktif;
+            document.getElementById('stat-jam-hari-ini').textContent = jamHariIni.length
+                ? jamHariIni.map(function(s) { return s.waktu; }).join(', ')
+                : 'Tidak praktik';
+
+            renderJadwalCards(grouped);
         } catch(e) {
-            document.getElementById('jadwal-list').innerHTML = '<div class="py-4 text-center text-[12px] text-red-400">Gagal memuat jadwal</div>';
+            // Fallback: load from /api/jadwal/mingguan dan filter by dokter name
+            loadJadwalFallback();
         }
     }
 
-    function renderJadwal(list) {
-        var el = document.getElementById('jadwal-list');
-        if (!list.length) {
-            el.innerHTML = '<div class="py-8 text-center"><div class="w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center mx-auto mb-2"><svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div><p class="text-[12px] text-slate-400">Tidak ada jadwal hari ini</p></div>';
-            return;
-        }
-        el.innerHTML = list.map(slot => `
-            <div class="flex items-center justify-between px-3.5 py-3 rounded-xl border border-slate-100 hover:border-brand-200 hover:bg-blue-50/30 transition-all">
-                <div>
-                    <div class="text-[13px] font-semibold text-slate-800">${slot.waktu}</div>
-                    <div class="text-[11px] text-slate-400 mt-0.5">${slot.dokter} · ${slot.spesialisasi || ''}</div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg">Tersedia</span>
-                    <a href="/konsultasi/baru" class="text-[10px] font-semibold text-brand-600 hover:underline">Pesan</a>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    async function loadTimDokter() {
+    async function loadJadwalFallback() {
         try {
-            var res  = await fetch('/api/tim-dokter', { headers: { 'Authorization': 'Bearer ' + token } });
+            var res = await fetch('/api/jadwal/mingguan', { headers: { 'Authorization': 'Bearer ' + token } });
             var data = await res.json();
-            document.getElementById('dokter-list').innerHTML = data.slice(0,4).map(dr => `
-                <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-slate-100 hover:border-brand-200 transition-all">
-                    <div class="w-9 h-9 rounded-xl flex items-center justify-center text-[11px] font-bold flex-shrink-0
-                        ${dr.status === 'sibuk' ? 'bg-red-50 text-red-700' : 'bg-blue-50 text-blue-800'}">
-                        ${dr.inisial}
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="text-[12px] font-semibold text-slate-800 truncate">${dr.nama}</div>
-                        <div class="text-[10px] text-slate-400">${dr.spesialisasi} · ${dr.pasien_aktif} pasien</div>
-                    </div>
-                    <span class="text-[9px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0
-                        ${dr.status === 'sibuk' ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}">
-                        ${dr.status === 'sibuk' ? 'Sibuk' : 'OK'}
-                    </span>
-                </div>
-            `).join('');
+
+            var grouped = {};
+            var totalSlots = 0, hariAktif = 0;
+            var jamHariIni = [];
+
+            HARI_LIST.forEach(function(hari) {
+                var slots = (data[hari] || []).filter(function(s) {
+                    return s.dokter && s.dokter.toLowerCase().includes(user.name.split(' ')[1] ? user.name.split(' ')[1].toLowerCase() : user.name.toLowerCase());
+                });
+                if (!slots.length) {
+                    // If can't filter by name, show all for this day
+                    slots = data[hari] || [];
+                }
+                grouped[hari] = slots;
+                if (slots.length) { totalSlots += slots.length; hariAktif++; }
+                if (hari === todayNama) jamHariIni = slots;
+            });
+
+            document.getElementById('stat-aktif').textContent = totalSlots;
+            document.getElementById('stat-hari-praktik').textContent = hariAktif;
+            document.getElementById('stat-jam-hari-ini').textContent = jamHariIni.length
+                ? jamHariIni.map(function(s) { return s.waktu; }).join(', ')
+                : 'Tidak praktik';
+
+            renderJadwalCards(grouped);
         } catch(e) {
-            document.getElementById('dokter-list').innerHTML = '<div class="py-4 text-center text-[12px] text-slate-400">Gagal memuat</div>';
+            document.getElementById('jadwal-list-left').innerHTML = '<div class="bg-white rounded-2xl border border-slate-100 p-6 text-center text-red-400 text-sm">Gagal memuat jadwal</div>';
         }
     }
 
-    async function loadMingguan() {
-        try {
-            var res  = await fetch('/api/jadwal/mingguan', { headers: { 'Authorization': 'Bearer ' + token } });
-            var data = await res.json();
-            var hariList = ['senin','selasa','rabu','kamis','jumat'];
-            var waktuSet = new Set();
-            hariList.forEach(h => (data[h] || []).forEach(s => waktuSet.add(s.waktu)));
-            var waktuList = [...waktuSet].sort();
-            if (!waktuList.length) {
-                document.getElementById('tabel-mingguan').innerHTML = '<tr><td colspan="6" class="px-3 py-6 text-center text-slate-400">Belum ada jadwal</td></tr>';
-                return;
+    function renderJadwalCards(grouped) {
+        var leftHtml = '', rightHtml = '';
+
+        HARI_LIST.forEach(function(hari, idx) {
+            var slots = grouped[hari] || [];
+            var isToday = hari === todayNama;
+            var hasPraktik = slots.length > 0;
+
+            var card = '<div class="bg-white rounded-2xl border ' +
+                (isToday ? 'border-brand-300 shadow-md ring-2 ring-brand-100' : 'border-slate-100 shadow-sm') +
+                ' overflow-hidden">' +
+                '<div class="px-4 py-3 flex items-center justify-between ' +
+                (isToday ? 'bg-brand-600' : hasPraktik ? 'bg-slate-50' : 'bg-slate-50') + '">' +
+                '<div class="flex items-center gap-2">';
+
+            if (isToday) {
+                card += '<span class="w-2 h-2 rounded-full bg-emerald-300 animate-pulse"></span>';
+                card += '<span class="text-[13px] font-bold text-white">' + HARI_LABEL[hari] + '</span>';
+                card += '<span class="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full font-semibold">Hari ini</span>';
+            } else {
+                card += '<span class="w-2 h-2 rounded-full ' + (hasPraktik ? 'bg-emerald-400' : 'bg-slate-300') + '"></span>';
+                card += '<span class="text-[13px] font-semibold ' + (hasPraktik ? 'text-slate-800' : 'text-slate-400') + '">' + HARI_LABEL[hari] + '</span>';
             }
-            document.getElementById('tabel-mingguan').innerHTML = waktuList.map(waktu => `
-                <tr class="hover:bg-slate-50 transition-colors">
-                    <td class="px-3 py-2.5 font-semibold text-slate-700 whitespace-nowrap">${waktu}</td>
-                    ${hariList.map(h => {
-                        var slot = (data[h] || []).find(s => s.waktu === waktu);
-                        return '<td class="px-2 py-2.5 text-center">' +
-                            (slot ? '<span class="text-[10px] font-medium text-slate-700 bg-blue-50 px-1.5 py-0.5 rounded-lg whitespace-nowrap">' + slot.dokter.replace('Dr. ','Dr.') + '</span>' : '<span class="text-slate-200">—</span>') +
-                            '</td>';
-                    }).join('')}
-                </tr>
-            `).join('');
+
+            card += '</div>';
+
+            if (hasPraktik) {
+                card += '<span class="text-[10px] font-semibold ' + (isToday ? 'text-white/70' : 'text-emerald-600') + '">' +
+                    slots.length + ' slot</span>';
+            } else {
+                card += '<span class="text-[10px] text-slate-300 italic">Libur</span>';
+            }
+
+            card += '</div>'; // end header
+
+            if (hasPraktik) {
+                card += '<div class="px-4 py-3 space-y-2">';
+                slots.forEach(function(slot) {
+                    card += '<div class="flex items-center justify-between px-3 py-2 bg-slate-50 rounded-xl border border-slate-100">' +
+                        '<div class="flex items-center gap-2">' +
+                        '<svg class="w-3.5 h-3.5 text-brand-600 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' +
+                        '<span class="text-[12px] font-semibold text-slate-700">' + slot.waktu + '</span>' +
+                        '</div>' +
+                        '<button onclick="hapusJadwal(' + slot.id + ')" class="text-[10px] text-red-400 hover:text-red-600 hover:bg-red-50 px-2 py-0.5 rounded-lg transition-colors">Hapus</button>' +
+                        '</div>';
+                });
+                card += '</div>';
+            } else {
+                card += '<div class="px-4 py-4 text-center text-[12px] text-slate-300 italic">Tidak ada jadwal</div>';
+            }
+
+            card += '</div>'; // end card
+
+            if (idx % 2 === 0) { leftHtml += card; }
+            else { rightHtml += card; }
+        });
+
+        document.getElementById('jadwal-list-left').innerHTML = leftHtml || '<div class="bg-white rounded-2xl border border-slate-100 p-6 text-center text-slate-400 text-sm">Tidak ada jadwal</div>';
+        document.getElementById('jadwal-list-right').innerHTML = rightHtml;
+    }
+
+    async function tambahJadwal() {
+        var sucEl = document.getElementById('jadwal-success');
+        var errEl = document.getElementById('jadwal-error');
+        sucEl.classList.add('hidden'); errEl.classList.add('hidden');
+
+        var hari     = document.getElementById('f-hari').value;
+        var mulai    = document.getElementById('f-mulai').value;
+        var selesai  = document.getElementById('f-selesai').value;
+
+        if (!mulai || !selesai) { errEl.textContent = 'Jam mulai dan selesai wajib diisi'; errEl.classList.remove('hidden'); return; }
+        if (mulai >= selesai)   { errEl.textContent = 'Jam selesai harus setelah jam mulai'; errEl.classList.remove('hidden'); return; }
+
+        try {
+            var res = await fetch('/api/jadwal', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                body: JSON.stringify({ hari, jam_mulai: mulai, jam_selesai: selesai })
+            });
+            var data = await res.json();
+
+            if (data.success) {
+                sucEl.textContent = '✓ Jadwal ' + HARI_LABEL[hari] + ' ' + mulai + '–' + selesai + ' berhasil ditambahkan!';
+                sucEl.classList.remove('hidden');
+                await loadJadwal();
+                // Refresh sidebar jadwal
+                if (typeof loadJadwalDokterSidebar === 'function') loadJadwalDokterSidebar();
+                setTimeout(function() { sucEl.classList.add('hidden'); }, 4000);
+            } else {
+                errEl.textContent = data.message || 'Gagal menambahkan jadwal';
+                errEl.classList.remove('hidden');
+            }
         } catch(e) {
-            document.getElementById('tabel-mingguan').innerHTML = '<tr><td colspan="6" class="px-3 py-4 text-center text-slate-400">Gagal memuat</td></tr>';
+            errEl.textContent = 'Gagal terhubung ke server';
+            errEl.classList.remove('hidden');
         }
+    }
+
+    async function hapusJadwal(id) {
+        if (!confirm('Hapus jadwal ini?')) return;
+        try {
+            var res = await fetch('/api/jadwal/' + id, {
+                method: 'DELETE',
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            var data = await res.json();
+            if (data.success) {
+                await loadJadwal();
+                if (typeof loadJadwalDokterSidebar === 'function') loadJadwalDokterSidebar();
+            }
+        } catch(e) { alert('Gagal menghapus jadwal'); }
     }
 
     loadJadwal();
-    loadTimDokter();
-    loadMingguan();
 </script>
 @endsection

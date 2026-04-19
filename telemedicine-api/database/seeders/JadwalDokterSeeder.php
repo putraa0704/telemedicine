@@ -14,61 +14,61 @@ class JadwalDokterSeeder extends Seeder
         // Buat 4 akun dokter
         $dokterData = [
             [
-                'name'         => 'Dr. Hendra Wijaya',
-                'email'        => 'hendra@mediconnect.id',
-                'password'     => Hash::make('password123'),
-                'role'         => 'dokter',
+                'name' => 'Dr. Hendra Wijaya',
+                'email' => 'hendra@mediconnect.id',
+                'password' => Hash::make('password123'),
+                'role' => 'dokter',
                 'spesialisasi' => 'Dokter Umum',
-                'no_str'       => 'STR-2024-001',
-                'no_hp'        => '08111111111',
-                'jadwal'       => [
-                    ['hari' => 'senin',  'jam_mulai' => '08:00', 'jam_selesai' => '09:00'],
-                    ['hari' => 'senin',  'jam_mulai' => '11:00', 'jam_selesai' => '12:00'],
-                    ['hari' => 'rabu',   'jam_mulai' => '08:00', 'jam_selesai' => '09:00'],
-                    ['hari' => 'jumat',  'jam_mulai' => '13:00', 'jam_selesai' => '14:00'],
+                'no_str' => 'STR-2024-001',
+                'no_hp' => '08111111111',
+                'jadwal' => [
+                    ['hari' => 'senin', 'jam_mulai' => '08:00', 'jam_selesai' => '09:00'],
+                    ['hari' => 'senin', 'jam_mulai' => '11:00', 'jam_selesai' => '12:00'],
+                    ['hari' => 'rabu', 'jam_mulai' => '08:00', 'jam_selesai' => '09:00'],
+                    ['hari' => 'jumat', 'jam_mulai' => '13:00', 'jam_selesai' => '14:00'],
                 ],
             ],
             [
-                'name'         => 'Dr. Sari Kusuma',
-                'email'        => 'sari@mediconnect.id',
-                'password'     => Hash::make('password123'),
-                'role'         => 'dokter',
+                'name' => 'Dr. Sari Kusuma',
+                'email' => 'sari@mediconnect.id',
+                'password' => Hash::make('password123'),
+                'role' => 'dokter',
                 'spesialisasi' => 'Dokter Anak',
-                'no_str'       => 'STR-2024-002',
-                'no_hp'        => '08222222222',
-                'jadwal'       => [
+                'no_str' => 'STR-2024-002',
+                'no_hp' => '08222222222',
+                'jadwal' => [
                     ['hari' => 'selasa', 'jam_mulai' => '09:00', 'jam_selesai' => '10:00'],
                     ['hari' => 'selasa', 'jam_mulai' => '14:00', 'jam_selesai' => '15:00'],
-                    ['hari' => 'kamis',  'jam_mulai' => '09:00', 'jam_selesai' => '10:00'],
-                    ['hari' => 'kamis',  'jam_mulai' => '14:00', 'jam_selesai' => '15:00'],
+                    ['hari' => 'kamis', 'jam_mulai' => '09:00', 'jam_selesai' => '10:00'],
+                    ['hari' => 'kamis', 'jam_mulai' => '14:00', 'jam_selesai' => '15:00'],
                 ],
             ],
             [
-                'name'         => 'Dr. Ahmad Ridho',
-                'email'        => 'ahmad@mediconnect.id',
-                'password'     => Hash::make('password123'),
-                'role'         => 'dokter',
+                'name' => 'Dr. Ahmad Ridho',
+                'email' => 'ahmad@mediconnect.id',
+                'password' => Hash::make('password123'),
+                'role' => 'dokter',
                 'spesialisasi' => 'Kardiologi',
-                'no_str'       => 'STR-2024-003',
-                'no_hp'        => '08333333333',
-                'jadwal'       => [
-                    ['hari' => 'senin',  'jam_mulai' => '10:00', 'jam_selesai' => '11:00'],
+                'no_str' => 'STR-2024-003',
+                'no_hp' => '08333333333',
+                'jadwal' => [
+                    ['hari' => 'senin', 'jam_mulai' => '10:00', 'jam_selesai' => '11:00'],
                     ['hari' => 'selasa', 'jam_mulai' => '10:00', 'jam_selesai' => '11:00'],
-                    ['hari' => 'kamis',  'jam_mulai' => '15:00', 'jam_selesai' => '16:00'],
+                    ['hari' => 'kamis', 'jam_mulai' => '15:00', 'jam_selesai' => '16:00'],
                 ],
             ],
             [
-                'name'         => 'Dr. Maya Putri',
-                'email'        => 'maya@mediconnect.id',
-                'password'     => Hash::make('password123'),
-                'role'         => 'dokter',
+                'name' => 'Dr. Maya Putri',
+                'email' => 'maya@mediconnect.id',
+                'password' => Hash::make('password123'),
+                'role' => 'dokter',
                 'spesialisasi' => 'Dermatologi',
-                'no_str'       => 'STR-2024-004',
-                'no_hp'        => '08444444444',
-                'jadwal'       => [
-                    ['hari' => 'rabu',   'jam_mulai' => '13:00', 'jam_selesai' => '14:00'],
-                    ['hari' => 'jumat',  'jam_mulai' => '08:00', 'jam_selesai' => '09:00'],
-                    ['hari' => 'jumat',  'jam_mulai' => '15:00', 'jam_selesai' => '16:00'],
+                'no_str' => 'STR-2024-004',
+                'no_hp' => '08444444444',
+                'jadwal' => [
+                    ['hari' => 'rabu', 'jam_mulai' => '13:00', 'jam_selesai' => '14:00'],
+                    ['hari' => 'jumat', 'jam_mulai' => '08:00', 'jam_selesai' => '09:00'],
+                    ['hari' => 'jumat', 'jam_mulai' => '15:00', 'jam_selesai' => '16:00'],
                 ],
             ],
         ];
@@ -77,20 +77,20 @@ class JadwalDokterSeeder extends Seeder
             $jadwalList = $data['jadwal'];
             unset($data['jadwal']);
 
-            // Cek kalau sudah ada, skip
-            $dokter = User::firstOrCreate(['email' => $data['email']], $data);
+            // Selalu sinkronkan data akun dokter agar kredensial tetap konsisten saat seed ulang.
+            $dokter = User::updateOrCreate(['email' => $data['email']], $data);
 
             // Tambah jadwal
             foreach ($jadwalList as $jadwal) {
                 JadwalDokter::firstOrCreate(
                     [
                         'dokter_id' => $dokter->id,
-                        'hari'      => $jadwal['hari'],
+                        'hari' => $jadwal['hari'],
                         'jam_mulai' => $jadwal['jam_mulai'],
                     ],
                     [
                         'jam_selesai' => $jadwal['jam_selesai'],
-                        'is_aktif'    => true,
+                        'is_aktif' => true,
                     ]
                 );
             }

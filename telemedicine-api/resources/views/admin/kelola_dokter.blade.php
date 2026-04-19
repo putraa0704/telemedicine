@@ -200,8 +200,8 @@
         }
 
         try {
-            // Daftarkan via endpoint register (hanya admin yang bisa tambah dokter secara langsung)
-            var res  = await fetch('/api/auth/register', {
+            // Daftarkan via endpoint admin khusus dokter
+            var res  = await fetch('/api/auth/register-dokter', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
                 body: JSON.stringify(payload)

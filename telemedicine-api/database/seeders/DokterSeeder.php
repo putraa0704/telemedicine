@@ -10,22 +10,22 @@ class DokterSeeder extends Seeder
 {
     public function run(): void
     {
-        User::create([
-            'name'         => 'Dr. Budi Santoso',
-            'email'        => 'dokter@telemedicine.com',
-            'password'     => Hash::make('password123'),
-            'role'         => 'dokter',
+        User::updateOrCreate(['email' => 'dokter@telemedicine.com'], [
+            'name' => 'Dr. Budi Santoso',
+            'email' => 'dokter@telemedicine.com',
+            'password' => Hash::make('password123'),
+            'role' => 'dokter',
             'spesialisasi' => 'Dokter Umum',
-            'no_str'       => 'STR-2024-001',
-            'no_hp'        => '08123456789',
+            'no_str' => 'STR-2024-001',
+            'no_hp' => '08123456789',
         ]);
 
-        User::create([
-            'name'         => 'Admin',
-            'email'        => 'admin@telemedicine.com',
-            'password'     => Hash::make('password123'),
-            'role'         => 'admin',
-            'no_hp'        => '08000000000',
+        User::updateOrCreate(['email' => 'admin@telemedicine.com'], [
+            'name' => 'Admin',
+            'email' => 'admin@telemedicine.com',
+            'password' => Hash::make('password123'),
+            'role' => 'admin',
+            'no_hp' => '08000000000',
         ]);
     }
 }

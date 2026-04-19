@@ -1,33 +1,31 @@
 @extends('layouts.app')
 
-@section('title', 'Konsultasi Baru')
-@section('page_title', 'Konsultasi Baru')
-@section('page_sub', 'Buat permintaan konsultasi dengan dokter')
-@section('nav_new', 'active')
+@section('title', 'Formulir Konsultasi')
+@section('page_title', 'Formulir Konsultasi')
+@section('page_sub', 'Pilih dokter dan konfirmasi keluhan Anda')
 
 @section('content')
 
-{{-- Badge Offline (Global) --}}
-<div id="offline-badge" class="hidden bg-amber-50 border border-amber-200 text-amber-700 text-[13px] px-4 py-3 rounded-xl mb-5 flex items-start sm:items-center gap-3 shadow-sm">
-    <span class="text-lg leading-none">⚠️</span>
-    <p>Anda sedang <strong>offline</strong>. Menampilkan data dokter dari cache. Anda tetap dapat mengirim konsultasi.</p>
-</div>
-
-{{-- Layout Utama: 1 Kolom (HP) -> 2 Kolom (Desktop lg) --}}
 <div class="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] xl:grid-cols-[1fr_1.7fr] gap-5 lg:gap-6 items-start">
 
     {{-- KOLOM KIRI: FORMULIR --}}
     <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 sm:p-6 order-2 lg:order-1">
-        <h2 class="text-[15px] font-semibold text-slate-800 mb-5 flex items-center gap-2">
-            <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-            Formulir Konsultasi
-        </h2>
+
+        {{-- Info dari chatbot --}}
+        <div id="chatbot-info" class="hidden bg-brand-50 border border-brand-100 rounded-xl px-4 py-3 mb-5 flex items-start gap-2.5">
+            <svg class="w-4 h-4 text-brand-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            <div>
+                <div class="text-[12px] font-semibold text-brand-700 mb-0.5">Data dari asisten diisi otomatis</div>
+                <div class="text-[11px] text-brand-600">Periksa dan lengkapi data sebelum mengirim.</div>
+            </div>
+        </div>
+
+        <h2 class="text-[15px] font-semibold text-slate-800 mb-5">Detail Konsultasi</h2>
 
         <div id="success-box" class="hidden bg-emerald-50 border border-emerald-200 text-emerald-700 text-[13px] px-4 py-3 rounded-xl mb-5"></div>
         <div id="error-box"   class="hidden bg-red-50 border border-red-200 text-red-700 text-[13px] px-4 py-3 rounded-xl mb-5"></div>
 
-        <div class="space-y-4 sm:space-y-5">
-            {{-- Nama & Tanggal Lahir: Stack di HP (grid-cols-1), Sebelahan di Tablet/Desktop (sm:grid-cols-2) --}}
+        <div class="space-y-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nama Lengkap</label>
@@ -49,8 +47,8 @@
                 </select>
             </div>
 
-            {{-- Info Dokter Terpilih --}}
-            <div id="dokter-info" class="hidden bg-brand-50/50 border border-brand-100 rounded-xl px-4 py-3 transition-all">
+            {{-- Info dokter terpilih --}}
+            <div id="dokter-info" class="hidden bg-brand-50/50 border border-brand-100 rounded-xl px-4 py-3">
                 <div class="flex items-center gap-3">
                     <div id="dokter-avatar" class="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 text-sm font-bold flex-shrink-0"></div>
                     <div class="flex-1 min-w-0">
@@ -59,16 +57,15 @@
                     </div>
                     <div id="dokter-status-badge" class="text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0"></div>
                 </div>
-                <div id="dokter-jadwal-info" class="mt-2.5 text-[11px] text-slate-500"></div>
+                <div id="dokter-jadwal-info" class="mt-2 text-[11px] text-slate-500"></div>
             </div>
 
             <div>
                 <label class="block text-xs font-semibold text-slate-500 mb-1.5">Keluhan Utama</label>
-                <textarea id="keluhan" rows="4" placeholder="Deskripsikan gejala atau keluhan Anda secara detail..."
+                <textarea id="keluhan" rows="4" placeholder="Deskripsikan gejala atau keluhan Anda..."
                     class="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20 bg-slate-50 resize-none transition"></textarea>
             </div>
 
-            {{-- Urgensi & Waktu: Stack di HP (grid-cols-1), Sebelahan di Tablet/Desktop (sm:grid-cols-2) --}}
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 mb-1.5">Tingkat Urgensi</label>
@@ -95,11 +92,15 @@
             </div>
 
             <button onclick="kirimKonsultasi()" id="submit-btn"
-                class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 sm:py-3.5 rounded-xl text-[13px] sm:text-sm transition-colors shadow-sm disabled:opacity-50 flex justify-center items-center gap-2">
+                class="w-full bg-brand-600 hover:bg-brand-800 text-white font-semibold py-3 rounded-xl text-sm transition-colors shadow-sm disabled:opacity-50 flex justify-center items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
                 Kirim Konsultasi
             </button>
 
-            <p class="text-center text-[11px] text-slate-400">Data disimpan lokal jika offline, otomatis sync saat online</p>
+            <div class="flex items-center justify-center gap-2 text-[11px] text-slate-400">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Data disimpan lokal jika offline, otomatis sync saat online
+            </div>
         </div>
     </div>
 
@@ -108,17 +109,17 @@
         <div class="flex flex-wrap items-center justify-between gap-2 mb-4 px-1">
             <h2 class="text-[14px] font-semibold text-slate-800">Pilih Dokter</h2>
             <div class="flex items-center gap-2">
-                <span id="cache-label" class="hidden text-[10px] font-semibold bg-amber-100 text-amber-700 px-2 py-1 rounded-lg border border-amber-200 flex items-center gap-1">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
-                    Data Offline
-                </span>
+                <span id="cache-label" class="hidden text-[10px] font-semibold bg-amber-100 text-amber-700 px-2 py-1 rounded-lg border border-amber-200">Data Offline</span>
                 <span class="text-[11px] font-medium text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg" id="dokter-count">Memuat...</span>
             </div>
         </div>
 
-        {{-- Grid Card Dokter: 1 Kolom (HP), 2 Kolom (Tablet/Desktop) --}}
-        <div id="dokter-cards" class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            {{-- State Loading --}}
+        <div id="offline-badge" class="hidden bg-amber-50 border border-amber-200 text-amber-700 text-[13px] px-4 py-3 rounded-xl mb-4 flex items-start gap-2.5">
+            <span>⚠️</span>
+            <p>Anda <strong>offline</strong>. Menampilkan data dari cache. Konsultasi tetap bisa dikirim.</p>
+        </div>
+
+        <div id="dokter-cards" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div class="col-span-full bg-white rounded-2xl border border-slate-100 px-4 py-12 text-center text-sm text-slate-400 shadow-sm">
                 <div class="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center mx-auto mb-3 animate-pulse">
                     <svg class="w-6 h-6 text-slate-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
@@ -143,34 +144,37 @@
     if (!token || !user) window.location.href = '/login';
     if (user) document.getElementById('nama').value = user.name;
 
+    // ── Ambil draft dari chatbot ─────────────────────────────────────
+    var draftKeluhan = localStorage.getItem('draft_keluhan') || '';
+    var draftUrgensi = localStorage.getItem('draft_urgensi') || 'normal';
+
+    if (draftKeluhan) {
+        document.getElementById('keluhan').value = draftKeluhan;
+        document.getElementById('urgensi').value = draftUrgensi;
+        document.getElementById('chatbot-info').classList.remove('hidden');
+        // Bersihkan draft setelah dipakai
+        localStorage.removeItem('draft_keluhan');
+        localStorage.removeItem('draft_urgensi');
+    }
+
     const db = new Dexie('telemedicine');
     db.version(2).stores({ konsultasi: 'id, status, created_at', auth: 'key' });
 
     var dokterList = [];
 
-    // --- Logika Load Dokter & Offline Support ---
+    // ── Load dokter ──────────────────────────────────────────────────
     async function loadDokter() {
         if (navigator.onLine) {
             try {
-                var res  = await fetch('/api/tim-dokter', { headers: { 'Authorization': 'Bearer ' + token } });
-                if (!res.ok) throw new Error('Network error');
-                
+                var res = await fetch('/api/tim-dokter', { headers: { 'Authorization': 'Bearer ' + token } });
+                if (!res.ok) throw new Error('error');
                 dokterList = await res.json();
-                
-                // Simpan cache untuk offline
                 localStorage.setItem(DOKTER_CACHE_KEY, JSON.stringify(dokterList));
-                
                 document.getElementById('offline-badge').classList.add('hidden');
                 document.getElementById('cache-label').classList.add('hidden');
-                
                 renderAll();
-            } catch(e) {
-                console.warn("Gagal fetch API, beralih ke cache.");
-                loadDokterFromCache();
-            }
-        } else {
-            loadDokterFromCache();
-        }
+            } catch(e) { loadDokterFromCache(); }
+        } else { loadDokterFromCache(); }
     }
 
     function loadDokterFromCache() {
@@ -181,11 +185,10 @@
             document.getElementById('cache-label').classList.remove('hidden');
             renderAll();
         } else {
-            document.getElementById('dokter-cards').innerHTML = `
-                <div class="col-span-full bg-amber-50 rounded-2xl border border-amber-200 px-4 py-8 text-center shadow-sm">
-                    <p class="text-sm font-semibold text-amber-800 mb-1">Koneksi Terputus</p>
-                    <p class="text-xs text-amber-700">Tidak ada data dokter yang tersimpan di perangkat ini. Namun Anda tetap dapat mengirim konsultasi.</p>
-                </div>`;
+            document.getElementById('dokter-cards').innerHTML =
+                '<div class="col-span-full bg-amber-50 rounded-2xl border border-amber-200 px-4 py-8 text-center shadow-sm">' +
+                '<p class="text-sm font-semibold text-amber-800 mb-1">Koneksi Terputus</p>' +
+                '<p class="text-xs text-amber-700">Tidak ada cache dokter. Anda tetap bisa mengirim konsultasi tanpa memilih dokter.</p></div>';
             document.getElementById('dokter-count').textContent = '0 dokter';
             document.getElementById('dokter_id').innerHTML = '<option value="">— Tidak tersedia (offline) —</option>';
             document.getElementById('offline-badge').classList.remove('hidden');
@@ -200,95 +203,68 @@
 
     function renderDokterSelect() {
         var sel = document.getElementById('dokter_id');
-        sel.innerHTML = '<option value="">— Pilih dokter —</option>' +
-            dokterList.map(d => '<option value="' + d.id + '">' + d.nama + ' — ' + d.spesialisasi + '</option>').join('');
+        sel.innerHTML = '<option value="">— Pilih dokter (opsional) —</option>' +
+            dokterList.map(function(d) {
+                return '<option value="' + d.id + '">' + d.nama + ' — ' + d.spesialisasi + '</option>';
+            }).join('');
         sel.addEventListener('change', onDokterChange);
     }
 
     function onDokterChange() {
-        var id   = document.getElementById('dokter_id').value;
+        var id = document.getElementById('dokter_id').value;
         var info = document.getElementById('dokter-info');
         if (!id) { info.classList.add('hidden'); return; }
-        
-        var dr = dokterList.find(d => String(d.id) === String(id));
+        var dr = dokterList.find(function(d) { return String(d.id) === String(id); });
         if (!dr) return;
-        
         var isSibuk = dr.status === 'sibuk';
         document.getElementById('dokter-avatar').textContent = dr.inisial;
         document.getElementById('dokter-nama-info').textContent = dr.nama;
         document.getElementById('dokter-spesialis-info').textContent = dr.spesialisasi + (dr.no_str ? ' · STR: ' + dr.no_str : '');
-        
         var badge = document.getElementById('dokter-status-badge');
         badge.textContent = isSibuk ? 'Sibuk' : 'Tersedia';
         badge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ' +
             (isSibuk ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200');
-            
         document.getElementById('dokter-jadwal-info').textContent =
-            dr.hari_praktik && dr.hari_praktik.length ? 'Praktik: ' + dr.hari_praktik.join(', ') : 'Belum ada jadwal praktik';
+            dr.hari_praktik && dr.hari_praktik.length ? 'Praktik: ' + dr.hari_praktik.join(', ') : 'Belum ada jadwal';
         info.classList.remove('hidden');
     }
 
     function renderDokterCards() {
         var container = document.getElementById('dokter-cards');
-        if (!dokterList.length) return; // Sudah di-handle di state cache kosong
-
-        container.innerHTML = dokterList.map(dr => {
+        if (!dokterList.length) return;
+        container.innerHTML = dokterList.map(function(dr) {
             var isSibuk = dr.status === 'sibuk';
-            return `
-            <div class="bg-white rounded-2xl border-2 border-slate-100 hover:border-brand-400 p-4 cursor-pointer hover:shadow-md transition-all group relative overflow-hidden"
-                 data-id="${dr.id}" onclick="pilihDokter(this, '${dr.id}')">
-                
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-12 h-12 rounded-full flex items-center justify-center text-[14px] font-bold flex-shrink-0 transition-transform group-hover:scale-105
-                        ${isSibuk ? 'bg-red-50 text-red-700' : 'bg-brand-50 text-brand-700'}">
-                        ${dr.inisial}
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="text-[13px] font-semibold text-slate-800 truncate">${dr.nama}</div>
-                        <div class="text-[11px] text-slate-500">${dr.spesialisasi}</div>
-                    </div>
-                </div>
-                
-                <div class="flex items-center justify-between mb-3 bg-slate-50 px-2.5 py-1.5 rounded-lg">
-                    <span class="text-[10px] font-bold uppercase tracking-wide
-                        ${isSibuk ? 'text-red-600' : 'text-emerald-600'}">
-                        ${isSibuk ? '● Sibuk' : '● Tersedia'}
-                    </span>
-                    <span class="text-[10px] font-medium text-slate-400">${dr.pasien_aktif} Pasien</span>
-                </div>
-                
-                <div class="flex flex-wrap gap-1">
-                    ${(dr.hari_praktik || []).slice(0,3).map(h =>
-                        `<span class="text-[10px] font-medium bg-slate-100/80 text-slate-600 px-2 py-0.5 rounded-md border border-slate-200/50">${h}</span>`
-                    ).join('')}
-                    ${dr.hari_praktik && dr.hari_praktik.length > 3 ? `<span class="text-[10px] font-medium text-slate-400 self-center ml-1">+${dr.hari_praktik.length - 3}</span>` : ''}
-                </div>
-            </div>
-            `;
+            return '<div class="bg-white rounded-2xl border-2 border-slate-100 hover:border-brand-400 p-4 cursor-pointer hover:shadow-md transition-all group" data-id="' + dr.id + '" onclick="pilihDokter(this,\'' + dr.id + '\')">' +
+                '<div class="flex items-center gap-3 mb-3">' +
+                '<div class="w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ' + (isSibuk ? 'bg-red-50 text-red-700' : 'bg-brand-50 text-brand-700') + '">' + dr.inisial + '</div>' +
+                '<div class="flex-1 min-w-0"><div class="text-[13px] font-semibold text-slate-800 truncate">' + dr.nama + '</div><div class="text-[11px] text-slate-400">' + dr.spesialisasi + '</div></div>' +
+                '</div>' +
+                '<div class="flex items-center justify-between mb-3 bg-slate-50 px-2.5 py-1.5 rounded-lg">' +
+                '<span class="text-[10px] font-bold ' + (isSibuk ? 'text-red-600' : 'text-emerald-600') + '">' + (isSibuk ? '● Sibuk' : '● Tersedia') + '</span>' +
+                '<span class="text-[10px] text-slate-400">' + dr.pasien_aktif + ' Pasien</span>' +
+                '</div>' +
+                '<div class="flex flex-wrap gap-1">' +
+                (dr.hari_praktik || []).slice(0,3).map(function(h) { return '<span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md">' + h + '</span>'; }).join('') +
+                (dr.hari_praktik && dr.hari_praktik.length > 3 ? '<span class="text-[10px] text-slate-400 self-center ml-1">+' + (dr.hari_praktik.length-3) + '</span>' : '') +
+                '</div></div>';
         }).join('');
     }
 
     function pilihDokter(el, id) {
         document.getElementById('dokter_id').value = id;
         onDokterChange();
-        
-        // Reset style semua card
-        document.querySelectorAll('#dokter-cards > div[data-id]').forEach(function(card) {
-            card.classList.remove('border-brand-500', 'shadow-lg', 'bg-brand-50/10');
-            card.classList.add('border-slate-100');
+        document.querySelectorAll('#dokter-cards > div[data-id]').forEach(function(c) {
+            c.classList.remove('border-brand-500','shadow-lg','bg-brand-50/10');
+            c.classList.add('border-slate-100');
         });
-        
-        // Highlight card yang dipilih
         el.classList.remove('border-slate-100');
-        el.classList.add('border-brand-500', 'shadow-lg', 'bg-brand-50/10');
-        
-        // Scroll ke atas (ke arah form) khusus di HP agar user sadar form sudah terisi
+        el.classList.add('border-brand-500','shadow-lg','bg-brand-50/10');
         if (window.innerWidth < 1024) {
-            document.getElementById('nama').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            document.getElementById('nama').scrollIntoView({ behavior:'smooth', block:'center' });
         }
     }
 
-    // --- Logika Kirim Konsultasi ---
+    // ── Kirim konsultasi ─────────────────────────────────────────────
     async function kirimKonsultasi() {
         var keluhan = document.getElementById('keluhan').value.trim();
         var nama    = document.getElementById('nama').value.trim();
@@ -300,13 +276,13 @@
         if (!keluhan) { errBox.textContent = 'Keluhan wajib diisi.'; errBox.classList.remove('hidden'); return; }
 
         var btn = document.getElementById('submit-btn');
-        btn.disabled = true; 
-        btn.innerHTML = '<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Mengirim...';
+        btn.disabled = true;
+        btn.innerHTML = '<svg class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Mengirim...';
 
         var data = {
             id: 'loc_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
             nama, keluhan, status: 'pending',
-            created_at: new Date().toISOString(), server_id: null, synced_at: null
+            created_at: new Date().toISOString(), server_id: null
         };
         await db.konsultasi.add(data);
 
@@ -320,11 +296,11 @@
                 if (res.ok || res.status === 409) {
                     var result = await res.json();
                     await db.konsultasi.update(data.id, { status: 'synced', server_id: result.server_id, synced_at: new Date().toISOString() });
-                    sucBox.innerHTML = '<strong>✓ Berhasil!</strong> Konsultasi terkirim dengan ID: #KSL-' + String(result.server_id || '?').padStart(3,'0');
-                } else { sucBox.textContent = '✓ Konsultasi tersimpan lokal. Menunggu sinkronisasi.'; }
-            } catch(e) { sucBox.textContent = '✓ Offline — konsultasi tersimpan, akan dikirim saat online.'; }
+                    sucBox.innerHTML = '✅ Konsultasi terkirim! ID: <strong>#KSL-' + String(result.server_id || '?').padStart(3,'0') + '</strong>. Dokter akan segera merespons.';
+                } else { sucBox.textContent = '✓ Tersimpan lokal, menunggu sinkronisasi.'; }
+            } catch(e) { sucBox.textContent = '✓ Offline — konsultasi tersimpan, dikirim saat online.'; }
         } else {
-            sucBox.textContent = '✓ Offline — konsultasi tersimpan lokal, akan dikirim saat koneksi kembali.';
+            sucBox.textContent = '✓ Offline — konsultasi tersimpan lokal, akan dikirim otomatis saat koneksi kembali.';
         }
 
         sucBox.classList.remove('hidden');
@@ -332,22 +308,15 @@
         document.getElementById('dokter_id').value = '';
         document.getElementById('dokter-info').classList.add('hidden');
         document.querySelectorAll('#dokter-cards > div[data-id]').forEach(function(c) {
-            c.classList.remove('border-brand-500', 'shadow-lg', 'bg-brand-50/10');
+            c.classList.remove('border-brand-500','shadow-lg','bg-brand-50/10');
             c.classList.add('border-slate-100');
         });
-        
-        btn.disabled = false; 
-        btn.textContent = 'Kirim Konsultasi';
-        
-        setTimeout(() => sucBox.classList.add('hidden'), 6000);
+        btn.disabled = false;
+        btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg> Kirim Konsultasi';
+        setTimeout(function() { sucBox.classList.add('hidden'); }, 8000);
     }
 
-    // Auto-refresh daftar dokter saat internet kembali
-    window.addEventListener('online', () => {
-        console.log('[Network] Koneksi kembali. Memuat ulang dokter...');
-        loadDokter();
-    });
-
+    window.addEventListener('online', loadDokter);
     loadDokter();
 </script>
 @endsection

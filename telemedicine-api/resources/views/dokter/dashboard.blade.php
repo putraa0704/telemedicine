@@ -2,7 +2,7 @@
 
 @section('title', 'Dashboard Dokter')
 @section('page_title', 'Dashboard Dokter')
-@section('page_sub', 'Kelola konsultasi pasien masuk')
+@section('page_sub', 'Ringkasan aktivitas praktik Anda')
 @section('nav_dashboard', 'active')
 
 @section('content')
@@ -18,7 +18,7 @@
             </div>
         </div>
         <div class="text-2xl sm:text-3xl font-bold text-slate-800" id="stat-total">—</div>
-        <div class="text-[10px] text-slate-400 mt-1">Konsultasi</div>
+        <div class="text-[10px] text-slate-400 mt-1">Total konsultasi</div>
     </div>
     <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
         <div class="flex items-center justify-between mb-3">
@@ -30,7 +30,7 @@
             </div>
         </div>
         <div class="text-2xl sm:text-3xl font-bold text-amber-600" id="stat-pending">—</div>
-        <div class="text-[10px] text-slate-400 mt-1">Belum dijawab</div>
+        <div class="text-[10px] text-slate-400 mt-1">Perlu ditindaklanjuti</div>
     </div>
     <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
         <div class="flex items-center justify-between mb-3">
@@ -46,13 +46,54 @@
     </div>
 </div>
 
-<div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-    <div class="px-4 sm:px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
-        <span class="text-[13px] font-semibold text-slate-800">Konsultasi Masuk</span>
-        <button onclick="loadKonsultasi()" class="text-[11px] text-brand-600 border border-brand-200 hover:bg-blue-50 px-2.5 py-1.5 rounded-lg transition-colors">↻ Refresh</button>
+<div class="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-4">
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <div class="px-4 sm:px-5 py-3.5 border-b border-slate-100">
+            <span class="text-[13px] font-semibold text-slate-800">Tindakan Cepat</span>
+        </div>
+        <div class="p-4 space-y-3">
+            <a href="/dokter/konsultasi"
+                class="flex items-center justify-between gap-3 bg-brand-600 hover:bg-brand-800 text-white rounded-xl px-4 py-3 transition-colors">
+                <div>
+                    <div class="text-[13px] font-semibold">Buka Konsultasi Pasien</div>
+                    <div class="text-[11px] text-white/75">Lihat daftar konsultasi dan balas pasien</div>
+                </div>
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M5 12h14M13 5l7 7-7 7"/>
+                </svg>
+            </a>
+            <a href="/tim"
+                class="flex items-center justify-between gap-3 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl px-4 py-3 border border-slate-200 transition-colors">
+                <div>
+                    <div class="text-[13px] font-semibold">Lihat Jadwal Dokter</div>
+                    <div class="text-[11px] text-slate-500">Pantau jadwal praktik tim dokter</div>
+                </div>
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M5 12h14M13 5l7 7-7 7"/>
+                </svg>
+            </a>
+        </div>
     </div>
-    <div id="ksl-list">
-        <div class="px-4 py-10 text-center text-[12px] text-slate-400">Memuat data...</div>
+
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <div class="px-4 sm:px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
+            <span class="text-[13px] font-semibold text-slate-800">Status Cepat</span>
+            <button onclick="loadRingkasan()" class="text-[11px] text-brand-600 border border-brand-200 hover:bg-blue-50 px-2.5 py-1.5 rounded-lg transition-colors">↻ Refresh</button>
+        </div>
+        <div class="p-4 space-y-2.5 text-[12px]">
+            <div class="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2">
+                <span class="text-slate-500">Menunggu jawaban</span>
+                <span class="font-semibold text-amber-600" id="quick-pending">—</span>
+            </div>
+            <div class="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2">
+                <span class="text-slate-500">Selesai hari ini</span>
+                <span class="font-semibold text-emerald-600" id="quick-done">—</span>
+            </div>
+            <div class="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2">
+                <span class="text-slate-500">Total konsultasi</span>
+                <span class="font-semibold text-slate-700" id="quick-total">—</span>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -65,8 +106,7 @@
     if (!token || !user) window.location.href = '/login';
     if (user && user.role === 'pasien') window.location.href = '/pasien';
 
-    async function loadKonsultasi() {
-        var list = document.getElementById('ksl-list');
+    async function loadRingkasan() {
         try {
             var res  = await fetch('/api/dokter/konsultasi', { headers: { 'Authorization': 'Bearer ' + token } });
             var data = await res.json();
@@ -76,78 +116,19 @@
             document.getElementById('stat-done').textContent    = data.filter(d => {
                 return d.status === 'done' && d.dijawab_at && new Date(d.dijawab_at) > new Date(Date.now() - 86400000);
             }).length;
-
-            if (!data.length) {
-                list.innerHTML = '<div class="px-4 py-10 text-center"><div class="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center mx-auto mb-3"><svg class="w-6 h-6 text-slate-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><p class="text-sm text-slate-400">Belum ada konsultasi masuk</p></div>';
-                return;
-            }
-
-            list.innerHTML = data.map(item => `
-                <div class="border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors px-4 sm:px-5 py-4">
-                    <div class="flex flex-wrap items-start justify-between gap-2 mb-2">
-                        <div class="flex items-center gap-2">
-                            <span class="text-[13px] font-semibold text-slate-800">${item.nama_pasien || '—'}</span>
-                            <span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">#KSL-${String(item.id).padStart(3,'0')}</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${item.status === 'done' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : item.status === 'in_review' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}">
-                                ${item.status === 'done' ? 'Selesai' : item.status === 'in_review' ? 'Ditinjau' : 'Menunggu'}
-                            </span>
-                            <span class="text-[10px] text-slate-400">${new Date(item.created_at).toLocaleString('id-ID')}</span>
-                        </div>
-                    </div>
-                    <p class="text-[13px] text-slate-600 mb-3 leading-relaxed">${item.keluhan}</p>
-
-                    ${item.jawaban
-                        ? `<div class="bg-blue-50 border-l-4 border-blue-400 rounded-r-xl px-4 py-3">
-                               <p class="text-[11px] font-bold text-blue-700 mb-1">Jawaban Anda:</p>
-                               <p class="text-[12px] text-slate-700">${item.jawaban}</p>
-                           </div>`
-                        : `<div class="mt-2 space-y-2">
-                               <textarea id="jawaban-${item.id}" rows="3"
-                                   placeholder="Tulis jawaban/saran medis..."
-                                   class="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-600/10 resize-none bg-slate-50 transition"></textarea>
-                               <div class="flex gap-2">
-                                   <button onclick="kirimJawaban(${item.id})"
-                                       class="flex-1 bg-brand-600 hover:bg-brand-800 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors">
-                                       Kirim Jawaban
-                                   </button>
-                                   ${item.status !== 'in_review' ? `<button onclick="updateStatus(${item.id},'in_review')" class="px-4 py-2.5 text-[12px] font-semibold border border-slate-200 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors">Tinjau</button>` : ''}
-                               </div>
-                           </div>`
-                    }
-                </div>
-            `).join('');
+            document.getElementById('quick-total').textContent = data.length;
+            document.getElementById('quick-pending').textContent = data.filter(d => d.status !== 'done').length;
+            document.getElementById('quick-done').textContent = data.filter(d => {
+                return d.status === 'done' && d.dijawab_at && new Date(d.dijawab_at) > new Date(Date.now() - 86400000);
+            }).length;
         } catch(e) {
-            list.innerHTML = '<div class="px-4 py-4 text-center text-[12px] text-red-400">Gagal memuat data</div>';
+            document.getElementById('quick-total').textContent = 'Gagal';
+            document.getElementById('quick-pending').textContent = 'Gagal';
+            document.getElementById('quick-done').textContent = 'Gagal';
         }
     }
 
-    async function kirimJawaban(id) {
-        var jawaban = document.getElementById('jawaban-' + id).value.trim();
-        if (!jawaban) return alert('Jawaban tidak boleh kosong');
-        try {
-            var res = await fetch('/api/dokter/konsultasi/' + id + '/jawab', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-                body: JSON.stringify({ jawaban })
-            });
-            if (res.ok) loadKonsultasi();
-        } catch(e) { alert('Gagal mengirim jawaban'); }
-    }
-
-    async function updateStatus(id, status) {
-        try {
-            await fetch('/api/dokter/konsultasi/' + id + '/status', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-                body: JSON.stringify({ status })
-            });
-            loadKonsultasi();
-        } catch(e) {}
-    }
-
-    loadKonsultasi();
-    setInterval(loadKonsultasi, 30000);
+    loadRingkasan();
+    setInterval(loadRingkasan, 30000);
 </script>
 @endsection

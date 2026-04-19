@@ -17,7 +17,6 @@
             justify-content: center;
             padding: 16px;
         }
-        /* Decorative background */
         body::before {
             content: '';
             position: fixed;
@@ -36,7 +35,7 @@
             max-width: 400px;
             position: relative;
         }
-        input[type=email], input[type=password], input[type=text] {
+        input[type=email], input[type=password] {
             width: 100%; padding: 10px 14px;
             border: 1.5px solid #e2e8f0; border-radius: 10px;
             font-size: 14px; outline: none; transition: border-color 0.15s, box-shadow 0.15s;
@@ -69,7 +68,6 @@
     </style>
 </head>
 <body>
-
 <div class="card">
 
     {{-- Logo --}}
@@ -119,10 +117,13 @@
 </div>
 
 <script>
+    // Jika sudah login, redirect sesuai role
     var t = localStorage.getItem('auth_token');
     var u = JSON.parse(localStorage.getItem('auth_user') || 'null');
     if (t && u) {
-        window.location.href = (u.role === 'dokter' || u.role === 'admin') ? '/dokter' : '/welcome';
+        if (u.role === 'dokter') { window.location.href = '/dokter'; }
+        else if (u.role === 'admin') { window.location.href = '/admin'; }
+        else { window.location.href = '/welcome'; }  // pasien → chatbot
     }
 
     function togglePwd() {
@@ -169,9 +170,13 @@
             localStorage.setItem('auth_token', data.token);
             localStorage.setItem('auth_user',  JSON.stringify(data.user));
 
-            if (data.role === 'dokter' || data.role === 'admin') {
+            // ── Redirect sesuai role ──
+            if (data.role === 'admin') {
+                window.location.href = '/admin';
+            } else if (data.role === 'dokter') {
                 window.location.href = '/dokter';
             } else {
+                // Pasien → chatbot welcome dulu
                 window.location.href = '/welcome';
             }
         } catch (e) {

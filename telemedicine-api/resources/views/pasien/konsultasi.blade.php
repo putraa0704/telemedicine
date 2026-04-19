@@ -28,6 +28,7 @@
     var token = localStorage.getItem('auth_token');
     var user  = JSON.parse(localStorage.getItem('auth_user') || 'null');
     if (!token || !user) window.location.href = '/login';
+    if (user && user.role === 'dokter') window.location.href = '/dokter/konsultasi';
 
     var allData = [];
 
