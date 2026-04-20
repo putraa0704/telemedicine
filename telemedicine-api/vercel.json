@@ -12,7 +12,7 @@
         },
         {
             "source": "/(.*)",
-            "destination": "/api/server.php"
+            "destination": "/api/server.php?__vc_path=$1"
         }
     ],
     "env": {
