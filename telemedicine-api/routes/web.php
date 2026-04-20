@@ -1,10 +1,23 @@
 <?php
 
+use App\Http\Controllers\Api\AuthController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn() => redirect('/login'));
 Route::get('/login', fn() => view('auth.login'));
 Route::get('/register', fn() => view('auth.register'));
+
+// Vercel runtime may resolve /api/* into /* for PHP entrypoints.
+// Provide auth/ping fallbacks under API middleware to keep login/register functional.
+Route::middleware('api')->group(function () {
+	Route::get('/ping', fn() => response()->json(['status' => 'ok', 'time' => now()]));
+	Route::post('/auth/register', [AuthController::class, 'register']);
+	Route::post('/auth/login', [AuthController::class, 'login']);
+	Route::middleware(['auth:sanctum', 'check.token'])->group(function () {
+		Route::post('/auth/logout', [AuthController::class, 'logout']);
+		Route::get('/auth/me', [AuthController::class, 'me']);
+	});
+});
 
 // ── Pasien ──
 Route::get('/welcome', fn() => view('pasien.welcome'));   // ← halaman chat baru
