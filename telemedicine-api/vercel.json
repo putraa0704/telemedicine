@@ -7,6 +7,10 @@
     },
     "rewrites": [
         {
+            "source": "/api/(.*)",
+            "destination": "/api/server.php?__vc_path=api/$1"
+        },
+        {
             "source": "/dist/(.*)",
             "destination": "/public/dist/$1"
         },
@@ -19,12 +23,6 @@
         "APP_ENV": "production",
         "APP_DEBUG": "true",
         "APP_URL": "",
-
-        "APP_CONFIG_CACHE": "/tmp/config-v2.php",
-        "APP_EVENTS_CACHE": "/tmp/events-v2.php",
-        "APP_PACKAGES_CACHE": "/tmp/packages-v2.php",
-        "APP_ROUTES_CACHE": "/tmp/routes-v2.php",
-        "APP_SERVICES_CACHE": "/tmp/services-v2.php",
         "VIEW_COMPILED_PATH": "/tmp",
 
         "CACHE_DRIVER": "array",

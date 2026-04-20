@@ -154,11 +154,19 @@
         btn.textContent = 'Memproses...';
 
         try {
-            var res  = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
+            async function submitLogin(url) {
+                return fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+            }
+
+            var res = await submitLogin('/api/auth/login');
+            if (res.status === 404) {
+                res = await submitLogin('/auth/login');
+            }
+
             var data = await res.json();
 
             if (!data.success) {

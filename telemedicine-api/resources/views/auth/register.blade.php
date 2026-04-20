@@ -140,10 +140,18 @@
 
         btn.disabled = true; btn.textContent = 'Memproses...';
         try {
-            var res  = await fetch('/api/auth/register', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+            async function submitRegister(url) {
+                return fetch(url, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            }
+
+            var res = await submitRegister('/api/auth/register');
+            if (res.status === 404) {
+                res = await submitRegister('/auth/register');
+            }
+
             var data = await res.json();
             if (!data.success) {
                 var msgs = data.errors ? Object.values(data.errors).flat().join(', ') : (data.message || 'Registrasi gagal.');
