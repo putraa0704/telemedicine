@@ -3,7 +3,7 @@
     "framework": null,
     "outputDirectory": "dist",
     "functions": {
-        "public/index.php": { "runtime": "vercel-php@0.9.0" }
+        "api/index.php": { "runtime": "vercel-php@0.9.0" }
     },
     "rewrites": [
         {
@@ -12,7 +12,7 @@
         },
         {
             "source": "/(.*)",
-            "destination": "/public/index.php"
+            "destination": "/api/index.php"
         }
     ],
     "env": {
