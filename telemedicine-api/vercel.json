@@ -1,9 +1,9 @@
 {
     "version": 2,
     "framework": null,
-    "outputDirectory": "dist",
+    "outputDirectory": "public/dist",
     "functions": {
-        "public/index.php": { "runtime": "vercel-php@0.9.0" }
+        "api/server.php": { "runtime": "vercel-php@0.9.0" }
     },
     "rewrites": [
         {
@@ -12,7 +12,7 @@
         },
         {
             "source": "/(.*)",
-            "destination": "/public/index.php"
+            "destination": "/api/server.php"
         }
     ],
     "env": {
