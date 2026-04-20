@@ -3,13 +3,9 @@
     "framework": null,
     "outputDirectory": "public/dist",
     "functions": {
-        "api/server.php": { "runtime": "vercel-php@0.9.0" }
+        "api/server.php": { "runtime": "vercel-php@0.7.4" }
     },
     "rewrites": [
-        {
-            "source": "/api/(.*)",
-            "destination": "/api/server.php?__vc_path=api/$1"
-        },
         {
             "source": "/dist/(.*)",
             "destination": "/public/dist/$1"
@@ -19,13 +15,20 @@
             "destination": "/api/server.php?__vc_path=$1"
         }
     ],
-   "env": {
+    "env": {
         "APP_ENV": "production",
-        "APP_DEBUG": "false",
+        "APP_DEBUG": "true",
+        "APP_URL": "",
+
+        "APP_CONFIG_CACHE": "/tmp/config-v2.php",
+        "APP_EVENTS_CACHE": "/tmp/events-v2.php",
+        "APP_PACKAGES_CACHE": "/tmp/packages-v2.php",
+        "APP_ROUTES_CACHE": "/tmp/routes-v2.php",
+        "APP_SERVICES_CACHE": "/tmp/services-v2.php",
         "VIEW_COMPILED_PATH": "/tmp",
+
+        "CACHE_DRIVER": "array",
         "LOG_CHANNEL": "stderr",
-        "SESSION_DRIVER": "cookie",
-        "CACHE_STORE": "array",
-        "QUEUE_CONNECTION": "sync"
+        "SESSION_DRIVER": "cookie"
     }
 }
