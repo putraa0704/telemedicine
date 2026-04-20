@@ -15,4 +15,7 @@ export default defineConfig({
             ignored: ['**/storage/framework/views/**'],
         },
     },
+    build: {
+        outDir: 'public/dist', // Changes the output folder from 'build' to 'dist'
+    },
 });
