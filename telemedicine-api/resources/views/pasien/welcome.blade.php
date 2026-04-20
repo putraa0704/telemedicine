@@ -129,6 +129,15 @@
         scrollBottom();
     }
 
+    function escapeHtml(text) {
+        return String(text || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
     function showTyping() {
         var t = document.createElement('div');
         t.id = 'typing';
@@ -167,6 +176,100 @@
     }
 
     function scrollBottom() { container.scrollTop = container.scrollHeight; }
+
+    function analisaKeluhan(text) {
+        var lower = (text || '').toLowerCase();
+        var rules = [
+            {
+                patterns: /demam|panas|menggigil|suhu tinggi|meriang/,
+                message: '🌡️ Gejala <strong>demam</strong> terdeteksi. Bisa berkaitan dengan infeksi dan perlu dipantau suhunya secara berkala.'
+            },
+            {
+                patterns: /batuk|pilek|flu|tenggorokan|bersin|hidung tersumbat|ingus/,
+                message: '🤧 Keluhan <strong>saluran pernapasan atas</strong> terdeteksi. Dokter dapat membantu memastikan apakah ini infeksi virus, alergi, atau penyebab lain.'
+            },
+            {
+                patterns: /sesak|sulit napas|napas pendek|asma|mengi|bengek/,
+                message: '🫁 Keluhan <strong>pernapasan</strong> terdeteksi. Bila sesak memberat, ini perlu perhatian cepat dari dokter.'
+            },
+            {
+                patterns: /nyeri dada|dada sakit|berdebar|jantung|detak cepat|detak tidak teratur/,
+                message: '❤️ Keluhan pada <strong>dada atau jantung</strong> terdeteksi. Ini perlu evaluasi medis lebih lanjut untuk menyingkirkan kondisi serius.'
+            },
+            {
+                patterns: /mual|muntah|diare|perut|lambung|maag|kembung|sembelit|konstipasi|bab/,
+                message: '🫃 Masalah <strong>pencernaan</strong> terdeteksi. Dokter akan bantu menilai penyebab dan terapi yang sesuai.'
+            },
+            {
+                patterns: /pusing|kepala|migrain|vertigo|sakit kepala|kunang-kunang/,
+                message: '🧠 Keluhan <strong>sakit kepala atau pusing</strong> terdeteksi. Perlu dilihat pola, durasi, dan faktor pemicunya.'
+            },
+            {
+                patterns: /nyeri|sakit|ngilu|linu|pegal|otot|sendi|pinggang|punggung|leher/,
+                message: '💢 Keluhan <strong>nyeri otot atau sendi</strong> terdeteksi. Dokter akan mengevaluasi kemungkinan peradangan, cedera, atau faktor lain.'
+            },
+            {
+                patterns: /gatal|ruam|bintik|kulit merah|jerawat parah|eksim|alergi kulit|biduran/,
+                message: '🧴 Keluhan <strong>kulit</strong> terdeteksi. Perlu evaluasi apakah berkaitan dengan alergi, iritasi, atau infeksi.'
+            },
+            {
+                patterns: /mata merah|mata perih|mata buram|penglihatan kabur|belekan|mata gatal/,
+                message: '👁️ Keluhan <strong>mata</strong> terdeteksi. Dokter dapat membantu menilai apakah ini iritasi, infeksi, atau gangguan penglihatan lain.'
+            },
+            {
+                patterns: /telinga|berdenging|pendengaran|sakit telinga|keluar cairan telinga/,
+                message: '👂 Keluhan <strong>telinga</strong> terdeteksi. Perlu pemeriksaan untuk menilai infeksi atau gangguan pendengaran.'
+            },
+            {
+                patterns: /gigi|gusi|sariawan|mulut bau|mulut sakit|rahang/,
+                message: '🦷 Keluhan <strong>gigi atau mulut</strong> terdeteksi. Dokter dapat memberi penanganan awal dan rujukan bila diperlukan.'
+            },
+            {
+                patterns: /kencing|anyang-anyangan|nyeri saat kencing|urin|air seni|beser/,
+                message: '🚻 Keluhan <strong>saluran kemih</strong> terdeteksi. Ini perlu dievaluasi untuk menyingkirkan infeksi atau iritasi.'
+            },
+            {
+                patterns: /haid|menstruasi|nyeri haid|keputihan|siklus haid|telat haid/,
+                message: '🩺 Keluhan <strong>kesehatan reproduksi wanita</strong> terdeteksi. Dokter akan membantu menilai kondisi hormonal atau infeksi.'
+            },
+            {
+                patterns: /hamil|kehamilan|mual hamil|kontraksi|kandungan|janin/,
+                message: '🤰 Keluhan terkait <strong>kehamilan</strong> terdeteksi. Penting untuk pemantauan ibu dan janin secara tepat waktu.'
+            },
+            {
+                patterns: /gula darah|diabetes|kencing manis|hiperglikemi|hipoglikemi/,
+                message: '🩸 Keluhan terkait <strong>gula darah</strong> terdeteksi. Dokter akan membantu evaluasi kontrol metabolik Anda.'
+            },
+            {
+                patterns: /darah tinggi|hipertensi|tekanan darah|tensi tinggi|tensi rendah/,
+                message: '🫀 Keluhan terkait <strong>tekanan darah</strong> terdeteksi. Perlu pemantauan rutin untuk mencegah komplikasi.'
+            },
+            {
+                patterns: /susah tidur|sulit tidur|tidak bisa tidur|tak bisa tidur|ga bisa tidur|gak bisa tidur|gk bisa tidur|nggak bisa tidur|ngga bisa tidur|gabisa tidur|insomnia|sering terbangun|tidur tidak nyenyak|kualitas tidur buruk/,
+                message: '😴 Keluhan <strong>gangguan tidur (insomnia)</strong> terdeteksi. Dokter akan membantu mencari pemicu seperti stres, kebiasaan tidur, atau kondisi medis lain.'
+            },
+            {
+                patterns: /cemas|ansietas|panik|stres|sulit tidur|tidak bisa tidur|ga bisa tidur|nggak bisa tidur|insomnia|begadang|sering terbangun|gelisah|sedih berkepanjangan/,
+                message: '🧘 Keluhan <strong>kesehatan mental</strong> terdeteksi. Dokter dapat membantu skrining awal dan saran penanganan lanjutan.'
+            },
+            {
+                patterns: /luka|bernanah|bengkak|infeksi|memar|jatuh|terbentur|keseleo/,
+                message: '🩹 Keluhan <strong>cedera atau infeksi lokal</strong> terdeteksi. Penanganan dini penting untuk mencegah kondisi memburuk.'
+            },
+            {
+                patterns: /anak|bayi|balita|demam anak|batuk anak|pilek anak/,
+                message: '🧒 Keluhan pada <strong>anak</strong> terdeteksi. Dokter akan menilai sesuai usia dan kondisi tumbuh kembangnya.'
+            }
+        ];
+
+        var matched = rules.filter(function(rule) { return rule.patterns.test(lower); }).map(function(rule) { return rule.message; });
+
+        if (!matched.length) {
+            return '📋 Keluhan Anda sudah saya catat. Dokter kami siap membantu mengevaluasi kondisi Anda secara menyeluruh.';
+        }
+
+        return matched.slice(0, 2).join('<br><br>');
+    }
 
     // ── Message flow (opening) ───────────────────────────────────────
     async function runOpening() {
@@ -280,22 +383,8 @@
             await sleep(1400);
             removeTyping();
 
-            // Analisis sederhana keluhan
-            var lower = val.toLowerCase();
-            var saran = '';
-            if (lower.match(/demam|panas|suhu/)) {
-                saran = '🌡️ Gejala <strong>demam</strong> terdeteksi. Bisa jadi tanda infeksi. Penting untuk diperiksa lebih lanjut.';
-            } else if (lower.match(/batuk|pilek|flu|tenggorokan|bersin/)) {
-                saran = '🤧 Keluhan <strong>saluran pernapasan</strong> terdeteksi. Dokter akan membantu menentukan penyebab dan penanganan yang tepat.';
-            } else if (lower.match(/mual|muntah|diare|perut|lambung|maag/)) {
-                saran = '🫃 Masalah <strong>pencernaan</strong> terdeteksi. Kondisi ini perlu dievaluasi agar tidak semakin parah.';
-            } else if (lower.match(/pusing|kepala|migrain|vertigo/)) {
-                saran = '🧠 <strong>Sakit kepala</strong> bisa memiliki berbagai penyebab. Dokter akan membantu menelusuri sumber masalahnya.';
-            } else if (lower.match(/nyeri|sakit|ngilu|linu|pegal/)) {
-                saran = '💢 Keluhan <strong>nyeri</strong> perlu dievaluasi untuk menentukan penyebab dan penanganan terbaik.';
-            } else {
-                saran = '📋 Keluhan Anda sudah saya catat. Dokter kami siap membantu mengevaluasi kondisi Anda.';
-            }
+            // Analisis keluhan dengan cakupan gejala lebih luas.
+            var saran = analisaKeluhan(val);
 
             await appendSystem(saran, 0);
             await sleep(600);
@@ -329,7 +418,7 @@
 
         // Ringkasan
         var summary = '📋 <strong>Ringkasan keluhan Anda:</strong><br>' +
-            '<span class="text-slate-600">• Keluhan: ' + state.keluhan + '</span><br>' +
+            '<span class="text-slate-600">• Keluhan: ' + escapeHtml(state.keluhan) + '</span><br>' +
             '<span class="text-slate-600">• Urgensi: ' + (state.urgensi === 'darurat' ? '🔴 Darurat' : state.urgensi === 'urgent' ? '🟡 Mendesak' : '🟢 Normal') + '</span>';
 
         await appendSystem(summary, 0);

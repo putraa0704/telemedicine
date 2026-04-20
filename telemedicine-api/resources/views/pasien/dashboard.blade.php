@@ -155,17 +155,35 @@
     db.version(2).stores({ konsultasi: 'id, status, created_at', auth: 'key' });
     db.table('auth').put({ key: 'session', token, user });
 
-    window.addEventListener('online', async () => { await syncPending(); await renderUI(); });
+    async function syncAndRenderNow() {
+        await syncPending();
+        await renderUI();
+    }
+
+    window.addEventListener('online', async () => {
+        // Jalankan beberapa kali agar UI cepat konsisten saat jaringan baru kembali.
+        await syncAndRenderNow();
+        setTimeout(syncAndRenderNow, 1200);
+        setTimeout(syncAndRenderNow, 3200);
+    });
+
+    window.addEventListener('focus', async () => {
+        if (navigator.onLine) await syncAndRenderNow();
+    });
+
+    document.addEventListener('visibilitychange', async () => {
+        if (!document.hidden && navigator.onLine) await syncAndRenderNow();
+    });
     setInterval(async () => {
         if (navigator.onLine) {
             var p = await db.konsultasi.where('status').equals('pending').toArray();
-            if (p.length) { await syncPending(); await renderUI(); }
+            if (p.length) { await syncAndRenderNow(); }
         }
     }, 30000);
 
     document.addEventListener('DOMContentLoaded', async () => {
-        if (navigator.onLine) await syncPending();
-        await renderUI();
+        if (navigator.onLine) await syncAndRenderNow();
+        else await renderUI();
     });
 
     async function syncPending() {

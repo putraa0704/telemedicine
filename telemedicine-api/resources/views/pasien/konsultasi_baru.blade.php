@@ -140,6 +140,8 @@
     var token = localStorage.getItem('auth_token');
     var user  = JSON.parse(localStorage.getItem('auth_user') || 'null');
     var DOKTER_CACHE_KEY = 'cache_dokter_list';
+    var DOKTER_JADWAL_CACHE_KEY = 'cache_dokter_jadwal_mingguan';
+    var HARI_BY_DAY_INDEX = ['minggu','senin','selasa','rabu','kamis','jumat','sabtu'];
 
     if (!token || !user) window.location.href = '/login';
     if (user) document.getElementById('nama').value = user.name;
@@ -159,17 +161,23 @@
 
     const db = new Dexie('telemedicine');
     db.version(2).stores({ konsultasi: 'id, status, created_at', auth: 'key' });
+    db.table('auth').put({ key: 'session', token, user });
 
     var dokterList = [];
+    var jadwalMingguan = {};
 
     // ── Load dokter ──────────────────────────────────────────────────
     async function loadDokter() {
         if (navigator.onLine) {
             try {
-                var res = await fetch('/api/tim-dokter', { headers: { 'Authorization': 'Bearer ' + token } });
-                if (!res.ok) throw new Error('error');
-                dokterList = await res.json();
+                var dokterRes = await fetch('/api/tim-dokter', { headers: { 'Authorization': 'Bearer ' + token } });
+                var jadwalRes = await fetch('/api/jadwal/mingguan', { headers: { 'Authorization': 'Bearer ' + token } });
+                if (!dokterRes.ok || !jadwalRes.ok) throw new Error('error');
+
+                dokterList = await dokterRes.json();
+                jadwalMingguan = await jadwalRes.json();
                 localStorage.setItem(DOKTER_CACHE_KEY, JSON.stringify(dokterList));
+                localStorage.setItem(DOKTER_JADWAL_CACHE_KEY, JSON.stringify(jadwalMingguan));
                 document.getElementById('offline-badge').classList.add('hidden');
                 document.getElementById('cache-label').classList.add('hidden');
                 renderAll();
@@ -177,10 +185,53 @@
         } else { loadDokterFromCache(); }
     }
 
+    async function syncPendingNow() {
+        var pending = await db.konsultasi.where('status').equals('pending').toArray();
+        var syncedCount = 0;
+
+        for (var item of pending) {
+            try {
+                var res = await fetch('/api/konsultasi', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({ local_id: item.id, nama: item.nama, keluhan: item.keluhan, created_at: item.created_at })
+                });
+
+                if (res.ok || res.status === 409) {
+                    var result = await res.json();
+                    await db.konsultasi.update(item.id, {
+                        status: 'synced',
+                        server_id: result.server_id || null,
+                        synced_at: new Date().toISOString()
+                    });
+                    syncedCount++;
+                }
+            } catch (e) {}
+        }
+
+        return syncedCount;
+    }
+
+    async function handleBackOnline() {
+        await loadDokter();
+
+        var syncedCount = await syncPendingNow();
+        var pendingLeft = await db.konsultasi.where('status').equals('pending').count();
+
+        if (syncedCount > 0 && pendingLeft === 0) {
+            var sucBox = document.getElementById('success-box');
+            sucBox.textContent = '✅ Sinkronisasi selesai. Mengarahkan ke dashboard...';
+            sucBox.classList.remove('hidden');
+            setTimeout(function() { window.location.href = '/pasien'; }, 900);
+        }
+    }
+
     function loadDokterFromCache() {
         var cached = localStorage.getItem(DOKTER_CACHE_KEY);
+        var jadwalCached = localStorage.getItem(DOKTER_JADWAL_CACHE_KEY);
         if (cached) {
             dokterList = JSON.parse(cached);
+            jadwalMingguan = jadwalCached ? JSON.parse(jadwalCached) : {};
             document.getElementById('offline-badge').classList.remove('hidden');
             document.getElementById('cache-label').classList.remove('hidden');
             renderAll();
@@ -196,9 +247,10 @@
     }
 
     function renderAll() {
-        document.getElementById('dokter-count').textContent = dokterList.length + ' dokter aktif';
+        document.getElementById('dokter-count').textContent = dokterList.length + ' dokter terdaftar';
         renderDokterSelect();
         renderDokterCards();
+        applyDoctorAvailability();
     }
 
     function renderDokterSelect() {
@@ -207,12 +259,20 @@
             dokterList.map(function(d) {
                 return '<option value="' + d.id + '">' + d.nama + ' — ' + d.spesialisasi + '</option>';
             }).join('');
-        sel.addEventListener('change', onDokterChange);
+        sel.onchange = onDokterChange;
     }
 
     function onDokterChange() {
         var id = document.getElementById('dokter_id').value;
         var info = document.getElementById('dokter-info');
+        var selectedOption = document.querySelector('#dokter_id option[value="' + id + '"]');
+
+        if (selectedOption && selectedOption.disabled) {
+            document.getElementById('dokter_id').value = '';
+            info.classList.add('hidden');
+            return;
+        }
+
         if (!id) { info.classList.add('hidden'); return; }
         var dr = dokterList.find(function(d) { return String(d.id) === String(id); });
         if (!dr) return;
@@ -240,17 +300,94 @@
                 '<div class="flex-1 min-w-0"><div class="text-[13px] font-semibold text-slate-800 truncate">' + dr.nama + '</div><div class="text-[11px] text-slate-400">' + dr.spesialisasi + '</div></div>' +
                 '</div>' +
                 '<div class="flex items-center justify-between mb-3 bg-slate-50 px-2.5 py-1.5 rounded-lg">' +
-                '<span class="text-[10px] font-bold ' + (isSibuk ? 'text-red-600' : 'text-emerald-600') + '">' + (isSibuk ? '● Sibuk' : '● Tersedia') + '</span>' +
+                '<span class="doctor-live-status text-[10px] font-bold ' + (isSibuk ? 'text-red-600' : 'text-emerald-600') + '">' + (isSibuk ? '● Sibuk' : '● Tersedia') + '</span>' +
                 '<span class="text-[10px] text-slate-400">' + dr.pasien_aktif + ' Pasien</span>' +
                 '</div>' +
                 '<div class="flex flex-wrap gap-1">' +
                 (dr.hari_praktik || []).slice(0,3).map(function(h) { return '<span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md">' + h + '</span>'; }).join('') +
                 (dr.hari_praktik && dr.hari_praktik.length > 3 ? '<span class="text-[10px] text-slate-400 self-center ml-1">+' + (dr.hari_praktik.length-3) + '</span>' : '') +
+                '<span class="doctor-inactive-hint hidden text-[10px] text-slate-400 self-center ml-1">Tidak aktif di jam ini</span>' +
                 '</div></div>';
         }).join('');
     }
 
+    function normalizeName(name) {
+        return String(name || '').toLowerCase().replace(/\s+/g, ' ').trim();
+    }
+
+    function normalizeRange(text) {
+        var m = String(text || '').match(/(\d{1,2}:\d{2})(?::\d{2})?\s*-\s*(\d{1,2}:\d{2})(?::\d{2})?/);
+        return m ? (m[1] + ' - ' + m[2]) : String(text || '').trim();
+    }
+
+    function activeDoctorNamesForCurrentSlot() {
+        var hariIni = HARI_BY_DAY_INDEX[new Date().getDay()];
+        var selectedWaktu = normalizeRange(document.getElementById('waktu').value);
+        var slotsHariIni = Array.isArray(jadwalMingguan[hariIni]) ? jadwalMingguan[hariIni] : [];
+
+        var setNama = new Set();
+        slotsHariIni.forEach(function(slot) {
+            if (normalizeRange(slot.waktu) === selectedWaktu) {
+                setNama.add(normalizeName(slot.dokter));
+            }
+        });
+
+        return setNama;
+    }
+
+    function applyDoctorAvailability() {
+        var activeNames = activeDoctorNamesForCurrentSlot();
+        var activeCount = 0;
+        var selectedId = document.getElementById('dokter_id').value;
+        var selectedStillActive = !selectedId;
+
+        dokterList.forEach(function(dr) {
+            var active = activeNames.has(normalizeName(dr.nama));
+            var option = document.querySelector('#dokter_id option[value="' + dr.id + '"]');
+            var card = document.querySelector('#dokter-cards > div[data-id="' + dr.id + '"]');
+
+            if (active) activeCount++;
+
+            if (option) {
+                option.disabled = !active;
+                option.textContent = dr.nama + ' — ' + dr.spesialisasi + (active ? '' : ' (Tidak aktif di jam ini)');
+            }
+
+            if (card) {
+                card.dataset.active = active ? '1' : '0';
+                card.classList.toggle('opacity-50', !active);
+                card.classList.toggle('grayscale', !active);
+                card.classList.toggle('cursor-not-allowed', !active);
+                card.classList.toggle('hover:border-brand-400', active);
+                card.classList.toggle('hover:shadow-md', active);
+
+                var liveStatus = card.querySelector('.doctor-live-status');
+                var inactiveHint = card.querySelector('.doctor-inactive-hint');
+
+                if (liveStatus) {
+                    liveStatus.textContent = active ? '● Tersedia' : '● Tidak aktif';
+                    liveStatus.className = 'doctor-live-status text-[10px] font-bold ' + (active ? 'text-emerald-600' : 'text-slate-500');
+                }
+                if (inactiveHint) {
+                    inactiveHint.classList.toggle('hidden', active);
+                }
+            }
+
+            if (String(dr.id) === String(selectedId) && active) {
+                selectedStillActive = true;
+            }
+        });
+
+        if (!selectedStillActive) {
+            document.getElementById('dokter_id').value = '';
+            document.getElementById('dokter-info').classList.add('hidden');
+        }
+
+        document.getElementById('dokter-count').textContent = activeCount + ' dokter aktif di jam ini';
+    }
+
     function pilihDokter(el, id) {
+        if (el.dataset.active === '0') return;
         document.getElementById('dokter_id').value = id;
         onDokterChange();
         document.querySelectorAll('#dokter-cards > div[data-id]').forEach(function(c) {
@@ -316,7 +453,13 @@
         setTimeout(function() { sucBox.classList.add('hidden'); }, 8000);
     }
 
-    window.addEventListener('online', loadDokter);
+    window.addEventListener('online', handleBackOnline);
+    document.getElementById('waktu').addEventListener('change', applyDoctorAvailability);
+
+    if (navigator.onLine) {
+        setTimeout(function() { handleBackOnline(); }, 300);
+    }
+
     loadDokter();
 </script>
 @endsection

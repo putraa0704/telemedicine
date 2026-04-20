@@ -29,6 +29,20 @@
     </div>
 </div>
 
+{{-- Status Dokter --}}
+<div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden mb-5">
+    <div class="px-4 sm:px-5 py-3.5 border-b border-slate-100 flex items-center justify-between gap-3">
+        <span class="text-[13px] font-semibold text-slate-800">Status Dokter Berdasarkan Jadwal</span>
+        <div class="flex items-center gap-2 text-[11px]">
+            <span class="inline-flex items-center gap-1 text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Aktif</span>
+            <span class="inline-flex items-center gap-1 text-slate-500 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Tidak aktif</span>
+        </div>
+    </div>
+    <div id="dokter-status-list" class="p-4 flex flex-wrap gap-2 text-[11px] text-slate-400">
+        Memuat status dokter...
+    </div>
+</div>
+
 {{-- Jadwal Per Hari --}}
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
     <div class="space-y-3" id="jadwal-list-left">
@@ -81,10 +95,28 @@
 <script>
     var token = localStorage.getItem('auth_token');
     var user  = JSON.parse(localStorage.getItem('auth_user') || 'null');
+    var isAdmin = !!(user && user.role === 'admin');
     if (!token || !user) window.location.href = '/login';
-    if (user && user.role === 'pasien') window.location.href = '/pasien';
     if (user && user.role === 'dokter') window.location.href = '/dokter/jadwal-saya';
-    if (user && user.role !== 'admin') window.location.href = '/login';
+    if (user && !['admin', 'pasien'].includes(user.role)) window.location.href = '/login';
+
+    if (!isAdmin) {
+        var titleEl = document.querySelector('title');
+        if (titleEl) titleEl.textContent = 'Jadwal Dokter - Telemedicine';
+
+        var pageTitleEl = document.querySelector('h1');
+        if (pageTitleEl && pageTitleEl.textContent.trim() === 'Kelola Jadwal Dokter') {
+            pageTitleEl.textContent = 'Jadwal Dokter';
+        }
+
+        var pageSubEl = document.querySelector('header p');
+        if (pageSubEl && pageSubEl.textContent.includes('khusus admin')) {
+            pageSubEl.textContent = 'Lihat jadwal praktik dokter yang tersedia.';
+        }
+
+        var tambahWrap = document.querySelector('.mt-5.bg-white.rounded-2xl.border.border-slate-100.shadow-sm.overflow-hidden');
+        if (tambahWrap) tambahWrap.classList.add('hidden');
+    }
 
     const HARI_LIST  = ['senin','selasa','rabu','kamis','jumat','sabtu','minggu'];
     const HARI_LABEL = { senin:'Senin', selasa:'Selasa', rabu:'Rabu', kamis:'Kamis', jumat:'Jumat', sabtu:'Sabtu', minggu:'Minggu' };
@@ -97,23 +129,19 @@
     document.getElementById('stat-hari').textContent = HARI_LABEL[todayNama] || '—';
     document.getElementById('stat-tanggal').textContent = todayFull;
 
-    var allJadwal = [];
+    var weeklyGrouped = {};
+    var dokterList = [];
 
     async function loadJadwal() {
         try {
-            var res = await fetch('/api/jadwal/mingguan', { headers: { 'Authorization': 'Bearer ' + token } });
-            var mingguan = await res.json();
+            var weeklyRes = await fetch('/api/jadwal/mingguan', { headers: { 'Authorization': 'Bearer ' + token } });
+            var doctorRes = await fetch('/api/tim-dokter', { headers: { 'Authorization': 'Bearer ' + token } });
+            weeklyGrouped = await weeklyRes.json();
+            dokterList = await doctorRes.json();
 
-            // Filter hanya jadwal dokter ini dari mingguan
-            // Kita juga perlu fetch detail dokter untuk filter by dokter_id
-            var resDetail = await fetch('/api/tim-dokter/' + user.id, { headers: { 'Authorization': 'Bearer ' + token } });
-            var dokterDetail = await resDetail.json();
-            var myJadwal = dokterDetail.jadwal || [];
-
-            // Group my jadwal per hari
-            var grouped = {};
-            myJadwal.forEach(function(hari_data) {
-                grouped[hari_data.hari ? hari_data.hari.toLowerCase() : ''] = hari_data.slots || [];
+            // Pastikan semua hari tersedia meski kosong
+            HARI_LIST.forEach(function(hari) {
+                weeklyGrouped[hari] = weeklyGrouped[hari] || [];
             });
 
             // Hitung stats
@@ -122,7 +150,7 @@
             var jamHariIni = [];
 
             HARI_LIST.forEach(function(hari) {
-                var slots = grouped[hari] || [];
+                var slots = weeklyGrouped[hari] || [];
                 if (slots.length) {
                     totalSlots += slots.length;
                     hariAktif++;
@@ -135,48 +163,33 @@
             document.getElementById('stat-aktif').textContent = totalSlots;
             document.getElementById('stat-hari-praktik').textContent = hariAktif;
             document.getElementById('stat-jam-hari-ini').textContent = jamHariIni.length
-                ? jamHariIni.map(function(s) { return s.waktu; }).join(', ')
+                ? jamHariIni.map(function(s) { return (s.dokter ? s.dokter + ' (' + s.waktu + ')' : s.waktu); }).join(', ')
                 : 'Tidak praktik';
 
-            renderJadwalCards(grouped);
+            renderDokterStatus();
+            renderJadwalCards(weeklyGrouped);
         } catch(e) {
-            // Fallback: load from /api/jadwal/mingguan dan filter by dokter name
-            loadJadwalFallback();
+            document.getElementById('jadwal-list-left').innerHTML = '<div class="bg-white rounded-2xl border border-slate-100 p-6 text-center text-red-400 text-sm">Gagal memuat jadwal</div>';
+            document.getElementById('dokter-status-list').textContent = 'Gagal memuat status dokter';
         }
     }
 
-    async function loadJadwalFallback() {
-        try {
-            var res = await fetch('/api/jadwal/mingguan', { headers: { 'Authorization': 'Bearer ' + token } });
-            var data = await res.json();
-
-            var grouped = {};
-            var totalSlots = 0, hariAktif = 0;
-            var jamHariIni = [];
-
-            HARI_LIST.forEach(function(hari) {
-                var slots = (data[hari] || []).filter(function(s) {
-                    return s.dokter && s.dokter.toLowerCase().includes(user.name.split(' ')[1] ? user.name.split(' ')[1].toLowerCase() : user.name.toLowerCase());
-                });
-                if (!slots.length) {
-                    // If can't filter by name, show all for this day
-                    slots = data[hari] || [];
-                }
-                grouped[hari] = slots;
-                if (slots.length) { totalSlots += slots.length; hariAktif++; }
-                if (hari === todayNama) jamHariIni = slots;
-            });
-
-            document.getElementById('stat-aktif').textContent = totalSlots;
-            document.getElementById('stat-hari-praktik').textContent = hariAktif;
-            document.getElementById('stat-jam-hari-ini').textContent = jamHariIni.length
-                ? jamHariIni.map(function(s) { return s.waktu; }).join(', ')
-                : 'Tidak praktik';
-
-            renderJadwalCards(grouped);
-        } catch(e) {
-            document.getElementById('jadwal-list-left').innerHTML = '<div class="bg-white rounded-2xl border border-slate-100 p-6 text-center text-red-400 text-sm">Gagal memuat jadwal</div>';
+    function renderDokterStatus() {
+        var el = document.getElementById('dokter-status-list');
+        if (!dokterList.length) {
+            el.textContent = 'Tidak ada data dokter';
+            return;
         }
+
+        el.innerHTML = dokterList.map(function(d) {
+            var aktif = Array.isArray(d.hari_praktik) && d.hari_praktik.length > 0;
+            return '<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border ' +
+                (aktif ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-500 border-slate-200') + '">' +
+                '<span class="w-1.5 h-1.5 rounded-full ' + (aktif ? 'bg-emerald-500' : 'bg-slate-400') + '"></span>' +
+                '<span class="font-semibold">' + d.nama + '</span>' +
+                '<span>' + (aktif ? 'Aktif' : 'Tidak aktif') + '</span>' +
+                '</div>';
+        }).join('');
     }
 
     function renderJadwalCards(grouped) {
@@ -218,11 +231,16 @@
                 card += '<div class="px-4 py-3 space-y-2">';
                 slots.forEach(function(slot) {
                     card += '<div class="flex items-center justify-between px-3 py-2 bg-slate-50 rounded-xl border border-slate-100">' +
-                        '<div class="flex items-center gap-2">' +
-                        '<svg class="w-3.5 h-3.5 text-brand-600 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' +
-                        '<span class="text-[12px] font-semibold text-slate-700">' + slot.waktu + '</span>' +
+                        '<div class="flex items-center gap-2 min-w-0">' +
+                        '<svg class="w-3.5 h-3.5 text-brand-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' +
+                        '<div class="min-w-0">' +
+                        '<div class="text-[12px] font-semibold text-slate-700">' + slot.waktu + '</div>' +
+                        '<div class="text-[10px] text-slate-500 truncate">' + (slot.dokter || 'Dokter tidak diketahui') + '</div>' +
                         '</div>' +
-                        '<button onclick="hapusJadwal(' + slot.id + ')" class="text-[10px] text-red-400 hover:text-red-600 hover:bg-red-50 px-2 py-0.5 rounded-lg transition-colors">Hapus</button>' +
+                        '</div>' +
+                        (isAdmin
+                            ? '<button onclick="hapusJadwal(' + slot.id + ')" class="text-[10px] text-red-400 hover:text-red-600 hover:bg-red-50 px-2 py-0.5 rounded-lg transition-colors">Hapus</button>'
+                            : '<span class="text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">Aktif</span>') +
                         '</div>';
                 });
                 card += '</div>';

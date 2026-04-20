@@ -1,4 +1,4 @@
-const CACHE_NAME = 'telemedicine-v3';
+const CACHE_NAME = 'telemedicine-v4';
 const API_BASE   = 'http://localhost:8000';
 
 // Hanya cache aset lokal — JANGAN masukkan URL CDN eksternal
@@ -27,7 +27,7 @@ const SKIP_CACHE_DOMAINS = [
 
 // ─── 1. INSTALL ───────────────────────────────────────────
 self.addEventListener('install', event => {
-    console.log('[SW] Installing v3...');
+    console.log('[SW] Installing v4...');
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => {
             // Gunakan individual add + catch supaya 1 URL gagal tidak block semua
@@ -45,7 +45,7 @@ self.addEventListener('install', event => {
 
 // ─── 2. ACTIVATE ──────────────────────────────────────────
 self.addEventListener('activate', event => {
-    console.log('[SW] Activating v3...');
+    console.log('[SW] Activating v4...');
     event.waitUntil(
         caches.keys().then(keys =>
             Promise.all(
@@ -79,6 +79,12 @@ self.addEventListener('fetch', event => {
     // API Laravel (localhost:8000/api/*) → Network-First, tidak di-cache
     if (url.hostname === 'localhost' && url.port === '8000' && url.pathname.startsWith('/api/')) {
         event.respondWith(networkFirst(event.request));
+        return;
+    }
+
+    // Navigasi halaman HTML → utamakan network agar update view terbaru langsung terlihat.
+    if (event.request.mode === 'navigate') {
+        event.respondWith(networkFirstPage(event.request));
         return;
     }
 
@@ -255,4 +261,25 @@ function updateStatus(db, id, status, server_id = null) {
         };
         req.onerror = () => reject(req.error);
     });
+}
+
+// ── Network-First khusus halaman HTML ──
+async function networkFirstPage(request) {
+    try {
+        const response = await fetch(request);
+        if (response && response.ok) {
+            const cache = await caches.open(CACHE_NAME);
+            cache.put(request, response.clone());
+        }
+        return response;
+    } catch (err) {
+        const cached = await caches.match(request);
+        if (cached) return cached;
+
+        const fallback = await caches.match('/login');
+        return fallback || new Response(
+            '<h1>Offline</h1><p>Sambungkan internet untuk melanjutkan.</p>',
+            { headers: { 'Content-Type': 'text/html' } }
+        );
+    }
 }
