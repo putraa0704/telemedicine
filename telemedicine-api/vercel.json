@@ -1,6 +1,7 @@
 {
     "version": 2,
     "framework": null,
+    "outputDirectory": "public/dist",
     "functions": {
         "api/server.php": { "runtime": "vercel-php@0.9.0" }
     },
@@ -13,8 +14,6 @@
             "source": "/(.*)",
             "destination": "/api/server.php?__vc_path=/$1"
         }
-
-        
     ],
     "env": {
         "APP_NAME": "MediConnect",
