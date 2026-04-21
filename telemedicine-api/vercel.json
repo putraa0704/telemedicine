@@ -14,33 +14,5 @@
             "source": "/(.*)",
             "destination": "/api/server.php?__vc_path=/$1"
         }
-    ],
-    "env": {
-        "APP_NAME": "MediConnect",
-        "APP_ENV": "production",
-        "APP_DEBUG": "false",
-        "APP_URL": "https://telemedicine-six-henna.vercel.app",
-        "APP_KEY": "base64:A8rRLDvGsG4JtyYlvfOXv6EXG0o1F4iFNMrF3ctqTLA=",
-        "APP_LOCALE": "en",
-        "APP_MAINTENANCE_DRIVER": "file",
-        "BCRYPT_ROUNDS": "12",
-        "VIEW_COMPILED_PATH": "/tmp",
-        "LOG_CHANNEL": "stderr",
-        "LOG_LEVEL": "error",
-        "DB_CONNECTION": "pgsql",
-        "DB_URL": "postgresql://postgres.rvheeiuhuyrzahsjewzh:998CpS2HfYps3blm@aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres",
-        "SUPABASE_URL": "https://rvheeiuhuyrzahsjewzh.supabase.co",
-        "SUPABASE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2aGVlaXVodXlyemFoc2pld3poIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NTA1MjksImV4cCI6MjA5MjMyNjUyOX0.7IEe0Dqu34AQ4uyxFR2bJcy__3PvaqVVZ-I2ppUb_Kg",
-        "SESSION_DRIVER": "cookie",
-        "SESSION_LIFETIME": "120",
-        "SESSION_ENCRYPT": "false",
-        "SESSION_PATH": "/",
-        "BROADCAST_CONNECTION": "log",
-        "FILESYSTEM_DISK": "local",
-        "QUEUE_CONNECTION": "sync",
-        "CACHE_STORE": "array",
-        "MAIL_MAILER": "log",
-        "MAIL_FROM_ADDRESS": "hello@example.com",
-        "MAIL_FROM_NAME": "MediConnect"
-    }
+    ]
 }
