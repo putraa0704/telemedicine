@@ -16,13 +16,28 @@
         }
     ],
     "env": {
+        "APP_NAME": "MediConnect",
         "APP_ENV": "production",
-        "APP_DEBUG": "true",
+        "APP_DEBUG": "false",
+        "APP_URL": "https://YOUR_PROJECT.vercel.app",
+        "APP_LOCALE": "en",
+        "APP_FALLBACK_LOCALE": "en",
         "VIEW_COMPILED_PATH": "/tmp",
         "LOG_CHANNEL": "stderr",
+        "LOG_LEVEL": "error",
+        "DB_CONNECTION": "pgsql",
+        "DB_URL": "postgresql://postgres.rvheeiuhuyrzahsjewzh:998CpS2HfYps3blm@aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres",
+        "SUPABASE_URL": "https://rvheeiuhuyrzahsjewzh.supabase.co",
+        "SUPABASE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2aGVlaXVodXlyemFoc2pld3poIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NTA1MjksImV4cCI6MjA5MjMyNjUyOX0.7IEe0Dqu34AQ4uyxFR2bJcy__3PvaqVVZ-I2ppUb_Kg",
         "SESSION_DRIVER": "cookie",
+        "SESSION_LIFETIME": "120",
+        "SESSION_ENCRYPT": "false",
+        "SESSION_PATH": "/",
         "CACHE_STORE": "array",
-        "CACHE_DRIVER": "array",
-        "QUEUE_CONNECTION": "sync"
+        "QUEUE_CONNECTION": "sync",
+        "FILESYSTEM_DISK": "local",
+        "BROADCAST_CONNECTION": "log",
+        "BCRYPT_ROUNDS": "12",
+        "APP_MAINTENANCE_DRIVER": "file"
     }
 }
