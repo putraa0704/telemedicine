@@ -13,6 +13,8 @@
             "source": "/(.*)",
             "destination": "/api/server.php?__vc_path=/$1"
         }
+
+        
     ],
     "env": {
         "APP_NAME": "MediConnect",
