@@ -1,27 +1,28 @@
 {
     "version": 2,
     "framework": null,
-    "outputDirectory": "public/dist",
     "functions": {
         "api/server.php": { "runtime": "vercel-php@0.9.0" }
     },
     "rewrites": [
         {
-            "source": "/api/:path*",
-            "destination": "/api/server.php?__vc_path=/api/:path*"
+            "source": "/api/(.*)",
+            "destination": "/api/server.php?__vc_path=/api/$1"
         },
         {
-            "source": "/:path*",
-            "destination": "/api/server.php?__vc_path=/:path*"
+            "source": "/(.*)",
+            "destination": "/api/server.php?__vc_path=/$1"
         }
     ],
     "env": {
         "APP_NAME": "MediConnect",
         "APP_ENV": "production",
         "APP_DEBUG": "false",
-        "APP_URL": "https://YOUR_PROJECT.vercel.app",
+        "APP_URL": "https://telemedicine-six-henna.vercel.app",
+        "APP_KEY": "base64:A8rRLDvGsG4JtyYlvfOXv6EXG0o1F4iFNMrF3ctqTLA=",
         "APP_LOCALE": "en",
-        "APP_FALLBACK_LOCALE": "en",
+        "APP_MAINTENANCE_DRIVER": "file",
+        "BCRYPT_ROUNDS": "12",
         "VIEW_COMPILED_PATH": "/tmp",
         "LOG_CHANNEL": "stderr",
         "LOG_LEVEL": "error",
@@ -33,11 +34,12 @@
         "SESSION_LIFETIME": "120",
         "SESSION_ENCRYPT": "false",
         "SESSION_PATH": "/",
-        "CACHE_STORE": "array",
-        "QUEUE_CONNECTION": "sync",
-        "FILESYSTEM_DISK": "local",
         "BROADCAST_CONNECTION": "log",
-        "BCRYPT_ROUNDS": "12",
-        "APP_MAINTENANCE_DRIVER": "file"
+        "FILESYSTEM_DISK": "local",
+        "QUEUE_CONNECTION": "sync",
+        "CACHE_STORE": "array",
+        "MAIL_MAILER": "log",
+        "MAIL_FROM_ADDRESS": "hello@example.com",
+        "MAIL_FROM_NAME": "MediConnect"
     }
 }
