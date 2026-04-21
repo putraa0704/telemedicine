@@ -162,10 +162,22 @@
                 });
             }
 
-            var res = await submitLogin('/api/auth/login');
-            if (res.status === 404) {
-                res = await submitLogin('/auth/login');
+            var endpoints = ['/api/auth/login', '/auth/login'];
+            var res = null;
+            var lastErr = null;
+
+            for (var i = 0; i < endpoints.length; i++) {
+                try {
+                    var candidate = await submitLogin(endpoints[i]);
+                    if (candidate.status === 404) continue;
+                    res = candidate;
+                    break;
+                } catch (err) {
+                    lastErr = err;
+                }
             }
+
+            if (!res) throw (lastErr || new Error('Login endpoint tidak tersedia'));
 
             var data = await res.json();
 

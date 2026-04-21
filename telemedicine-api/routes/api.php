@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DokterController;
 use App\Http\Controllers\Api\JadwalController;
 use App\Http\Controllers\Api\KonsultasiController;
+use App\Http\Controllers\Api\SupabaseController;
 use App\Http\Controllers\Api\SyncController;
 use App\Http\Controllers\Api\TimDokterController;
 use Illuminate\Support\Facades\Route;
@@ -27,6 +28,7 @@ Route::middleware(['auth:sanctum', 'check.token'])->group(function () {
     // Tim Dokter
     Route::get('/tim-dokter', [TimDokterController::class, 'index']);
     Route::get('/tim-dokter/{id}', [TimDokterController::class, 'show']);
+    Route::get('/supabase/tim-dokter', [SupabaseController::class, 'timDokter']);
 
     // Jadwal
     Route::get('/jadwal', [JadwalController::class, 'index']);

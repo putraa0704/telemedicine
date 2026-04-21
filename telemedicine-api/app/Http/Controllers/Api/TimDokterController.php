@@ -17,7 +17,7 @@ class TimDokterController extends Controller
         $dokterList = User::where('role', 'dokter')
             ->withCount([
                 // Jumlah pasien aktif (konsultasi belum selesai)
-                'konsultasi as pasien_aktif' => fn($q) => $q->whereIn('status', ['received','in_review']),
+                'konsultasi as pasien_aktif' => fn($q) => $q->whereIn('status', ['received', 'in_review']),
             ])
             ->with([
                 'jadwalDokter' => fn($q) => $q->where('is_aktif', true)->orderBy('hari')->orderBy('jam_mulai'),
@@ -36,7 +36,7 @@ class TimDokterController extends Controller
     {
         $dokter = User::where('role', 'dokter')
             ->withCount([
-                'konsultasi as pasien_aktif'  => fn($q) => $q->whereIn('status', ['received','in_review']),
+                'konsultasi as pasien_aktif' => fn($q) => $q->whereIn('status', ['received', 'in_review']),
                 'konsultasi as total_pasien',
             ])
             ->with([
@@ -70,29 +70,35 @@ class TimDokterController extends Controller
         $dokter->update(['alamat' => $request->is_aktif ? null : '__nonaktif__']);
 
         return response()->json([
-            'success'  => true,
-            'message'  => $request->is_aktif ? 'Dokter diaktifkan.' : 'Dokter dinonaktifkan.',
+            'success' => true,
+            'message' => $request->is_aktif ? 'Dokter diaktifkan.' : 'Dokter dinonaktifkan.',
         ]);
     }
 
     // ── Private helper format response ──
-    private function format(User $d, bool $detail = false): array
+    private function format($d, bool $detail = false): array
     {
         $hariMap = [
-            'senin'=>'Senin','selasa'=>'Selasa','rabu'=>'Rabu',
-            'kamis'=>'Kamis','jumat'=>'Jumat','sabtu'=>'Sabtu','minggu'=>'Minggu',
+            'senin' => 'Senin',
+            'selasa' => 'Selasa',
+            'rabu' => 'Rabu',
+            'kamis' => 'Kamis',
+            'jumat' => 'Jumat',
+            'sabtu' => 'Sabtu',
+            'minggu' => 'Minggu',
         ];
 
         // Kelompokkan jadwal per hari
         $jadwalPerHari = $d->jadwalDokter
             ->groupBy('hari')
             ->map(fn($slots, $hari) => [
-                'hari'  => $hariMap[$hari] ?? $hari,
+                'hari_key' => $hari,
+                'hari' => $hariMap[$hari] ?? $hari,
                 'slots' => $slots->map(fn($s) => [
-                    'id'          => $s->id,
-                    'jam_mulai'   => $s->jam_mulai,
+                    'id' => $s->id,
+                    'jam_mulai' => $s->jam_mulai,
                     'jam_selesai' => $s->jam_selesai,
-                    'waktu'       => $s->jam_mulai . ' - ' . $s->jam_selesai,
+                    'waktu' => $s->jam_mulai . ' - ' . $s->jam_selesai,
                 ]),
             ])
             ->values();
@@ -101,25 +107,25 @@ class TimDokterController extends Controller
 
         // Status: "sibuk" jika pasien aktif >= 10, "tersedia" jika ada jadwal
         $pasienAktif = $d->pasien_aktif ?? 0;
-        $status = match(true) {
+        $status = match (true) {
             $pasienAktif >= 10 => 'sibuk',
-            default            => 'tersedia',
+            default => 'tersedia',
         };
 
         $base = [
-            'id'           => $d->id,
-            'nama'         => $d->name,
-            'inisial'      => collect(explode(' ', $d->name))->map(fn($w) => strtoupper($w[0]))->take(2)->join(''),
+            'id' => $d->id,
+            'nama' => $d->name,
+            'inisial' => collect(explode(' ', $d->name))->map(fn($w) => strtoupper($w[0]))->take(2)->join(''),
             'spesialisasi' => $d->spesialisasi ?? 'Dokter Umum',
-            'no_str'       => $d->no_str,
-            'no_hp'        => $d->no_hp,
+            'no_str' => $d->no_str,
+            'no_hp' => $d->no_hp,
             'pasien_aktif' => $pasienAktif,
-            'status'       => $status,
+            'status' => $status,
             'hari_praktik' => $hariAktif,
+            'jadwal' => $jadwalPerHari,
         ];
 
         if ($detail) {
-            $base['jadwal']       = $jadwalPerHari;
             $base['total_pasien'] = $d->total_pasien ?? 0;
         }
 

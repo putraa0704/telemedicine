@@ -6,7 +6,7 @@
 
 @section('content')
 
-<div class="grid grid-cols-[1fr_1.4fr] gap-5">
+<div class="grid grid-cols-1 xl:grid-cols-[minmax(300px,380px)_1fr] gap-4 lg:gap-5">
 
     {{-- Form Tambah Dokter --}}
     <div class="bg-white rounded-xl border border-slate-200 p-5">
@@ -26,7 +26,7 @@
                 <input id="f-email" type="email" placeholder="dokter@mediconnect.id"
                     class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition"/>
             </div>
-            <div class="grid grid-cols-2 gap-2">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
                     <label class="block text-xs font-medium text-slate-600 mb-1.5">Password</label>
                     <input id="f-password" type="password" placeholder="Min. 8 karakter"
@@ -86,7 +86,7 @@
                         <option value="sabtu">Sabtu</option>
                     </select>
                 </div>
-                <div class="grid grid-cols-2 gap-2">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div>
                         <label class="block text-xs font-medium text-slate-600 mb-1.5">Jam Mulai</label>
                         <input id="j-mulai" type="time" value="08:00"
@@ -98,7 +98,10 @@
                             class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 transition"/>
                     </div>
                 </div>
-                <button onclick="tambahJadwal()"
+                <div id="jadwal-success" class="hidden bg-teal-50 border border-teal-300 text-teal-700 text-sm px-3 py-2.5 rounded-lg"></div>
+                <div id="jadwal-error" class="hidden bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2.5 rounded-lg"></div>
+
+                <button id="btn-tambah-jadwal" onclick="tambahJadwal()"
                     class="w-full bg-teal-600 hover:bg-teal-800 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">
                     Tambah Jadwal
                 </button>
@@ -117,6 +120,63 @@
     </div>
 </div>
 
+<div id="edit-jadwal-modal" class="hidden fixed inset-0 z-50">
+    <div class="absolute inset-0 bg-slate-900/45" onclick="tutupEditJadwal()"></div>
+    <div class="relative h-full w-full flex items-center justify-center p-4">
+        <div class="w-full max-w-md bg-white rounded-xl border border-slate-200 shadow-xl p-5">
+            <div class="flex items-center justify-between mb-4">
+                 <h3 class="text-sm font-semibold text-slate-800">Edit Jam Kerja Dokter</h3>
+                <button type="button" onclick="tutupEditJadwal()" class="text-slate-400 hover:text-slate-700 text-sm">Tutup</button>
+            </div>
+
+            <div id="edit-jadwal-error" class="hidden bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2.5 rounded-lg mb-3"></div>
+
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-medium text-slate-600 mb-1.5">Dokter</label>
+                    <input id="e-dokter" type="text" readonly
+                        class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg bg-slate-50 text-slate-700" />
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-600 mb-1.5">Hari</label>
+                    <select id="e-hari"
+                        class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 bg-white">
+                        <option value="senin">Senin</option>
+                        <option value="selasa">Selasa</option>
+                        <option value="rabu">Rabu</option>
+                        <option value="kamis">Kamis</option>
+                        <option value="jumat">Jumat</option>
+                        <option value="sabtu">Sabtu</option>
+                        <option value="minggu">Minggu</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1.5">Jam Mulai</label>
+                        <input id="e-mulai" type="time"
+                            class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 transition"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1.5">Jam Selesai</label>
+                        <input id="e-selesai" type="time"
+                            class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 transition"/>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <button id="btn-simpan-jadwal" onclick="simpanEditJadwal()"
+                        class="w-full bg-blue-700 hover:bg-blue-900 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">
+                        Simpan Perubahan
+                    </button>
+                    <button id="btn-hapus-jadwal" onclick="hapusJadwal()"
+                        class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">
+                        Hapus Jadwal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('scripts')
@@ -127,11 +187,30 @@
     if (user && user.role !== 'admin') window.location.href = '/pasien';
 
     var dokterData = [];
+    var editJadwalId = null;
+
+    function escapeHtml(val) {
+        return String(val || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
 
     async function loadDokter() {
         try {
-            var res   = await fetch('/api/tim-dokter', { headers: { 'Authorization': 'Bearer ' + token } });
+            var headers = { 'Authorization': 'Bearer ' + token };
+            var res = await fetch('/api/supabase/tim-dokter', { headers: headers });
+
+            if (!res.ok) {
+                res = await fetch('/api/tim-dokter', { headers: headers });
+            }
+
             dokterData = await res.json();
+            if (!Array.isArray(dokterData)) {
+                throw new Error('Format data dokter tidak valid');
+            }
             renderDokter();
             populateDokterSelect();
         } catch(e) {
@@ -153,7 +232,7 @@
         }
         list.innerHTML = dokterData.map(dr => `
             <div class="px-4 py-3">
-                <div class="flex items-center gap-3 mb-2">
+                <div class="flex items-start sm:items-center gap-3 mb-2">
                     <div class="w-9 h-9 rounded-full flex items-center justify-center text-[12px] font-bold flex-shrink-0
                         ${dr.status === 'sibuk' ? 'bg-red-50 text-red-700' : 'bg-blue-50 text-blue-800'}">
                         ${dr.inisial}
@@ -167,15 +246,45 @@
                         ${dr.status === 'sibuk' ? 'Sibuk' : 'Tersedia'}
                     </span>
                 </div>
-                {{-- Hari praktik --}}
-                <div class="flex flex-wrap gap-1 ml-12">
+                <div class="flex flex-wrap gap-1 ml-0 sm:ml-12">
                     ${(dr.hari_praktik || []).map(h =>
                         `<span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">${h}</span>`
                     ).join('')}
                     ${!dr.hari_praktik?.length ? '<span class="text-[11px] text-slate-400 italic">Belum ada jadwal</span>' : ''}
                 </div>
+                <div class="ml-0 sm:ml-12 mt-2 space-y-2">
+                    ${(dr.jadwal || []).map(group => `
+                        <div>
+                            <div class="text-[11px] font-semibold text-slate-500 mb-1">${group.hari}</div>
+                            <div class="flex flex-wrap gap-1.5">
+                                ${(group.slots || []).map(slot => `
+                                    <button type="button"
+                                        onclick="bukaEditJadwal(${slot.id}, '${escapeHtml(dr.nama)}', '${group.hari_key}', '${slot.jam_mulai}', '${slot.jam_selesai}')"
+                                        class="text-[10px] px-2 py-1 rounded-md border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors">
+                                        ${slot.waktu} · Edit
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
             </div>
         `).join('');
+    }
+
+    function bukaEditJadwal(id, namaDokter, hari, jamMulai, jamSelesai) {
+        editJadwalId = id;
+        document.getElementById('edit-jadwal-error').classList.add('hidden');
+        document.getElementById('e-dokter').value = namaDokter;
+        document.getElementById('e-hari').value = hari;
+        document.getElementById('e-mulai').value = jamMulai;
+        document.getElementById('e-selesai').value = jamSelesai;
+        document.getElementById('edit-jadwal-modal').classList.remove('hidden');
+    }
+
+    function tutupEditJadwal() {
+        editJadwalId = null;
+        document.getElementById('edit-jadwal-modal').classList.add('hidden');
     }
 
     async function tambahDokter() {
@@ -223,13 +332,30 @@
     }
 
     async function tambahJadwal() {
+        var sucEl = document.getElementById('jadwal-success');
+        var errEl = document.getElementById('jadwal-error');
+        var btnEl = document.getElementById('btn-tambah-jadwal');
+        sucEl.classList.add('hidden');
+        errEl.classList.add('hidden');
+
         var dokterId = document.getElementById('j-dokter').value;
         var hari     = document.getElementById('j-hari').value;
         var mulai    = document.getElementById('j-mulai').value;
         var selesai  = document.getElementById('j-selesai').value;
 
-        if (!dokterId) { alert('Pilih dokter terlebih dahulu'); return; }
-        if (!mulai || !selesai) { alert('Jam mulai dan selesai wajib diisi'); return; }
+        if (!dokterId) {
+            errEl.textContent = 'Pilih dokter terlebih dahulu.';
+            errEl.classList.remove('hidden');
+            return;
+        }
+        if (!mulai || !selesai) {
+            errEl.textContent = 'Jam mulai dan selesai wajib diisi.';
+            errEl.classList.remove('hidden');
+            return;
+        }
+
+        btnEl.disabled = true;
+        btnEl.textContent = 'Menyimpan...';
 
         try {
             var res  = await fetch('/api/jadwal', {
@@ -237,16 +363,117 @@
                 headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
                 body: JSON.stringify({ dokter_id: dokterId, hari, jam_mulai: mulai, jam_selesai: selesai })
             });
-            var data = await res.json();
 
-            if (data.success) {
-                alert('✅ Jadwal berhasil ditambahkan!');
+            var text = await res.text();
+            var data = {};
+            try { data = text ? JSON.parse(text) : {}; } catch (e) {}
+
+            if (res.ok && data.success) {
+                sucEl.textContent = '✓ Jadwal berhasil ditambahkan.';
+                sucEl.classList.remove('hidden');
                 await loadDokter();
+                document.getElementById('j-mulai').value = '08:00';
+                document.getElementById('j-selesai').value = '09:00';
             } else {
-                alert(data.message || 'Gagal menambahkan jadwal');
+                var msgs = data.errors ? Object.values(data.errors).flat().join(', ') : (data.message || 'Gagal menambahkan jadwal');
+                errEl.textContent = msgs;
+                errEl.classList.remove('hidden');
             }
         } catch(e) {
-            alert('Gagal terhubung ke server');
+            errEl.textContent = 'Gagal terhubung ke server';
+            errEl.classList.remove('hidden');
+        } finally {
+            btnEl.disabled = false;
+            btnEl.textContent = 'Tambah Jadwal';
+        }
+    }
+
+    async function simpanEditJadwal() {
+        if (!editJadwalId) return;
+
+        var errEl = document.getElementById('edit-jadwal-error');
+        var btnEl = document.getElementById('btn-simpan-jadwal');
+        errEl.classList.add('hidden');
+
+        var hari = document.getElementById('e-hari').value;
+        var mulai = document.getElementById('e-mulai').value;
+        var selesai = document.getElementById('e-selesai').value;
+
+        if (!hari || !mulai || !selesai) {
+            errEl.textContent = 'Hari, jam mulai, dan jam selesai wajib diisi.';
+            errEl.classList.remove('hidden');
+            return;
+        }
+
+        btnEl.disabled = true;
+        btnEl.textContent = 'Menyimpan...';
+
+        try {
+            var res = await fetch('/api/jadwal/' + editJadwalId, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                body: JSON.stringify({ hari: hari, jam_mulai: mulai, jam_selesai: selesai })
+            });
+            var data = await res.json();
+
+            if (!res.ok || !data.success) {
+                var msgs = data.errors ? Object.values(data.errors).flat().join(', ') : (data.message || 'Gagal menyimpan perubahan jadwal');
+                errEl.textContent = msgs;
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            tutupEditJadwal();
+            await loadDokter();
+            alert('✅ Jadwal dokter berhasil diperbarui.');
+        } catch (e) {
+            errEl.textContent = 'Gagal terhubung ke server';
+            errEl.classList.remove('hidden');
+        } finally {
+            btnEl.disabled = false;
+            btnEl.textContent = 'Simpan Perubahan';
+        }
+    }
+
+    async function hapusJadwal() {
+        if (!editJadwalId) return;
+
+        var errEl = document.getElementById('edit-jadwal-error');
+        var btnHapus = document.getElementById('btn-hapus-jadwal');
+        var btnSimpan = document.getElementById('btn-simpan-jadwal');
+        errEl.classList.add('hidden');
+
+        var ok = confirm('Yakin ingin menghapus jadwal ini?');
+        if (!ok) return;
+
+        btnHapus.disabled = true;
+        btnSimpan.disabled = true;
+        btnHapus.textContent = 'Menghapus...';
+
+        try {
+            var res = await fetch('/api/jadwal/' + editJadwalId, {
+                method: 'DELETE',
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            var data = await res.json();
+
+            if (!res.ok || !data.success) {
+                var msgs = data.errors ? Object.values(data.errors).flat().join(', ') : (data.message || 'Gagal menghapus jadwal');
+                errEl.textContent = msgs;
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            tutupEditJadwal();
+            await loadDokter();
+            alert('✅ Jadwal dokter berhasil dihapus.');
+        } catch (e) {
+            errEl.textContent = 'Gagal terhubung ke server';
+            errEl.classList.remove('hidden');
+        } finally {
+            btnHapus.disabled = false;
+            btnSimpan.disabled = false;
+            btnHapus.textContent = 'Hapus Jadwal';
         }
     }
 
