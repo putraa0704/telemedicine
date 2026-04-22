@@ -45,6 +45,7 @@
 @endsection
 
 @section('scripts')
+<script src="https://unpkg.com/dexie@3.2.4/dist/dexie.js"></script>
 <script>
     var token = localStorage.getItem('auth_token');
     var user  = JSON.parse(localStorage.getItem('auth_user') || 'null');
@@ -52,6 +53,34 @@
 
     var allData = [];
     var activeFilter = 'all';
+    const db = new Dexie('telemedicine');
+    db.version(2).stores({ konsultasi: 'id, status, created_at', auth: 'key' });
+
+    async function loadLocalPending() {
+        try {
+            var pending = await db.konsultasi.where('status').equals('pending').reverse().sortBy('created_at');
+            return pending.map(function(item) {
+                return {
+                    id: item.id,
+                    local_id: item.id,
+                    server_id: item.server_id || null,
+                    nama: item.nama,
+                    keluhan: item.keluhan,
+                    status: 'received',
+                    created_at: item.created_at,
+                    is_local_pending: true,
+                };
+            });
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function formatKslId(item) {
+        if (item.server_id) return '#KSL-' + String(item.server_id).padStart(3, '0');
+        if (typeof item.id === 'number') return '#KSL-' + String(item.id).padStart(3, '0');
+        return '#LOCAL';
+    }
 
     function setFilter(f) {
         activeFilter = f;
@@ -97,7 +126,8 @@
                     '<div class="flex flex-wrap items-start justify-between gap-2 mb-2">' +
                         '<div class="flex items-center gap-2 flex-wrap">' +
                             '<span class="text-[13px] font-semibold text-slate-800">' + (item.nama || item.nama_pasien || (user ? user.name : '')) + '</span>' +
-                            '<span class="text-[10px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">#KSL-' + String(item.id).padStart(3,'0') + '</span>' +
+                            '<span class="text-[10px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">' + formatKslId(item) + '</span>' +
+                            (item.is_local_pending ? '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">Offline</span>' : '') +
                         '</div>' +
                         '<span class="text-[10px] text-slate-400">' + dibuat + '</span>' +
                     '</div>' +
@@ -112,18 +142,30 @@
 
     async function loadData() {
         document.getElementById('riwayat-list').innerHTML = '<div class="px-4 py-10 text-center text-[12px] text-slate-400">Memuat...</div>';
+        var localPending = await loadLocalPending();
         try {
             var res  = await fetch('/api/konsultasi/saya', { headers: { 'Authorization': 'Bearer ' + token } });
-            allData  = await res.json();
+            var remoteData = await res.json();
+            allData  = localPending.concat(remoteData || []);
             document.getElementById('stat-total').textContent    = allData.length;
             document.getElementById('stat-done').textContent     = allData.filter(function(d) { return d.status === 'done'; }).length;
             document.getElementById('stat-pending').textContent  = allData.filter(function(d) { return d.status === 'received'; }).length;
             document.getElementById('stat-answered').textContent = allData.filter(function(d) { return d.jawaban_dokter || d.jawaban; }).length;
             renderList();
         } catch(e) {
-            document.getElementById('riwayat-list').innerHTML = '<div class="px-4 py-10 text-center text-[12px] text-red-400">Gagal memuat data</div>';
+            allData = localPending;
+            document.getElementById('stat-total').textContent    = allData.length;
+            document.getElementById('stat-done').textContent     = 0;
+            document.getElementById('stat-pending').textContent  = allData.length;
+            document.getElementById('stat-answered').textContent = 0;
+            if (allData.length) {
+                renderList();
+            } else {
+                document.getElementById('riwayat-list').innerHTML = '<div class="px-4 py-10 text-center text-[12px] text-red-400">Gagal memuat data</div>';
+            }
         }
     }
+    window.addEventListener('online', loadData);
     loadData();
 </script>
 @endsection

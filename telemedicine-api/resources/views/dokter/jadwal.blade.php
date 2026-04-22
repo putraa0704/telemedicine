@@ -132,6 +132,34 @@
     var weeklyGrouped = {};
     var dokterList = [];
 
+    function timeToMinutes(value) {
+        if (!value) return null;
+        var parts = String(value).slice(0, 5).split(':');
+        if (parts.length < 2) return null;
+        var hh = parseInt(parts[0], 10);
+        var mm = parseInt(parts[1], 10);
+        if (isNaN(hh) || isNaN(mm)) return null;
+        return (hh * 60) + mm;
+    }
+
+    function getSlotMinutes(slot) {
+        var mulai = timeToMinutes(slot.jam_mulai);
+        var selesai = timeToMinutes(slot.jam_selesai);
+
+        if (mulai !== null && selesai !== null) {
+            return { mulai: mulai, selesai: selesai };
+        }
+
+        var waktuText = String(slot.waktu || '');
+        var parts = waktuText.split('-').map(function(v) { return v.trim(); });
+        if (parts.length === 2) {
+            mulai = timeToMinutes(parts[0]);
+            selesai = timeToMinutes(parts[1]);
+        }
+
+        return { mulai: mulai, selesai: selesai };
+    }
+
     async function loadJadwal() {
         try {
             var weeklyRes = await fetch('/api/jadwal/mingguan', { headers: { 'Authorization': 'Bearer ' + token } });
@@ -166,7 +194,7 @@
                 ? jamHariIni.map(function(s) { return (s.dokter ? s.dokter + ' (' + s.waktu + ')' : s.waktu); }).join(', ')
                 : 'Tidak praktik';
 
-            renderDokterStatus();
+            renderDokterStatus(weeklyGrouped);
             renderJadwalCards(weeklyGrouped);
         } catch(e) {
             document.getElementById('jadwal-list-left').innerHTML = '<div class="bg-white rounded-2xl border border-slate-100 p-6 text-center text-red-400 text-sm">Gagal memuat jadwal</div>';
@@ -174,15 +202,30 @@
         }
     }
 
-    function renderDokterStatus() {
+    function renderDokterStatus(grouped) {
         var el = document.getElementById('dokter-status-list');
         if (!dokterList.length) {
             el.textContent = 'Tidak ada data dokter';
             return;
         }
 
+        var slotsHariIni = (grouped && Array.isArray(grouped[todayNama])) ? grouped[todayNama] : [];
+        var now = new Date();
+        var nowMinutes = (now.getHours() * 60) + now.getMinutes();
+
+        var activeNowById = new Set();
+        var activeNowByNama = new Set();
+        slotsHariIni.forEach(function(slot) {
+            var slotMinutes = getSlotMinutes(slot);
+            var sedangAktif = slotMinutes.mulai !== null && slotMinutes.selesai !== null && nowMinutes >= slotMinutes.mulai && nowMinutes < slotMinutes.selesai;
+
+            if (!sedangAktif) return;
+            if (slot.dokter_id) activeNowById.add(String(slot.dokter_id));
+            if (slot.dokter) activeNowByNama.add(String(slot.dokter));
+        });
+
         el.innerHTML = dokterList.map(function(d) {
-            var aktif = Array.isArray(d.hari_praktik) && d.hari_praktik.length > 0;
+            var aktif = activeNowById.has(String(d.id)) || activeNowByNama.has(String(d.nama));
             return '<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border ' +
                 (aktif ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-500 border-slate-200') + '">' +
                 '<span class="w-1.5 h-1.5 rounded-full ' + (aktif ? 'bg-emerald-500' : 'bg-slate-400') + '"></span>' +
@@ -194,6 +237,8 @@
 
     function renderJadwalCards(grouped) {
         var leftHtml = '', rightHtml = '';
+        var now = new Date();
+        var nowMinutes = (now.getHours() * 60) + now.getMinutes();
 
         HARI_LIST.forEach(function(hari, idx) {
             var slots = grouped[hari] || [];
@@ -230,17 +275,23 @@
             if (hasPraktik) {
                 card += '<div class="px-4 py-3 space-y-2">';
                 slots.forEach(function(slot) {
-                    card += '<div class="flex items-center justify-between px-3 py-2 bg-slate-50 rounded-xl border border-slate-100">' +
+                    var slotMinutes = getSlotMinutes(slot);
+                    var isPassed = isToday && slotMinutes.selesai !== null && nowMinutes >= slotMinutes.selesai;
+
+                    card += '<div class="flex items-center justify-between px-3 py-2 rounded-xl border ' +
+                        (isPassed ? 'bg-slate-100 border-slate-200 opacity-80' : 'bg-slate-50 border-slate-100') + '">' +
                         '<div class="flex items-center gap-2 min-w-0">' +
                         '<svg class="w-3.5 h-3.5 text-brand-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' +
                         '<div class="min-w-0">' +
-                        '<div class="text-[12px] font-semibold text-slate-700">' + slot.waktu + '</div>' +
+                        '<div class="text-[12px] font-semibold ' + (isPassed ? 'text-slate-500' : 'text-slate-700') + '">' + slot.waktu + '</div>' +
                         '<div class="text-[10px] text-slate-500 truncate">' + (slot.dokter || 'Dokter tidak diketahui') + '</div>' +
                         '</div>' +
                         '</div>' +
                         (isAdmin
                             ? '<button onclick="hapusJadwal(' + slot.id + ')" class="text-[10px] text-red-400 hover:text-red-600 hover:bg-red-50 px-2 py-0.5 rounded-lg transition-colors">Hapus</button>'
-                            : '<span class="text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">Aktif</span>') +
+                            : (isPassed
+                                ? '<span class="text-[10px] font-semibold text-slate-600 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">Nonaktif</span>'
+                                : '<span class="text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">Aktif</span>')) +
                         '</div>';
                 });
                 card += '</div>';
@@ -311,5 +362,10 @@
     }
 
     loadJadwal();
+    setInterval(function() {
+        if (!weeklyGrouped || !Object.keys(weeklyGrouped).length) return;
+        renderDokterStatus(weeklyGrouped);
+        renderJadwalCards(weeklyGrouped);
+    }, 30000);
 </script>
 @endsection

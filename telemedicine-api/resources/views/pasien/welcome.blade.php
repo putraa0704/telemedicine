@@ -102,7 +102,6 @@
     // ── State ───────────────────────────────────────────────────────
     var state = {
         keluhan: '',
-        urgensi: 'normal',
     };
 
     // ── Chat helpers ────────────────────────────────────────────────
@@ -326,25 +325,6 @@
             return;
         }
 
-        if (opt.action === 'urgensi_normal') {
-            state.urgensi = 'normal';
-            appendUser('🟢 Normal — Masih bisa ditangani biasa');
-            await processUrgensi();
-            return;
-        }
-        if (opt.action === 'urgensi_urgent') {
-            state.urgensi = 'urgent';
-            appendUser('🟡 Agak mendesak');
-            await processUrgensi();
-            return;
-        }
-        if (opt.action === 'urgensi_darurat') {
-            state.urgensi = 'darurat';
-            appendUser('🔴 Darurat / sangat mendesak');
-            await processUrgensi();
-            return;
-        }
-
         if (opt.action === 'go_form') {
             appendUser('Lanjutkan ke formulir konsultasi');
             await sleep(300);
@@ -352,7 +332,6 @@
             await sleep(800);
             // Simpan state ke localStorage agar dipakai form konsultasi
             localStorage.setItem('draft_keluhan', state.keluhan);
-            localStorage.setItem('draft_urgensi', state.urgensi);
             window.location.href = '/konsultasi/baru';
             return;
         }
@@ -361,7 +340,7 @@
             appendUser('Ulangi dari awal');
             await sleep(300);
             container.innerHTML = '';
-            state = { keluhan: '', urgensi: 'normal' };
+            state = { keluhan: '' };
             await runOpening();
             return;
         }
@@ -388,38 +367,19 @@
 
             await appendSystem(saran, 0);
             await sleep(600);
-            await appendSystem('Seberapa mendesak kondisi Anda saat ini?', 0);
-            await sleep(200);
-            showChoices([
-                { label: '🟢  Normal — Bisa jadwal biasa', action: 'urgensi_normal' },
-                { label: '🟡  Agak mendesak — Perlu cepat ditangani', action: 'urgensi_urgent' },
-                { label: '🔴  Darurat — Sangat mendesak', action: 'urgensi_darurat' },
-            ]);
+            await showPostKeluhanChoices();
         }
     };
 
-    async function processUrgensi() {
+    async function showPostKeluhanChoices() {
         await sleep(400);
         var t = showTyping();
-        await sleep(1000);
+        await sleep(900);
         removeTyping();
-
-        var urgensiMsg = '';
-        if (state.urgensi === 'darurat') {
-            urgensiMsg = '⚠️ Kondisi darurat! Jika sangat serius, pertimbangkan untuk segera ke UGD. Namun Anda tetap bisa konsultasi online sekarang.';
-        } else if (state.urgensi === 'urgent') {
-            urgensiMsg = '⏰ Kami tandai sebagai <strong>prioritas</strong>. Dokter akan merespons lebih cepat.';
-        } else {
-            urgensiMsg = '✅ Baik, konsultasi akan dijadwalkan secara normal.';
-        }
-
-        await appendSystem(urgensiMsg, 0);
-        await sleep(600);
 
         // Ringkasan
         var summary = '📋 <strong>Ringkasan keluhan Anda:</strong><br>' +
-            '<span class="text-slate-600">• Keluhan: ' + escapeHtml(state.keluhan) + '</span><br>' +
-            '<span class="text-slate-600">• Urgensi: ' + (state.urgensi === 'darurat' ? '🔴 Darurat' : state.urgensi === 'urgent' ? '🟡 Mendesak' : '🟢 Normal') + '</span>';
+            '<span class="text-slate-600">• Keluhan: ' + escapeHtml(state.keluhan) + '</span>';
 
         await appendSystem(summary, 0);
         await sleep(500);
