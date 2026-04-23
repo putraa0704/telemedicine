@@ -10,9 +10,9 @@ class DokterSeeder extends Seeder
 {
     public function run(): void
     {
-        User::updateOrCreate(['email' => 'dokter@telemedicine.com'], [
+        User::updateOrCreate(['email' => 'dokter@caremate.id'], [
             'name' => 'Dr. Budi Santoso',
-            'email' => 'dokter@telemedicine.com',
+            'email' => 'dokter@caremate.id',
             'password' => Hash::make('password123'),
             'role' => 'dokter',
             'spesialisasi' => 'Dokter Umum',
@@ -20,9 +20,9 @@ class DokterSeeder extends Seeder
             'no_hp' => '08123456789',
         ]);
 
-        User::updateOrCreate(['email' => 'admin@telemedicine.com'], [
+        User::updateOrCreate(['email' => 'admin@caremate.id'], [
             'name' => 'Admin',
-            'email' => 'admin@telemedicine.com',
+            'email' => 'admin@caremate.id',
             'password' => Hash::make('password123'),
             'role' => 'admin',
             'no_hp' => '08000000000',

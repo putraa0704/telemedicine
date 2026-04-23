@@ -31,7 +31,6 @@ class KonsultasiController extends Controller
     {
         $konsultasi = Konsultasi::with('dokter', 'pasien')->findOrFail($id);
 
-        // Pasien hanya boleh lihat milik sendiri
         if ($request->user()->isPasien() && $konsultasi->user_id !== $request->user()->id) {
             return response()->json(['message' => 'Akses ditolak.'], 403);
         }
@@ -41,15 +40,16 @@ class KonsultasiController extends Controller
 
     /**
      * POST /api/konsultasi
-     * Buat konsultasi baru (sudah ditangani SyncController untuk offline support)
-     * Endpoint ini sebagai fallback jika pasien online langsung
+     * Buat konsultasi baru — menyimpan dokter_id jika pasien memilih dokter
      */
     public function store(Request $request)
     {
         $request->validate([
-            'keluhan'  => 'required|string',
-            'nama'     => 'nullable|string|max:255',
-            'local_id' => 'nullable|string',
+            'keluhan'   => 'required|string',
+            'nama'      => 'nullable|string|max:255',
+            'local_id'  => 'nullable|string',
+            // dokter_id opsional: dikirim dari form konsultasi jika pasien memilih dokter
+            'dokter_id' => 'nullable|integer|exists:users,id',
         ]);
 
         // Cek duplikat local_id
@@ -71,6 +71,8 @@ class KonsultasiController extends Controller
             'nama'              => $request->nama ?? $request->user()->name,
             'keluhan'           => $request->keluhan,
             'status'            => 'received',
+            // ← FIX: simpan dokter_id agar konsultasi terarah ke dokter yang dipilih
+            'dokter_id'         => $request->dokter_id ?? null,
             'client_created_at' => $request->created_at ?? now(),
         ]);
 
@@ -116,9 +118,9 @@ class KonsultasiController extends Controller
             'status'         => $k->status,
             'jawaban_dokter' => $k->jawaban_dokter,
             'dokter'         => $k->dokter ? [
-                'id'          => $k->dokter->id,
-                'name'        => $k->dokter->name,
-                'spesialisasi'=> $k->dokter->spesialisasi,
+                'id'           => $k->dokter->id,
+                'name'         => $k->dokter->name,
+                'spesialisasi' => $k->dokter->spesialisasi,
             ] : null,
             'created_at'     => $k->created_at,
             'dijawab_at'     => $k->dijawab_at,

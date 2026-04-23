@@ -25,7 +25,7 @@
                 <label class="block text-xs font-medium text-slate-600 mb-1.5">Username</label>
                 <input id="f-username" type="text" placeholder="username_dokter"
                     class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition"/>
-                <p class="text-[10px] text-slate-400 mt-1">Akan disimpan sebagai akun login dengan format <span class="font-semibold">username@mediconnect.id</span>.</p>
+                <p class="text-[10px] text-slate-400 mt-1">Akan disimpan sebagai akun login dengan format <span class="font-semibold">username@CareMate.id</span>.</p>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
@@ -459,7 +459,7 @@
             return;
         }
 
-        var generatedEmail = usernameSanitized + '@mediconnect.id';
+        var generatedEmail = usernameSanitized + '@CareMate.id';
 
         var payload = {
             name:                  document.getElementById('f-name').value.trim(),

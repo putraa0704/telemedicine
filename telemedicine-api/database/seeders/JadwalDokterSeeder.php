@@ -15,22 +15,21 @@ class JadwalDokterSeeder extends Seeder
         $dokterData = [
             [
                 'name' => 'Dr. Hendra Wijaya',
-                'email' => 'hendra@mediconnect.id',
+                'email' => 'hendra@caremate.id',
                 'password' => Hash::make('password123'),
                 'role' => 'dokter',
                 'spesialisasi' => 'Dokter Umum',
                 'no_str' => 'STR-2024-001',
-                'no_hp' => '08111111111',
+                'no_hp' => '081809386382',
                 'jadwal' => [
-                    ['hari' => 'senin', 'jam_mulai' => '08:00', 'jam_selesai' => '09:00'],
-                    ['hari' => 'senin', 'jam_mulai' => '11:00', 'jam_selesai' => '12:00'],
-                    ['hari' => 'rabu', 'jam_mulai' => '08:00', 'jam_selesai' => '09:00'],
-                    ['hari' => 'jumat', 'jam_mulai' => '13:00', 'jam_selesai' => '14:00'],
+                    ['hari' => 'selasa', 'jam_mulai' => '07:00', 'jam_selesai' => '12:00'],
+                    ['hari' => 'rabu', 'jam_mulai' => '07:00', 'jam_selesai' => '12:00'],
+                    ['hari' => 'sabtu', 'jam_mulai' => '07:00', 'jam_selesai' => '12:00'],
                 ],
             ],
             [
                 'name' => 'Dr. Sari Kusuma',
-                'email' => 'sari@mediconnect.id',
+                'email' => 'sari@caremate.id',
                 'password' => Hash::make('password123'),
                 'role' => 'dokter',
                 'spesialisasi' => 'Dokter Anak',
@@ -45,7 +44,7 @@ class JadwalDokterSeeder extends Seeder
             ],
             [
                 'name' => 'Dr. Ahmad Ridho',
-                'email' => 'ahmad@mediconnect.id',
+                'email' => 'ahmad@caremate.id',
                 'password' => Hash::make('password123'),
                 'role' => 'dokter',
                 'spesialisasi' => 'Kardiologi',
@@ -59,7 +58,7 @@ class JadwalDokterSeeder extends Seeder
             ],
             [
                 'name' => 'Dr. Maya Putri',
-                'email' => 'maya@mediconnect.id',
+                'email' => 'maya@CareMate.id',
                 'password' => Hash::make('password123'),
                 'role' => 'dokter',
                 'spesialisasi' => 'Dermatologi',

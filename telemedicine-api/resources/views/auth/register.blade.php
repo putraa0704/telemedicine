@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Daftar — MediConnect</title>
+    <title>Daftar — CareMate</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -49,7 +49,7 @@
             </svg>
         </div>
         <h1 style="font-size:20px;font-weight:700;color:#0f172a;margin:0;">Buat Akun</h1>
-        <p style="font-size:13px;color:#94a3b8;margin:4px 0 0;">Daftar sebagai pasien MediConnect</p>
+        <p style="font-size:13px;color:#94a3b8;margin:4px 0 0;">Daftar sebagai pasien CareMate</p>
     </div>
 
     <div id="error-msg" class="error-box"></div>

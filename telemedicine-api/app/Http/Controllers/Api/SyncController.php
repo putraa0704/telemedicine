@@ -21,14 +21,14 @@ class SyncController extends Controller
             'nama'       => 'required|string|max:255',
             'keluhan'    => 'required|string',
             'created_at' => 'nullable|string',
+            // dokter_id opsional — dikirim jika pasien memilih dokter saat offline
+            'dokter_id'  => 'nullable|integer|exists:users,id',
         ]);
 
-        $payload = $request->only(['local_id', 'nama', 'keluhan', 'created_at']);
+        $payload = $request->only(['local_id', 'nama', 'keluhan', 'created_at', 'dokter_id']);
 
-        // Jalankan conflict resolution
         $resolution = $this->resolver->resolve($payload);
 
-        // Log semua sync attempt
         SyncLog::create([
             'local_id'        => $payload['local_id'],
             'action'          => 'create',
@@ -40,7 +40,6 @@ class SyncController extends Controller
             'ip_address'      => $request->ip(),
         ]);
 
-        // Kalau conflict → return data yang sudah ada di server
         if ($resolution['status'] === 'conflict') {
             return response()->json([
                 'success'   => false,
@@ -50,12 +49,13 @@ class SyncController extends Controller
             ], 409);
         }
 
-        // Simpan ke database
         $konsultasi = Konsultasi::create([
             'user_id'           => $request->user()->id,
             'local_id'          => $payload['local_id'],
             'nama'              => $payload['nama'],
             'keluhan'           => $payload['keluhan'],
+            // ← FIX: simpan dokter_id dari payload offline sync
+            'dokter_id'         => $payload['dokter_id'] ?? null,
             'client_created_at' => $payload['created_at'] ?? now(),
         ]);
 

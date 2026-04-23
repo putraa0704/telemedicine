@@ -56,7 +56,7 @@
             </div>
 
             <div class="mb-5">
-                <p class="text-[11px] font-semibold text-slate-500 mb-2">Hari Praktik</p>
+                <p class="text-[11px] font-semibold text-slate-500 mb-2">status online dokter</p>
                 <div id="modal-hari" class="flex flex-wrap gap-1.5"></div>
             </div>
 

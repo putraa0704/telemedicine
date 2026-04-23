@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Masuk — MediConnect</title>
+    <title>Masuk — CareMate</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -77,7 +77,7 @@
                 <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
             </svg>
         </div>
-        <h1 style="font-size:22px;font-weight:700;color:#0f172a;margin:0;">MediConnect</h1>
+        <h1 style="font-size:22px;font-weight:700;color:#0f172a;margin:0;">CareMate</h1>
         <p style="font-size:13px;color:#94a3b8;margin:4px 0 0;">Selamat datang kembali</p>
     </div>
 

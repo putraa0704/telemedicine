@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>@yield('title', 'MediConnect') — Telemedicine</title>
+    <title>@yield('title', 'CareMate') — Telemedicine</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -195,7 +195,7 @@
             <div class="flex items-center gap-3">
                 <div class="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center text-white font-bold text-base flex-shrink-0">M</div>
                 <div>
-                    <div class="text-white font-bold text-[15px] leading-tight">MediConnect</div>
+                    <div class="text-white font-bold text-[15px] leading-tight">CareMate</div>
                     <div class="text-white/35 text-[10px] uppercase tracking-widest mt-0.5">Telemedicine</div>
                 </div>
             </div>

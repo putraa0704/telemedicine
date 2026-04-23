@@ -45,7 +45,7 @@
                 </svg>
             </div>
             <div>
-                <div class="text-[13px] font-semibold text-slate-800">Asisten MediConnect</div>
+                <div class="text-[13px] font-semibold text-slate-800">Asisten CareMate</div>
                 <div class="flex items-center gap-1.5">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                     <span class="text-[11px] text-slate-400">Online — siap membantu</span>
@@ -275,7 +275,7 @@
         var t = showTyping();
         await sleep(900);
         removeTyping();
-        await appendSystem('Halo <strong>' + userName + '</strong> 👋 Selamat datang di MediConnect!', 0);
+        await appendSystem('Halo <strong>' + userName + '</strong> 👋 Selamat datang di CareMate!', 0);
 
         t = showTyping();
         await sleep(1200);

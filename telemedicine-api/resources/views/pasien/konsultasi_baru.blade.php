@@ -488,10 +488,13 @@
         btn.disabled = true;
         btn.innerHTML = '<svg class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Mengirim...';
 
+   var dokterId = document.getElementById('dokter_id').value || null;
+ 
         var data = {
             id: 'loc_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
             nama, keluhan, status: 'pending',
-            created_at: new Date().toISOString(), server_id: null
+            created_at: new Date().toISOString(), server_id: null,
+            dokter_id: dokterId ? parseInt(dokterId) : null,
         };
         await db.konsultasi.add(data);
 
@@ -500,7 +503,13 @@
                 var res = await fetch('/api/konsultasi', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-                    body: JSON.stringify({ local_id: data.id, nama: data.nama, keluhan: data.keluhan, created_at: data.created_at })
+                     body: JSON.stringify({
+                        local_id:  data.id,
+                        nama:      data.nama,
+                        keluhan:   data.keluhan,
+                        created_at: data.created_at,
+                        dokter_id: data.dokter_id ?? null,
+                    })
                 });
                 if (res.ok || res.status === 409) {
                     var result = await res.json();

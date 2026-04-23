@@ -19,7 +19,7 @@
         <div class="text-[11px] text-slate-400 mt-1">slot/minggu</div>
     </div>
     <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
-        <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Hari Praktik</div>
+        <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">status online dokter</div>
         <div class="text-2xl font-bold text-slate-800" id="stat-hari-praktik">—</div>
         <div class="text-[11px] text-slate-400 mt-1">hari/minggu</div>
     </div>

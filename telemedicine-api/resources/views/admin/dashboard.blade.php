@@ -2,7 +2,7 @@
 
 @section('title', 'Admin Dashboard')
 @section('page_title', 'Admin Dashboard')
-@section('page_sub', 'Kelola seluruh sistem MediConnect')
+@section('page_sub', 'Kelola seluruh sistem CareMate')
 @section('nav_admin', 'active')
 
 @section('content')

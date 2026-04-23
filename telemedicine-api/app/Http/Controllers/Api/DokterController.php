@@ -10,28 +10,43 @@ class DokterController extends Controller
 {
     /**
      * GET /api/dokter/konsultasi
-     * Semua konsultasi yang masuk (dokter & admin)
-     * Query: ?status=received|in_review|done  ?limit=20
+     * Daftar konsultasi yang relevan untuk dokter/admin.
+     *
+     * LOGIKA ROUTING KONSULTASI:
+     * - Admin  → lihat semua konsultasi (bisa filter per status)
+     * - Dokter → lihat hanya konsultasi yang:
+     *     (a) memang ditujukan kepada dokter ini (dokter_id = saya), ATAU
+     *     (b) belum punya dokter sama sekali DAN belum ditangani siapapun
+     *         (status masih 'received') — supaya bisa diambil
+     *
+     * Dengan begitu konsultasi pasien yang memilih Dokter A TIDAK akan
+     * muncul di inbox Dokter B, tapi tetap terlihat oleh admin.
      */
     public function index(Request $request)
     {
         $query = Konsultasi::with('pasien', 'dokter')->latest();
 
-        // Filter status
+        // Filter status opsional
         if ($request->has('status')) {
             $query->where('status', $request->status);
         }
 
-        // Jika dokter (bukan admin), hanya tampilkan yang ditugaskan padanya
-        // atau yang belum ada dokternya
         if ($request->user()->isDokter()) {
-            $query->where(function ($q) use ($request) {
-                $q->where('dokter_id', $request->user()->id)
-                  ->orWhereNull('dokter_id');
+            $myId = $request->user()->id;
+
+            $query->where(function ($q) use ($myId) {
+                // (a) konsultasi yang memang diarahkan ke saya
+                $q->where('dokter_id', $myId)
+                  // (b) konsultasi tanpa dokter yang belum diklaim siapapun
+                  ->orWhere(function ($q2) {
+                      $q2->whereNull('dokter_id')
+                         ->where('status', 'received');
+                  });
             });
         }
 
-        $konsultasi = $query->limit($request->query('limit', 50))
+        $konsultasi = $query
+            ->limit($request->query('limit', 50))
             ->get()
             ->map(fn($k) => [
                 'id'          => $k->id,
@@ -49,7 +64,7 @@ class DokterController extends Controller
 
     /**
      * POST /api/dokter/konsultasi/{id}/jawab
-     * Dokter menjawab konsultasi
+     * Dokter menjawab konsultasi — sekaligus mengklaim (assign) konsultasi ke dirinya.
      */
     public function jawab(Request $request, int $id)
     {
@@ -59,9 +74,21 @@ class DokterController extends Controller
 
         $konsultasi = Konsultasi::findOrFail($id);
 
+        // Pastikan dokter tidak bisa menjawab konsultasi milik dokter lain
+        if ($request->user()->isDokter()
+            && $konsultasi->dokter_id !== null
+            && $konsultasi->dokter_id !== $request->user()->id
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Konsultasi ini sudah ditangani oleh dokter lain.',
+            ], 403);
+        }
+
         $konsultasi->update([
             'jawaban_dokter' => $request->jawaban,
-            'dokter_id'      => $request->user()->id,
+            // Klaim konsultasi ke dokter yang menjawab (jika belum ada)
+            'dokter_id'      => $konsultasi->dokter_id ?? $request->user()->id,
             'status'         => 'done',
             'dijawab_at'     => now(),
         ]);
@@ -75,7 +102,7 @@ class DokterController extends Controller
 
     /**
      * PUT /api/dokter/konsultasi/{id}/status
-     * Dokter update status konsultasi (in_review, dll)
+     * Dokter update status konsultasi — sekaligus mengklaim jika belum ada dokternya.
      */
     public function updateStatus(Request $request, int $id)
     {
@@ -84,9 +111,22 @@ class DokterController extends Controller
         ]);
 
         $konsultasi = Konsultasi::findOrFail($id);
+
+        // Pastikan dokter tidak bisa mengubah status konsultasi milik dokter lain
+        if ($request->user()->isDokter()
+            && $konsultasi->dokter_id !== null
+            && $konsultasi->dokter_id !== $request->user()->id
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Konsultasi ini sudah ditangani oleh dokter lain.',
+            ], 403);
+        }
+
         $konsultasi->update([
             'status'    => $request->status,
-            'dokter_id' => $request->user()->id,
+            // Klaim konsultasi ke dokter yang mengubah status (jika belum ada)
+            'dokter_id' => $konsultasi->dokter_id ?? $request->user()->id,
         ]);
 
         return response()->json([
