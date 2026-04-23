@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -142,5 +143,66 @@ class AuthController extends Controller
     public function me(Request $request)
     {
         return response()->json($request->user());
+    }
+
+    // Update profile (nama tidak diubah di endpoint ini)
+    public function updateProfile(Request $request)
+    {
+        $request->validate([
+            'no_hp' => 'nullable|string|max:20',
+            'foto_profil' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'remove_foto' => 'nullable|boolean',
+        ]);
+
+        $user = $request->user();
+        $payload = [
+            'no_hp' => $request->input('no_hp'),
+        ];
+
+        if ($request->hasFile('foto_profil')) {
+            if ($user->foto_profil) {
+                Storage::disk('public')->delete($user->foto_profil);
+            }
+            $payload['foto_profil'] = $request->file('foto_profil')->store('profile_photos', 'public');
+        } elseif ($request->boolean('remove_foto')) {
+            if ($user->foto_profil) {
+                Storage::disk('public')->delete($user->foto_profil);
+            }
+            $payload['foto_profil'] = null;
+        }
+
+        $user->update($payload);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profil berhasil diperbarui',
+            'user' => $user->fresh(),
+        ]);
+    }
+
+    // Ubah kata sandi user login
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = $request->user();
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            throw ValidationException::withMessages([
+                'current_password' => ['Kata sandi saat ini tidak sesuai.'],
+            ]);
+        }
+
+        $user->update([
+            'password' => Hash::make($request->new_password),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Kata sandi berhasil diubah',
+        ]);
     }
 }

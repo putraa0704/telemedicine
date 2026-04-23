@@ -20,6 +20,7 @@ class User extends Authenticatable
         'alamat',
         'spesialisasi',
         'no_str',
+        'foto_profil',
     ];
 
     protected $hidden = [
@@ -31,14 +32,23 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password'          => 'hashed',
+            'password' => 'hashed',
         ];
     }
 
     // ── Helper ──
-    public function isPasien(): bool { return $this->role === 'pasien'; }
-    public function isDokter(): bool { return $this->role === 'dokter'; }
-    public function isAdmin(): bool  { return $this->role === 'admin'; }
+    public function isPasien(): bool
+    {
+        return $this->role === 'pasien';
+    }
+    public function isDokter(): bool
+    {
+        return $this->role === 'dokter';
+    }
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
 
     // ── Relasi ──
     public function konsultasi()

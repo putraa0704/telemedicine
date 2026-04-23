@@ -22,9 +22,10 @@
                     class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition"/>
             </div>
             <div>
-                <label class="block text-xs font-medium text-slate-600 mb-1.5">Email</label>
-                <input id="f-email" type="email" placeholder="dokter@mediconnect.id"
+                <label class="block text-xs font-medium text-slate-600 mb-1.5">Username</label>
+                <input id="f-username" type="text" placeholder="username_dokter"
                     class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition"/>
+                <p class="text-[10px] text-slate-400 mt-1">Akan disimpan sebagai akun login dengan format <span class="font-semibold">username@mediconnect.id</span>.</p>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
@@ -111,8 +112,12 @@
 
     {{-- Daftar Dokter --}}
     <div class="bg-white rounded-xl border border-slate-200">
-        <div class="px-4 py-3 border-b border-slate-100">
+        <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between gap-2">
             <span class="text-[13px] font-semibold text-slate-800">Daftar Dokter</span>
+            <select id="filter-spesialisasi" onchange="setSpesialisasiFilter(this.value)"
+                class="px-2.5 py-1.5 text-[12px] border border-slate-200 rounded-lg outline-none focus:border-blue-500 bg-white text-slate-700">
+                <option value="all">Semua Spesialisasi</option>
+            </select>
         </div>
         <div id="dokter-list" class="divide-y divide-slate-100">
             <div class="px-4 py-4 text-sm text-slate-400">Memuat...</div>
@@ -188,6 +193,17 @@
 
     var dokterData = [];
     var editJadwalId = null;
+    var dokterAutoRefreshTimer = null;
+    var activeSpesialisasiFilter = 'all';
+    var HARI_ORDER = {
+        senin: 1,
+        selasa: 2,
+        rabu: 3,
+        kamis: 4,
+        jumat: 5,
+        sabtu: 6,
+        minggu: 7,
+    };
 
     function escapeHtml(val) {
         return String(val || '')
@@ -198,24 +214,83 @@
             .replace(/'/g, '&#039;');
     }
 
+    function hariRank(hariKey) {
+        return HARI_ORDER[String(hariKey || '').toLowerCase()] || 99;
+    }
+
+    function sortedHariPraktik(days) {
+        return (Array.isArray(days) ? days.slice() : []).sort(function(a, b) {
+            return hariRank(a) - hariRank(b);
+        });
+    }
+
+    function normalizeSpesialisasi(value) {
+        return String(value || '').trim();
+    }
+
+    function sortedGroups(groups) {
+        return (Array.isArray(groups) ? groups.slice() : [])
+            .map(function(g) {
+                var slots = (Array.isArray(g.slots) ? g.slots.slice() : []).sort(function(x, y) {
+                    return String(x.jam_mulai || '').localeCompare(String(y.jam_mulai || ''));
+                });
+                return Object.assign({}, g, { slots: slots });
+            })
+            .sort(function(a, b) {
+                return hariRank(a.hari_key) - hariRank(b.hari_key);
+            });
+    }
+
     async function loadDokter() {
         try {
             var headers = { 'Authorization': 'Bearer ' + token };
-            var res = await fetch('/api/supabase/tim-dokter', { headers: headers });
+            var bust = '_=' + Date.now();
+            var res = await fetch('/api/supabase/tim-dokter?' + bust, {
+                headers: headers,
+                cache: 'no-store'
+            });
 
             if (!res.ok) {
-                res = await fetch('/api/tim-dokter', { headers: headers });
+                res = await fetch('/api/tim-dokter?' + bust, {
+                    headers: headers,
+                    cache: 'no-store'
+                });
             }
 
             dokterData = await res.json();
             if (!Array.isArray(dokterData)) {
                 throw new Error('Format data dokter tidak valid');
             }
+            populateSpesialisasiFilter();
             renderDokter();
             populateDokterSelect();
         } catch(e) {
             document.getElementById('dokter-list').innerHTML = '<div class="px-4 py-4 text-sm text-red-400">Gagal memuat</div>';
         }
+    }
+
+    function setupDokterAutoRefresh() {
+        if (dokterAutoRefreshTimer) clearInterval(dokterAutoRefreshTimer);
+
+        // Pull data berkala agar perubahan dari tab/perangkat lain ikut muncul.
+        dokterAutoRefreshTimer = setInterval(function() {
+            if (document.hidden) return;
+            if (!navigator.onLine) return;
+            loadDokter();
+        }, 10000);
+
+        window.addEventListener('focus', function() {
+            if (navigator.onLine) loadDokter();
+        });
+
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden && navigator.onLine) loadDokter();
+        });
+
+        window.addEventListener('online', loadDokter);
+
+        // Hook agar jika layout menerima event sinkronisasi dari SW, halaman ikut refresh.
+        window.renderUI = loadDokter;
     }
 
     function populateDokterSelect() {
@@ -224,13 +299,44 @@
             dokterData.map(d => `<option value="${d.id}">${d.nama}</option>`).join('');
     }
 
-    function renderDokter() {
-        var list = document.getElementById('dokter-list');
-        if (!dokterData.length) {
-            list.innerHTML = '<div class="px-4 py-4 text-sm text-slate-400 italic">Belum ada dokter</div>';
-            return;
+    function populateSpesialisasiFilter() {
+        var sel = document.getElementById('filter-spesialisasi');
+        if (!sel) return;
+
+        var unique = Array.from(new Set(
+            dokterData
+                .map(function(d) { return normalizeSpesialisasi(d.spesialisasi); })
+                .filter(Boolean)
+        ));
+
+        unique.sort(function(a, b) {
+            if (a === 'Dokter Umum') return -1;
+            if (b === 'Dokter Umum') return 1;
+            return a.localeCompare(b, 'id');
+        });
+
+        sel.innerHTML = '<option value="all">Semua Spesialisasi</option>' +
+            unique.map(function(s) {
+                return '<option value="' + escapeHtml(s) + '">' + escapeHtml(s) + '</option>';
+            }).join('');
+
+        sel.value = activeSpesialisasiFilter;
+        if (sel.value !== activeSpesialisasiFilter) {
+            activeSpesialisasiFilter = 'all';
+            sel.value = 'all';
         }
-        list.innerHTML = dokterData.map(dr => `
+    }
+
+    function setSpesialisasiFilter(value) {
+        activeSpesialisasiFilter = value || 'all';
+        renderDokter();
+    }
+
+    function renderDokterCard(dr) {
+        var hariPraktik = sortedHariPraktik(dr.hari_praktik || []);
+        var groups = sortedGroups(dr.jadwal || []);
+
+        return `
             <div class="px-4 py-3">
                 <div class="flex items-start sm:items-center gap-3 mb-2">
                     <div class="w-9 h-9 rounded-full flex items-center justify-center text-[12px] font-bold flex-shrink-0
@@ -247,13 +353,13 @@
                     </span>
                 </div>
                 <div class="flex flex-wrap gap-1 ml-0 sm:ml-12">
-                    ${(dr.hari_praktik || []).map(h =>
+                    ${hariPraktik.map(h =>
                         `<span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">${h}</span>`
                     ).join('')}
-                    ${!dr.hari_praktik?.length ? '<span class="text-[11px] text-slate-400 italic">Belum ada jadwal</span>' : ''}
+                    ${!hariPraktik.length ? '<span class="text-[11px] text-slate-400 italic">Belum ada jadwal</span>' : ''}
                 </div>
                 <div class="ml-0 sm:ml-12 mt-2 space-y-2">
-                    ${(dr.jadwal || []).map(group => `
+                    ${groups.map(group => `
                         <div>
                             <div class="text-[11px] font-semibold text-slate-500 mb-1">${group.hari}</div>
                             <div class="flex flex-wrap gap-1.5">
@@ -269,7 +375,53 @@
                     `).join('')}
                 </div>
             </div>
-        `).join('');
+        `;
+    }
+
+    function renderDokter() {
+        var list = document.getElementById('dokter-list');
+        if (!dokterData.length) {
+            list.innerHTML = '<div class="px-4 py-4 text-sm text-slate-400 italic">Belum ada dokter</div>';
+            return;
+        }
+
+        var filteredDokter = dokterData.filter(function(dr) {
+            if (activeSpesialisasiFilter === 'all') return true;
+            return normalizeSpesialisasi(dr.spesialisasi) === activeSpesialisasiFilter;
+        });
+
+        if (!filteredDokter.length) {
+            list.innerHTML = '<div class="px-4 py-4 text-sm text-slate-400 italic">Tidak ada dokter untuk spesialisasi ini</div>';
+            return;
+        }
+
+        var grouped = {};
+        filteredDokter.forEach(function(dr) {
+            var key = (dr.spesialisasi || 'Lainnya').trim() || 'Lainnya';
+            if (!grouped[key]) grouped[key] = [];
+            grouped[key].push(dr);
+        });
+
+        var kategori = Object.keys(grouped).sort(function(a, b) {
+            if (a === 'Dokter Umum') return -1;
+            if (b === 'Dokter Umum') return 1;
+            return a.localeCompare(b, 'id');
+        });
+
+        list.innerHTML = kategori.map(function(kat) {
+            var doctors = grouped[kat];
+            return `
+                <div class="border-b border-slate-100 last:border-0">
+                    <div class="px-4 py-2.5 bg-slate-50 flex items-center justify-between">
+                        <span class="text-[12px] font-semibold text-slate-700">${kat}</span>
+                        <span class="text-[10px] font-semibold text-slate-500 bg-white border border-slate-200 px-2 py-0.5 rounded-full">${doctors.length} dokter</span>
+                    </div>
+                    <div class="divide-y divide-slate-100">
+                        ${doctors.map(function(dr) { return renderDokterCard(dr); }).join('')}
+                    </div>
+                </div>
+            `;
+        }).join('');
     }
 
     function bukaEditJadwal(id, namaDokter, hari, jamMulai, jamSelesai) {
@@ -292,9 +444,26 @@
         var errEl  = document.getElementById('form-error');
         sucEl.classList.add('hidden'); errEl.classList.add('hidden');
 
+        var username = (document.getElementById('f-username').value || '').trim().toLowerCase();
+        var usernameSanitized = username.replace(/[^a-z0-9._-]/g, '');
+
+        if (!usernameSanitized) {
+            errEl.textContent = 'Username wajib diisi.';
+            errEl.classList.remove('hidden');
+            return;
+        }
+
+        if (usernameSanitized.length < 3) {
+            errEl.textContent = 'Username minimal 3 karakter.';
+            errEl.classList.remove('hidden');
+            return;
+        }
+
+        var generatedEmail = usernameSanitized + '@mediconnect.id';
+
         var payload = {
             name:                  document.getElementById('f-name').value.trim(),
-            email:                 document.getElementById('f-email').value.trim(),
+            email:                 generatedEmail,
             password:              document.getElementById('f-password').value,
             password_confirmation: document.getElementById('f-password').value,
             no_hp:                 document.getElementById('f-hp').value.trim(),
@@ -303,8 +472,8 @@
             role:                  'dokter',
         };
 
-        if (!payload.name || !payload.email || !payload.password) {
-            errEl.textContent = 'Nama, email, dan password wajib diisi.';
+        if (!payload.name || !payload.password) {
+            errEl.textContent = 'Nama, username, dan password wajib diisi.';
             errEl.classList.remove('hidden'); return;
         }
 
@@ -324,7 +493,7 @@
 
             sucEl.textContent = '✓ Dokter ' + payload.name + ' berhasil ditambahkan!';
             sucEl.classList.remove('hidden');
-            ['f-name','f-email','f-password','f-hp','f-str'].forEach(id => document.getElementById(id).value = '');
+            ['f-name','f-username','f-password','f-hp','f-str'].forEach(id => document.getElementById(id).value = '');
             await loadDokter();
         } catch(e) {
             errEl.textContent = 'Gagal terhubung ke server'; errEl.classList.remove('hidden');
@@ -478,5 +647,6 @@
     }
 
     loadDokter();
+    setupDokterAutoRefresh();
 </script>
 @endsection

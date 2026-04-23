@@ -80,6 +80,64 @@
             #main-sidebar.open { left: 0; }
         }
 
+        @media (min-width: 1024px) {
+            #main-sidebar {
+                transition: width 0.2s ease;
+            }
+            body.sidebar-collapsed #main-sidebar {
+                width: 82px !important;
+            }
+            body.sidebar-collapsed #main-sidebar .nav-link {
+                justify-content: center;
+                padding-left: 8px;
+                padding-right: 8px;
+            }
+            body.sidebar-collapsed #main-sidebar .nav-link-label,
+            body.sidebar-collapsed #main-sidebar .nav-section-label,
+            body.sidebar-collapsed #main-sidebar #jadwal-hari-badge,
+            body.sidebar-collapsed #main-sidebar #nav-name,
+            body.sidebar-collapsed #main-sidebar #nav-role {
+                display: none !important;
+            }
+            body.sidebar-collapsed #main-sidebar nav {
+                padding-left: 8px;
+                padding-right: 8px;
+            }
+            body.sidebar-collapsed #main-sidebar .px-5.pt-6.pb-5 {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+            body.sidebar-collapsed #main-sidebar .px-5.pt-6.pb-5 > div {
+                justify-content: center;
+            }
+            body.sidebar-collapsed #main-sidebar .px-5.pt-6.pb-5 > div > div:last-child {
+                display: none;
+            }
+            body.sidebar-collapsed #main-sidebar #nav-footer-row {
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+            }
+            body.sidebar-collapsed #main-sidebar #nav-footer-meta {
+                display: none;
+            }
+            body.sidebar-collapsed #main-sidebar #nav-avatar {
+                width: 40px;
+                height: 40px;
+            }
+            body.sidebar-collapsed #main-sidebar #nav-footer-actions {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+            }
+            body.sidebar-collapsed #main-sidebar #nav-footer-actions button {
+                width: 30px;
+                height: 30px;
+            }
+        }
+
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 4px; }
@@ -271,19 +329,37 @@
 
         {{-- User Footer --}}
         <div class="px-4 py-4 border-t border-white/10 flex-shrink-0">
-            <div class="flex items-center gap-2.5">
+            <div id="nav-footer-row" class="flex items-center gap-2.5">
                 <div id="nav-avatar" class="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">?</div>
-                <div class="flex-1 min-w-0">
+                <div id="nav-footer-meta" class="flex-1 min-w-0">
                     <div id="nav-name" class="text-white/90 text-[12px] font-medium truncate">—</div>
                     <div id="nav-role" class="text-white/40 text-[10px] mt-0.5 capitalize">—</div>
                 </div>
-                <button onclick="logout()" title="Keluar"
-                    class="w-7 h-7 rounded-lg flex items-center justify-center text-white/40 hover:text-white/80 hover:bg-white/10 transition-colors">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                        <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
-                    </svg>
-                </button>
+
+                <div id="nav-footer-actions" class="flex items-center gap-1.5">
+                    <div class="relative">
+                        <button onclick="toggleSettingsMenu(event)" title="Pengaturan"
+                            class="w-7 h-7 rounded-lg flex items-center justify-center text-white/40 hover:text-white/80 hover:bg-white/10 transition-colors">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="3"/>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                            </svg>
+                        </button>
+
+                        <div id="settings-menu" class="hidden absolute bottom-9 right-0 w-44 bg-white rounded-xl border border-slate-200 shadow-xl overflow-hidden z-50">
+                            <button onclick="openProfileModal('profile')" class="w-full text-left px-3 py-2.5 text-[12px] text-slate-700 hover:bg-slate-50">Edit Profile</button>
+                            <button onclick="openProfileModal('password')" class="w-full text-left px-3 py-2.5 text-[12px] text-slate-700 hover:bg-slate-50 border-t border-slate-100">Ubah Kata Sandi</button>
+                        </div>
+                    </div>
+
+                    <button onclick="logout()" title="Keluar"
+                        class="w-7 h-7 rounded-lg flex items-center justify-center text-white/40 hover:text-white/80 hover:bg-white/10 transition-colors">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                            <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
     </aside>
@@ -302,6 +378,13 @@
                 </svg>
             </button>
 
+            <button id="desktop-sidebar-toggle" onclick="toggleDesktopSidebar()"
+                class="hidden lg:flex p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 transition-colors" title="Buka/Tutup Sidebar">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M3 5h18M3 12h18M3 19h18"/>
+                </svg>
+            </button>
+
             <div class="flex-1 min-w-0">
                 <h1 class="text-[14px] sm:text-[15px] font-semibold text-slate-800 truncate">@yield('page_title', 'Dashboard')</h1>
                 <p class="text-[11px] text-slate-400 hidden sm:block">@yield('page_sub', '')</p>
@@ -316,6 +399,15 @@
 
                 {{-- CTA button berdasarkan role (diisi JS) --}}
                 <div id="header-cta"></div>
+
+                <button onclick="openProfileModal('profile')" title="Pengaturan"
+                    class="hidden sm:flex items-center gap-1 text-slate-500 hover:text-brand-700 border border-slate-200 hover:border-brand-200 text-[11px] px-2.5 py-1.5 rounded-lg transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                    Pengaturan
+                </button>
 
                 <button onclick="logout()"
                     class="hidden sm:flex items-center gap-1 text-slate-500 hover:text-red-500 border border-slate-200 hover:border-red-200 text-[11px] px-2.5 py-1.5 rounded-lg transition-colors">
@@ -344,9 +436,60 @@
     {{-- Diisi oleh JS --}}
 </nav>
 
+<div id="profile-modal" class="hidden fixed inset-0 bg-slate-900/45 z-[80] items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+        <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
+            <div class="text-[14px] font-semibold text-slate-800">Pengaturan Akun</div>
+            <button onclick="closeProfileModal()" class="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100">✕</button>
+        </div>
+
+        <div class="px-5 pt-4 pb-1 flex gap-2">
+            <button id="tab-profile" onclick="switchProfileTab('profile')" class="text-[12px] font-semibold px-3 py-1.5 rounded-lg border">Edit Profile</button>
+            <button id="tab-password" onclick="switchProfileTab('password')" class="text-[12px] font-semibold px-3 py-1.5 rounded-lg border">Ubah Kata Sandi</button>
+        </div>
+
+        <div id="profile-msg" class="hidden mx-5 mt-3 text-[12px] px-3 py-2 rounded-lg"></div>
+
+        <form id="form-edit-profile" class="px-5 py-4 space-y-3" onsubmit="submitEditProfile(event)">
+            <div>
+                <label class="block text-[11px] font-semibold text-slate-500 mb-1.5">Nama (default)</label>
+                <input id="profile-name" type="text" readonly class="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-100 text-slate-500"/>
+            </div>
+            <div>
+                <label class="block text-[11px] font-semibold text-slate-500 mb-1.5">Nomor Ponsel</label>
+                <input id="profile-phone" type="text" placeholder="08xxxxxxxxxx" class="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-brand-600 bg-slate-50"/>
+            </div>
+            <div>
+                <label class="block text-[11px] font-semibold text-slate-500 mb-1.5">Foto Profil</label>
+                <input id="profile-photo" type="file" accept="image/png,image/jpeg,image/webp" class="w-full text-[12px] text-slate-600" onchange="previewProfilePhoto(event)"/>
+                <img id="profile-photo-preview" class="hidden mt-2 w-14 h-14 rounded-full object-cover border border-slate-200" alt="Preview foto"/>
+                <button id="btn-remove-photo" type="button" onclick="markRemoveProfilePhoto()" class="hidden mt-2 text-[11px] font-semibold text-red-600 hover:text-red-700">Hapus Foto</button>
+            </div>
+            <button type="submit" class="w-full bg-brand-600 hover:bg-brand-800 text-white text-[12px] font-semibold py-2.5 rounded-xl">Simpan Perubahan</button>
+        </form>
+
+        <form id="form-change-password" class="hidden px-5 py-4 space-y-3" onsubmit="submitChangePassword(event)">
+            <div>
+                <label class="block text-[11px] font-semibold text-slate-500 mb-1.5">Kata Sandi Saat Ini</label>
+                <input id="pwd-current" type="password" required class="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-brand-600 bg-slate-50"/>
+            </div>
+            <div>
+                <label class="block text-[11px] font-semibold text-slate-500 mb-1.5">Kata Sandi Baru</label>
+                <input id="pwd-new" type="password" required minlength="8" class="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-brand-600 bg-slate-50"/>
+            </div>
+            <div>
+                <label class="block text-[11px] font-semibold text-slate-500 mb-1.5">Konfirmasi Kata Sandi Baru</label>
+                <input id="pwd-confirm" type="password" required minlength="8" class="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-brand-600 bg-slate-50"/>
+            </div>
+            <button type="submit" class="w-full bg-brand-600 hover:bg-brand-800 text-white text-[12px] font-semibold py-2.5 rounded-xl">Ubah Kata Sandi</button>
+        </form>
+    </div>
+</div>
+
 <script>
     var token = localStorage.getItem('auth_token');
     var user  = JSON.parse(localStorage.getItem('auth_user') || 'null');
+    const SIDEBAR_STATE_KEY = 'desktop_sidebar_collapsed';
 
     // ─── Referensi fetch asli ───────────────────────────────────────
     const originalFetch = window.fetch;
@@ -417,17 +560,56 @@
 
     // ─── Render Sidebar & Bottom Nav berdasarkan role ────────────────
     var role = user ? user.role : null;
+    var removeProfilePhoto = false;
 
-    if (user) {
-        var initials = user.name.split(' ').map(function(w) { return w[0] || ''; }).join('').substring(0,2).toUpperCase();
-        var navAvatar = document.getElementById('nav-avatar');
-        var mobileAvat = document.getElementById('mobile-avatar');
+    function getInitials(name) {
+        return String(name || '')
+            .split(' ')
+            .map(function(w) { return w[0] || ''; })
+            .join('')
+            .substring(0, 2)
+            .toUpperCase() || '?';
+    }
+
+    function photoUrl(path) {
+        if (!path) return '';
+        if (/^https?:\/\//.test(path)) return path;
+        return '/storage/' + String(path).replace(/^\/+/, '');
+    }
+
+    function applyAvatar(el, currentUser) {
+        if (!el || !currentUser) return;
+        var initials = getInitials(currentUser.name);
+        var p = photoUrl(currentUser.foto_profil);
+        if (p) {
+            el.textContent = '';
+            el.style.backgroundImage = 'url(' + p + ')';
+            el.style.backgroundSize = 'cover';
+            el.style.backgroundPosition = 'center';
+            el.style.backgroundRepeat = 'no-repeat';
+            el.style.backgroundColor = 'transparent';
+        } else {
+            el.textContent = initials;
+            el.style.backgroundImage = '';
+            el.style.backgroundSize = '';
+            el.style.backgroundPosition = '';
+            el.style.backgroundRepeat = '';
+            el.style.backgroundColor = '';
+        }
+    }
+
+    function refreshIdentityUI() {
+        if (!user) return;
         var navName = document.getElementById('nav-name');
         var navRole = document.getElementById('nav-role');
-        if (navAvatar) navAvatar.textContent = initials;
-        if (mobileAvat) mobileAvat.textContent = initials;
         if (navName) navName.textContent = user.name;
         if (navRole) navRole.textContent = user.role === 'dokter' ? 'Dokter' : user.role === 'admin' ? 'Administrator' : 'Pasien';
+        applyAvatar(document.getElementById('nav-avatar'), user);
+        applyAvatar(document.getElementById('mobile-avatar'), user);
+    }
+
+    if (user) {
+        refreshIdentityUI();
 
         // Show role-based sidebar nav
         if (role === 'pasien') {
@@ -445,6 +627,236 @@
             document.getElementById('nav-admin').classList.remove('hidden');
             document.getElementById('nav-admin').classList.add('flex');
             renderBottomNavAdmin();
+        }
+    }
+
+    function toggleSettingsMenu(event) {
+        if (event) event.stopPropagation();
+        var menu = document.getElementById('settings-menu');
+        if (!menu) return;
+        menu.classList.toggle('hidden');
+    }
+
+    function closeSettingsMenu() {
+        var menu = document.getElementById('settings-menu');
+        if (menu) menu.classList.add('hidden');
+    }
+
+    document.addEventListener('click', function(e) {
+        var menu = document.getElementById('settings-menu');
+        if (!menu) return;
+        if (!menu.contains(e.target)) menu.classList.add('hidden');
+    });
+
+    function showProfileMessage(text, ok) {
+        var box = document.getElementById('profile-msg');
+        if (!box) return;
+        box.className = 'mx-5 mt-3 text-[12px] px-3 py-2 rounded-lg ' +
+            (ok
+                ? 'bg-emerald-50 border border-emerald-200 text-emerald-700'
+                : 'bg-red-50 border border-red-200 text-red-700');
+        box.textContent = text;
+        box.classList.remove('hidden');
+    }
+
+    function clearProfileMessage() {
+        var box = document.getElementById('profile-msg');
+        if (!box) return;
+        box.classList.add('hidden');
+        box.textContent = '';
+    }
+
+    function switchProfileTab(tab) {
+        var isProfile = tab === 'profile';
+        var pTab = document.getElementById('tab-profile');
+        var sTab = document.getElementById('tab-password');
+        var pForm = document.getElementById('form-edit-profile');
+        var sForm = document.getElementById('form-change-password');
+
+        if (pForm) pForm.classList.toggle('hidden', !isProfile);
+        if (sForm) sForm.classList.toggle('hidden', isProfile);
+
+        if (pTab) {
+            pTab.classList.toggle('bg-brand-600', isProfile);
+            pTab.classList.toggle('text-white', isProfile);
+            pTab.classList.toggle('border-brand-600', isProfile);
+            pTab.classList.toggle('border-slate-200', !isProfile);
+            pTab.classList.toggle('text-slate-600', !isProfile);
+        }
+        if (sTab) {
+            sTab.classList.toggle('bg-brand-600', !isProfile);
+            sTab.classList.toggle('text-white', !isProfile);
+            sTab.classList.toggle('border-brand-600', !isProfile);
+            sTab.classList.toggle('border-slate-200', isProfile);
+            sTab.classList.toggle('text-slate-600', isProfile);
+        }
+    }
+
+    function openProfileModal(tab) {
+        closeSettingsMenu();
+        if (!user) return;
+        var modal = document.getElementById('profile-modal');
+        if (!modal) return;
+        removeProfilePhoto = false;
+
+        document.getElementById('profile-name').value = user.name || '';
+        document.getElementById('profile-phone').value = user.no_hp || '';
+        document.getElementById('profile-photo').value = '';
+
+        var prev = document.getElementById('profile-photo-preview');
+        var removeBtn = document.getElementById('btn-remove-photo');
+        var url = photoUrl(user.foto_profil);
+        if (prev) {
+            if (url) {
+                prev.src = url;
+                prev.classList.remove('hidden');
+                if (removeBtn) removeBtn.classList.remove('hidden');
+            } else {
+                prev.src = '';
+                prev.classList.add('hidden');
+                if (removeBtn) removeBtn.classList.add('hidden');
+            }
+        }
+
+        clearProfileMessage();
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        switchProfileTab(tab || 'profile');
+    }
+
+    function closeProfileModal() {
+        var modal = document.getElementById('profile-modal');
+        if (!modal) return;
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        clearProfileMessage();
+    }
+
+    function previewProfilePhoto(event) {
+        removeProfilePhoto = false;
+        var file = event.target && event.target.files ? event.target.files[0] : null;
+        var prev = document.getElementById('profile-photo-preview');
+        var removeBtn = document.getElementById('btn-remove-photo');
+        if (!prev) return;
+        if (!file) {
+            var current = removeProfilePhoto ? '' : photoUrl(user ? user.foto_profil : '');
+            if (current) {
+                prev.src = current;
+                prev.classList.remove('hidden');
+                if (removeBtn) removeBtn.classList.remove('hidden');
+            } else {
+                prev.classList.add('hidden');
+                prev.src = '';
+                if (removeBtn) removeBtn.classList.add('hidden');
+            }
+            return;
+        }
+        prev.src = URL.createObjectURL(file);
+        prev.classList.remove('hidden');
+        if (removeBtn) removeBtn.classList.remove('hidden');
+    }
+
+    function markRemoveProfilePhoto() {
+        removeProfilePhoto = true;
+        var prev = document.getElementById('profile-photo-preview');
+        var photoInput = document.getElementById('profile-photo');
+        var removeBtn = document.getElementById('btn-remove-photo');
+
+        if (photoInput) photoInput.value = '';
+        if (prev) {
+            prev.src = '';
+            prev.classList.add('hidden');
+        }
+        if (removeBtn) removeBtn.classList.add('hidden');
+    }
+
+    async function submitEditProfile(event) {
+        event.preventDefault();
+        if (!token || !user) return;
+
+        clearProfileMessage();
+        var formData = new FormData();
+        formData.append('no_hp', document.getElementById('profile-phone').value.trim());
+        formData.append('remove_foto', removeProfilePhoto ? '1' : '0');
+
+        var photoInput = document.getElementById('profile-photo');
+        if (photoInput && photoInput.files && photoInput.files[0]) {
+            formData.append('foto_profil', photoInput.files[0]);
+        }
+
+        try {
+            var res = await originalFetch('/api/auth/profile', {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' },
+                body: formData,
+            });
+            var data = await res.json();
+
+            if (!res.ok || !data.success) {
+                var msg = data && data.message ? data.message : 'Gagal memperbarui profil.';
+                if (data && data.errors) {
+                    var firstKey = Object.keys(data.errors)[0];
+                    if (firstKey && data.errors[firstKey] && data.errors[firstKey][0]) msg = data.errors[firstKey][0];
+                }
+                showProfileMessage(msg, false);
+                return;
+            }
+
+            user = data.user || user;
+            localStorage.setItem('auth_user', JSON.stringify(user));
+            refreshIdentityUI();
+            showProfileMessage('Profil berhasil diperbarui.', true);
+        } catch (e) {
+            showProfileMessage('Tidak dapat terhubung ke server.', false);
+        }
+    }
+
+    async function submitChangePassword(event) {
+        event.preventDefault();
+        if (!token) return;
+        clearProfileMessage();
+
+        var current = document.getElementById('pwd-current').value;
+        var next = document.getElementById('pwd-new').value;
+        var confirmNext = document.getElementById('pwd-confirm').value;
+
+        if (next !== confirmNext) {
+            showProfileMessage('Konfirmasi kata sandi baru tidak sama.', false);
+            return;
+        }
+
+        try {
+            var res = await originalFetch('/api/auth/password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    current_password: current,
+                    new_password: next,
+                    new_password_confirmation: confirmNext,
+                }),
+            });
+            var data = await res.json();
+
+            if (!res.ok || !data.success) {
+                var msg = data && data.message ? data.message : 'Gagal mengubah kata sandi.';
+                if (data && data.errors) {
+                    var first = Object.keys(data.errors)[0];
+                    if (first && data.errors[first] && data.errors[first][0]) msg = data.errors[first][0];
+                }
+                showProfileMessage(msg, false);
+                return;
+            }
+
+            document.getElementById('pwd-current').value = '';
+            document.getElementById('pwd-new').value = '';
+            document.getElementById('pwd-confirm').value = '';
+            showProfileMessage('Kata sandi berhasil diubah.', true);
+        } catch (e) {
+            showProfileMessage('Tidak dapat terhubung ke server.', false);
         }
     }
 
@@ -514,7 +926,30 @@
     }, 50);
 
     // ─── Sidebar toggle ───────────────────────────────────────────────
+    function isDesktopViewport() {
+        return window.innerWidth >= 1024;
+    }
+
+    function applyDesktopSidebarState() {
+        if (!isDesktopViewport()) {
+            document.body.classList.remove('sidebar-collapsed');
+            return;
+        }
+        var collapsed = localStorage.getItem(SIDEBAR_STATE_KEY) === '1';
+        document.body.classList.toggle('sidebar-collapsed', collapsed);
+    }
+
+    function toggleDesktopSidebar() {
+        if (!isDesktopViewport()) return;
+        var collapsed = document.body.classList.toggle('sidebar-collapsed');
+        localStorage.setItem(SIDEBAR_STATE_KEY, collapsed ? '1' : '0');
+    }
+
     function toggleSidebar() {
+        if (isDesktopViewport()) {
+            toggleDesktopSidebar();
+            return;
+        }
         document.getElementById('main-sidebar').classList.toggle('open');
         document.getElementById('sidebar-overlay').classList.toggle('show');
     }
@@ -522,6 +957,13 @@
         document.getElementById('main-sidebar').classList.remove('open');
         document.getElementById('sidebar-overlay').classList.remove('show');
     }
+
+    window.addEventListener('resize', function() {
+        if (isDesktopViewport()) {
+            closeSidebar();
+            applyDesktopSidebarState();
+        }
+    });
 
     // ─── Offline banner ───────────────────────────────────────────────
     function updateOnlineStatus() {
@@ -558,6 +1000,7 @@
     }
 
     // ─── Start idle timer ─────────────────────────────────────────────
+    applyDesktopSidebarState();
     if (token && user) resetIdleTimer();
 </script>
 
