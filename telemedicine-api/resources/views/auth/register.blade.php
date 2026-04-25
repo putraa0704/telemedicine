@@ -38,6 +38,9 @@
         .error-box.show { display: block; }
         .strength-bar { height: 4px; border-radius: 2px; transition: all 0.3s; margin-top: 6px; }
         .strength-text { font-size: 11px; margin-top: 4px; }
+        .tabs { display: flex; gap: 8px; margin-bottom: 16px; background: #f1f5f9; padding: 4px; border-radius: 12px; }
+        .tab-btn { flex: 1; padding: 8px 0; text-align: center; font-size: 13px; font-weight: 600; color: #64748b; border-radius: 8px; cursor: pointer; transition: all 0.2s; border: none; background: transparent; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .tab-btn.active { background: white; color: #185FA5; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
@@ -59,15 +62,25 @@
             <label>Nama Lengkap</label>
             <input id="name" type="text" placeholder="Nama lengkap Anda" autocomplete="name"/>
         </div>
-        <div class="row-2">
-            <div>
+        
+        <div>
+            <div class="tabs">
+                <button class="tab-btn active" id="tab-email" onclick="switchTab('email')">Gunakan Email</button>
+                <button class="tab-btn" id="tab-nohp" onclick="switchTab('nohp')">Gunakan No. HP</button>
+            </div>
+            
+            <div id="field-email">
                 <label>Email</label>
                 <input id="email" type="email" placeholder="email@contoh.com"/>
             </div>
-            <div>
+            <div id="field-nohp" style="display:none;">
                 <label>No. HP</label>
                 <input id="no_hp" type="tel" placeholder="08xxxxxxxxxx"/>
             </div>
+        </div>
+        <div>
+            <label>Tanggal Lahir</label>
+            <input id="tanggal_lahir" type="date" max="<?php echo date('Y-m-d'); ?>"/>
         </div>
         <div class="row-2">
             <div>
@@ -112,6 +125,22 @@
         txt.textContent = cfg.t; txt.style.color = cfg.c;
     }
 
+    var currentMethod = 'email';
+    function switchTab(method) {
+        currentMethod = method;
+        if (method === 'email') {
+            document.getElementById('tab-email').classList.add('active');
+            document.getElementById('tab-nohp').classList.remove('active');
+            document.getElementById('field-email').style.display = 'block';
+            document.getElementById('field-nohp').style.display = 'none';
+        } else {
+            document.getElementById('tab-nohp').classList.add('active');
+            document.getElementById('tab-email').classList.remove('active');
+            document.getElementById('field-nohp').style.display = 'block';
+            document.getElementById('field-email').style.display = 'none';
+        }
+    }
+
     async function doRegister() {
         var errDiv = document.getElementById('error-msg');
         var btn    = document.getElementById('reg-btn');
@@ -119,14 +148,27 @@
 
         var payload = {
             name: document.getElementById('name').value.trim(),
-            email: document.getElementById('email').value.trim(),
-            no_hp: document.getElementById('no_hp').value.trim(),
+            email: currentMethod === 'email' ? document.getElementById('email').value.trim() : null,
+            no_hp: currentMethod === 'nohp' ? document.getElementById('no_hp').value.trim() : null,
+            tanggal_lahir: document.getElementById('tanggal_lahir').value,
             password: document.getElementById('password').value,
             password_confirmation: document.getElementById('password_confirmation').value,
         };
 
-        if (!payload.name || !payload.email || !payload.password) {
-            errDiv.textContent = 'Nama, email, dan password wajib diisi.';
+        if (!payload.name || !payload.password) {
+            errDiv.textContent = 'Nama dan password wajib diisi.';
+            errDiv.classList.add('show'); return;
+        }
+        if (currentMethod === 'email' && !payload.email) {
+            errDiv.textContent = 'Email wajib diisi.';
+            errDiv.classList.add('show'); return;
+        }
+        if (currentMethod === 'nohp' && !payload.no_hp) {
+            errDiv.textContent = 'No. HP wajib diisi.';
+            errDiv.classList.add('show'); return;
+        }
+        if (!payload.tanggal_lahir) {
+            errDiv.textContent = 'Tanggal lahir wajib diisi.';
             errDiv.classList.add('show'); return;
         }
         if (payload.password !== payload.password_confirmation) {

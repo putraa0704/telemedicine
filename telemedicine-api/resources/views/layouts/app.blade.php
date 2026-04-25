@@ -234,6 +234,12 @@
                         </svg>
                         <span class="nav-link-label">Konsultasi Baru</span>
                     </a>
+                    <a href="/konsultasi" class="nav-link" data-path="/konsultasi">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        <span class="nav-link-label">Konsultasi Aktif</span>
+                    </a>
                     <a href="/riwayat" class="nav-link" data-path="/riwayat">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
                             <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
@@ -276,7 +282,13 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
                             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                         </svg>
-                        Konsultasi Pasien
+                        Konsultasi Aktif
+                    </a>
+                    <a href="/dokter/riwayat" class="nav-link" data-path="/dokter/riwayat">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                        Riwayat Konsultasi
                     </a>
                 </div>
             </div>

@@ -21,6 +21,7 @@ class User extends Authenticatable
         'spesialisasi',
         'no_str',
         'foto_profil',
+        'tanggal_lahir',
     ];
 
     protected $hidden = [

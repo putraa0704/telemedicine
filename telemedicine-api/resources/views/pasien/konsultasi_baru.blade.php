@@ -121,7 +121,15 @@
     var HARI_BY_DAY_INDEX = ['minggu','senin','selasa','rabu','kamis','jumat','sabtu'];
 
     if (!token || !user) window.location.href = '/login';
-    if (user) document.getElementById('nama').value = user.name;
+    if (user) {
+        document.getElementById('nama').value = user.name;
+        if (user.tanggal_lahir) {
+            var tglEl = document.getElementById('tgl_lahir');
+            tglEl.value = user.tanggal_lahir;
+            tglEl.readOnly = true;
+            tglEl.classList.add('opacity-70', 'cursor-not-allowed');
+        }
+    }
 
     // ── Ambil draft dari chatbot ─────────────────────────────────────
     var draftKeluhan = localStorage.getItem('draft_keluhan') || '';

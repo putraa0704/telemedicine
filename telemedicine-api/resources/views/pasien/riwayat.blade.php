@@ -1,171 +1,245 @@
 @extends('layouts.app')
 
 @section('title', 'Riwayat Konsultasi')
-@section('page_title', 'Riwayat')
-@section('page_sub', 'Daftar semua konsultasi Anda')
+@section('page_title', 'Riwayat Konsultasi')
+@section('page_sub', 'Arsip percakapan konsultasi Anda yang sudah selesai')
 @section('nav_riwayat', 'active')
 
 @section('content')
 
-<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-5">
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-4">
     <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
-        <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Total</div>
+        <div class="flex items-center justify-between mb-3">
+            <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Total</div>
+        </div>
         <div class="text-2xl sm:text-3xl font-bold text-slate-800" id="stat-total">—</div>
+        <div class="text-[10px] text-slate-400 mt-1">Percakapan</div>
     </div>
     <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
-        <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Selesai</div>
-        <div class="text-2xl sm:text-3xl font-bold text-emerald-600" id="stat-done">—</div>
-    </div>
-    <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
-        <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Menunggu</div>
+        <div class="flex items-center justify-between mb-3">
+            <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Menunggu</div>
+        </div>
         <div class="text-2xl sm:text-3xl font-bold text-amber-600" id="stat-pending">—</div>
+        <div class="text-[10px] text-slate-400 mt-1">Belum dibalas</div>
     </div>
     <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
-        <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Dijawab</div>
-        <div class="text-2xl sm:text-3xl font-bold text-blue-600" id="stat-answered">—</div>
+        <div class="flex items-center justify-between mb-3">
+            <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Aktif</div>
+        </div>
+        <div class="text-2xl sm:text-3xl font-bold text-blue-600" id="stat-active">—</div>
+        <div class="text-[10px] text-slate-400 mt-1">Ditinjau</div>
+    </div>
+    <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+            <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Selesai</div>
+        </div>
+        <div class="text-2xl sm:text-3xl font-bold text-emerald-600" id="stat-done">—</div>
+        <div class="text-[10px] text-slate-400 mt-1">Selesai</div>
     </div>
 </div>
 
-<div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-    <div class="px-4 sm:px-5 py-3.5 border-b border-slate-100 flex flex-wrap items-center gap-2">
-        <span class="text-[13px] font-semibold text-slate-800 mr-auto">Riwayat Konsultasi</span>
-        <div class="flex gap-1.5 flex-wrap">
-            <button onclick="setFilter('all')" id="f-all" class="filter-btn text-[11px] font-semibold px-3 py-1.5 rounded-lg border transition-colors bg-brand-600 text-white border-brand-600">Semua</button>
-            <button onclick="setFilter('done')" id="f-done" class="filter-btn text-[11px] font-semibold px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">Selesai</button>
-            <button onclick="setFilter('received')" id="f-received" class="filter-btn text-[11px] font-semibold px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">Menunggu</button>
-            <button onclick="setFilter('in_review')" id="f-in_review" class="filter-btn text-[11px] font-semibold px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">Ditinjau</button>
+<div class="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-4">
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col h-[70vh]">
+        <div class="px-4 py-3.5 border-b border-slate-100 flex-shrink-0">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[13px] font-semibold text-slate-800">Riwayat Selesai</span>
+                <button onclick="loadKonsultasi()" class="text-[11px] text-brand-600 border border-brand-200 hover:bg-blue-50 px-2.5 py-1 rounded-lg transition-colors">↻</button>
+            </div>
+            <input id="search-chat" type="text" placeholder="Cari dokter atau keluhan..."
+                class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:border-brand-600 bg-slate-50" oninput="renderChatList()" />
         </div>
-        <button onclick="loadData()" class="text-[11px] font-semibold text-brand-600 border border-brand-200 hover:bg-blue-50 px-2.5 py-1.5 rounded-lg transition-colors">↻</button>
+        <div id="chat-list" class="flex-1 overflow-y-auto">
+            <div class="px-4 py-8 text-center text-[12px] text-slate-400">Memuat riwayat...</div>
+        </div>
     </div>
-    <div id="riwayat-list">
-        <div class="px-4 py-10 text-center text-[12px] text-slate-400">Memuat riwayat...</div>
+
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col h-[70vh]">
+        <div id="chat-header" class="px-5 py-3.5 border-b border-slate-100 flex justify-between items-center">
+            <span class="text-[13px] font-semibold text-slate-800">Pilih riwayat untuk dibaca</span>
+        </div>
+        <div id="chat-thread" class="flex-1 p-4 space-y-3 overflow-y-auto bg-slate-50/40">
+            <div class="h-full flex items-center justify-center text-[12px] text-slate-400">Belum ada riwayat dipilih</div>
+        </div>
+        <div id="chat-input" class="border-t border-slate-100 p-3 hidden flex-shrink-0 bg-slate-50">
+            <div class="text-center text-[11px] text-slate-400 py-1 font-semibold flex items-center justify-center gap-2">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Konsultasi ini sudah selesai dan tidak dapat dibalas.
+            </div>
+        </div>
     </div>
 </div>
 
 @endsection
 
 @section('scripts')
-<script src="https://unpkg.com/dexie@3.2.4/dist/dexie.js"></script>
 <script>
     var token = localStorage.getItem('auth_token');
     var user  = JSON.parse(localStorage.getItem('auth_user') || 'null');
     if (!token || !user) window.location.href = '/login';
 
     var allData = [];
-    var activeFilter = 'all';
-    const db = new Dexie('telemedicine');
-    db.version(2).stores({ konsultasi: 'id, status, created_at', auth: 'key' });
+    var activeId = null;
+    var currentMessages = [];
 
-    async function loadLocalPending() {
-        try {
-            var pending = await db.konsultasi.where('status').equals('pending').reverse().sortBy('created_at');
-            return pending.map(function(item) {
-                return {
-                    id: item.id,
-                    local_id: item.id,
-                    server_id: item.server_id || null,
-                    nama: item.nama,
-                    keluhan: item.keluhan,
-                    status: 'received',
-                    created_at: item.created_at,
-                    is_local_pending: true,
-                };
-            });
-        } catch (e) {
-            return [];
-        }
+    function escapeHtml(str) {
+        return String(str || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
     }
 
-    function formatKslId(item) {
-        if (item.server_id) return '#KSL-' + String(item.server_id).padStart(3, '0');
-        if (typeof item.id === 'number') return '#KSL-' + String(item.id).padStart(3, '0');
-        return '#LOCAL';
+    function formatDate(s) {
+        if (!s) return '-';
+        return new Date(s).toLocaleString('id-ID');
     }
 
-    function setFilter(f) {
-        activeFilter = f;
-        document.querySelectorAll('.filter-btn').forEach(function(btn) {
-            btn.classList.remove('bg-brand-600','text-white','border-brand-600');
-            btn.classList.add('text-slate-600','border-slate-200','hover:bg-slate-50');
+    function updateStats() {
+        document.getElementById('stat-total').textContent = allData.length;
+        document.getElementById('stat-pending').textContent = allData.filter(function(d) { return d.status === 'received'; }).length;
+        document.getElementById('stat-active').textContent = allData.filter(function(d) { return d.status === 'in_review'; }).length;
+        document.getElementById('stat-done').textContent = allData.filter(function(d) { return d.status === 'done'; }).length;
+    }
+
+    function renderChatList() {
+        var q = (document.getElementById('search-chat').value || '').toLowerCase();
+        // Hanya tampilkan yang done di riwayat
+        var items = allData.filter(function(item) {
+            if (item.status !== 'done') return false;
+            var searchTxt = ((item.dokter ? item.dokter.name : '') + ' ' + (item.keluhan || '')).toLowerCase();
+            return !q || searchTxt.indexOf(q) !== -1;
         });
-        var active = document.getElementById('f-' + f);
-        if (active) {
-            active.classList.add('bg-brand-600','text-white','border-brand-600');
-            active.classList.remove('text-slate-600','border-slate-200','hover:bg-slate-50');
-        }
-        renderList();
-    }
 
-    function statusBadge(s) {
-        if (s === 'done') return '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Selesai</span>';
-        if (s === 'in_review') return '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">Ditinjau</span>';
-        return '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">Menunggu</span>';
-    }
-
-    function renderList() {
-        var list = document.getElementById('riwayat-list');
-        var filtered = activeFilter === 'all' ? allData : allData.filter(function(d) { return d.status === activeFilter; });
-
-        if (!filtered.length) {
-            list.innerHTML = '<div class="px-4 py-10 text-center"><p class="text-sm text-slate-400 mb-3">Belum ada konsultasi' + (activeFilter !== 'all' ? ' dengan status ini' : '') + '</p><a href="/konsultasi/baru" class="inline-block text-[12px] font-semibold text-brand-600 bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-xl transition-colors">+ Buat Konsultasi Baru</a></div>';
+        var listEl = document.getElementById('chat-list');
+        if (!items.length) {
+            listEl.innerHTML = '<div class="px-4 py-8 text-center text-[12px] text-slate-400">Tidak ada riwayat konsultasi selesai</div>';
             return;
         }
 
-        list.innerHTML = filtered.map(function(item) {
-            var hasJawaban = item.jawaban_dokter || item.jawaban;
-            var jawaban    = item.jawaban_dokter || item.jawaban || '';
-            var dibuat     = new Date(item.created_at).toLocaleString('id-ID');
-            var dokterName = item.dokter ? (item.dokter.name || item.dokter) : null;
-
-            var jawabanHtml = hasJawaban
-                ? '<div class="mx-4 sm:mx-5 mb-4 bg-blue-50 border-l-4 border-blue-400 rounded-r-xl px-4 py-3"><p class="text-[11px] font-bold text-blue-700 mb-1">Jawaban Dokter' + (dokterName ? ' (' + dokterName + ')' : '') + ':</p><p class="text-[12px] text-slate-700 leading-relaxed">' + jawaban + '</p></div>'
-                : '<div class="mx-4 sm:mx-5 mb-4 bg-slate-50 border-l-4 border-slate-200 rounded-r-xl px-4 py-2.5"><p class="text-[12px] text-slate-400 italic">Menunggu jawaban dokter...</p></div>';
-
-            return '<div class="border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors">' +
-                '<div class="px-4 sm:px-5 py-4">' +
-                    '<div class="flex flex-wrap items-start justify-between gap-2 mb-2">' +
-                        '<div class="flex items-center gap-2 flex-wrap">' +
-                            '<span class="text-[13px] font-semibold text-slate-800">' + (item.nama || item.nama_pasien || (user ? user.name : '')) + '</span>' +
-                            '<span class="text-[10px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">' + formatKslId(item) + '</span>' +
-                            (item.is_local_pending ? '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">Offline</span>' : '') +
-                        '</div>' +
-                        '<span class="text-[10px] text-slate-400">' + dibuat + '</span>' +
-                    '</div>' +
-                    '<p class="text-[13px] text-slate-600 mb-3 leading-relaxed">' + item.keluhan + '</p>' +
-                    '<div class="flex flex-wrap items-center gap-2">' + statusBadge(item.status) +
-                        (dokterName ? '<span class="text-[11px] text-slate-400">· ' + dokterName + '</span>' : '') +
-                    '</div>' +
+        listEl.innerHTML = items.map(function(item) {
+            var activeClass = String(item.id) === String(activeId)
+                ? 'bg-brand-50 border-brand-200'
+                : 'bg-white border-transparent hover:bg-slate-50';
+            var status = '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Selesai</span>';
+            var drName = item.dokter ? escapeHtml(item.dokter.name) : 'Belum ada dokter';
+            return '<button onclick="pilihChat(' + item.id + ')" class="w-full text-left px-4 py-3 border-b border-slate-100 ' + activeClass + '">' +
+                '<div class="flex items-center justify-between mb-1">' +
+                '<div class="text-[12px] font-semibold text-slate-800 truncate pr-2">' + drName + '</div>' +
+                status +
                 '</div>' +
-                jawabanHtml + '</div>';
+                '<div class="text-[11px] text-slate-500 line-clamp-2">' + escapeHtml(item.keluhan || '-') + '</div>' +
+                '<div class="text-[10px] text-slate-400 mt-1">' + formatDate(item.created_at) + '</div>' +
+                '</button>';
         }).join('');
     }
 
-    async function loadData() {
-        document.getElementById('riwayat-list').innerHTML = '<div class="px-4 py-10 text-center text-[12px] text-slate-400">Memuat...</div>';
-        var localPending = await loadLocalPending();
-        try {
-            var res  = await fetch('/api/konsultasi/saya', { headers: { 'Authorization': 'Bearer ' + token } });
-            var remoteData = await res.json();
-            allData  = localPending.concat(remoteData || []);
-            document.getElementById('stat-total').textContent    = allData.length;
-            document.getElementById('stat-done').textContent     = allData.filter(function(d) { return d.status === 'done'; }).length;
-            document.getElementById('stat-pending').textContent  = allData.filter(function(d) { return d.status === 'received'; }).length;
-            document.getElementById('stat-answered').textContent = allData.filter(function(d) { return d.jawaban_dokter || d.jawaban; }).length;
-            renderList();
-        } catch(e) {
-            allData = localPending;
-            document.getElementById('stat-total').textContent    = allData.length;
-            document.getElementById('stat-done').textContent     = 0;
-            document.getElementById('stat-pending').textContent  = allData.length;
-            document.getElementById('stat-answered').textContent = 0;
-            if (allData.length) {
-                renderList();
+    async function pilihChat(id) {
+        activeId = id;
+        renderChatList();
+        renderThreadLoading();
+        await loadMessages(id);
+    }
+
+    function renderThreadLoading() {
+        var thread = document.getElementById('chat-thread');
+        thread.innerHTML = '<div class="h-full flex items-center justify-center text-[12px] text-slate-400">Memuat pesan...</div>';
+    }
+
+    function renderThread() {
+        var item = allData.find(function(d) { return String(d.id) === String(activeId); });
+        var header = document.getElementById('chat-header');
+        var thread = document.getElementById('chat-thread');
+        var inputWrap = document.getElementById('chat-input');
+
+        if (!item) {
+            header.innerHTML = '<span class="text-[13px] font-semibold text-slate-800">Pilih riwayat untuk dibaca</span>';
+            thread.innerHTML = '<div class="h-full flex items-center justify-center text-[12px] text-slate-400">Belum ada riwayat dipilih</div>';
+            inputWrap.classList.add('hidden');
+            return;
+        }
+
+        var drName = item.dokter ? escapeHtml(item.dokter.name) : 'Belum ada dokter';
+
+        header.innerHTML = '<div class="flex items-center justify-between gap-2 w-full">' +
+            '<div><div class="text-[13px] font-semibold text-slate-800">' + drName + '</div>' +
+            '<div class="text-[11px] text-slate-500">#KSL-' + String(item.id).padStart(3, '0') + ' <span class="bg-emerald-50 text-emerald-600 px-1.5 rounded text-[9px] font-bold ml-1">SELESAI</span></div></div>' +
+            '<div class="flex items-center gap-2">' +
+                '<div class="text-[10px] text-slate-400">' + formatDate(item.created_at) + '</div>' +
+            '</div></div>';
+
+        // Tampilkan keluhan awal
+        var html = '<div class="flex justify-end mb-3">' +
+            '<div class="max-w-[85%] bg-slate-400 text-white border border-slate-200 rounded-2xl rounded-tr-md px-3.5 py-2.5 shadow-sm">' +
+                '<div class="text-[10px] font-semibold text-white/80 mb-1">Anda (Keluhan)</div>' +
+                '<div class="text-[13px] text-white leading-relaxed">' + escapeHtml(item.keluhan || '-') + '</div>' +
+                '<div class="text-[9px] text-white/60 mt-1 text-right">' + formatDate(item.created_at) + '</div>' +
+            '</div></div>';
+
+        // Tampilkan pesan
+        currentMessages.forEach(function(msg) {
+            var isPasien = msg.sender_role === 'pasien';
+            if (isPasien) {
+                html += '<div class="flex justify-end mb-3">' +
+                    '<div class="max-w-[85%] bg-slate-400 text-white rounded-2xl rounded-tr-md px-3.5 py-2.5 shadow-sm">' +
+                        '<div class="text-[10px] font-semibold text-white/80 mb-1">Anda</div>' +
+                        '<div class="text-[13px] leading-relaxed">' + escapeHtml(msg.message) + '</div>' +
+                        '<div class="text-[9px] text-white/60 mt-1 text-right">' + formatDate(msg.created_at) + '</div>' +
+                    '</div></div>';
             } else {
-                document.getElementById('riwayat-list').innerHTML = '<div class="px-4 py-10 text-center text-[12px] text-red-400">Gagal memuat data</div>';
+                html += '<div class="flex justify-start mb-3">' +
+                    '<div class="max-w-[85%] bg-white border border-slate-200 rounded-2xl rounded-tl-md px-3.5 py-2.5 shadow-sm">' +
+                        '<div class="text-[10px] font-semibold text-slate-400 mb-1">' + drName + '</div>' +
+                        '<div class="text-[13px] text-slate-700 leading-relaxed">' + escapeHtml(msg.message) + '</div>' +
+                        '<div class="text-[9px] text-slate-400 mt-1 text-right">' + formatDate(msg.created_at) + '</div>' +
+                    '</div></div>';
             }
+        });
+
+        thread.innerHTML = html;
+        thread.scrollTop = thread.scrollHeight;
+        inputWrap.classList.remove('hidden');
+    }
+
+    async function loadMessages(id) {
+        try {
+            var res = await fetch('/api/konsultasi/' + id + '/messages', { headers: { 'Authorization': 'Bearer ' + token } });
+            if(res.ok) {
+                currentMessages = await res.json();
+            } else {
+                currentMessages = [];
+            }
+            renderThread();
+        } catch(e) {
+            console.error(e);
         }
     }
-    window.addEventListener('online', loadData);
-    loadData();
+
+    async function loadKonsultasi() {
+        try {
+            var res  = await fetch('/api/konsultasi/saya', { headers: { 'Authorization': 'Bearer ' + token } });
+            allData = await res.json();
+            updateStats();
+            
+            if (activeId) {
+                var activeItem = allData.find(d => String(d.id) === String(activeId));
+                if (!activeItem || activeItem.status !== 'done') {
+                    activeId = null;
+                }
+            }
+            
+            renderChatList();
+
+            if (!activeId) {
+                renderThread();
+            } else {
+                await loadMessages(activeId);
+            }
+        } catch(e) {
+            document.getElementById('chat-list').innerHTML = '<div class="px-4 py-8 text-center text-[12px] text-red-400">Gagal memuat riwayat</div>';
+        }
+    }
+
+    loadKonsultasi();
 </script>
 @endsection

@@ -40,6 +40,8 @@ Route::middleware(['auth:sanctum', 'check.token'])->group(function () {
     Route::get('/konsultasi/saya', [KonsultasiController::class, 'milikSaya']);
     Route::get('/konsultasi/{id}', [KonsultasiController::class, 'show']);
     Route::delete('/konsultasi/{id}', [KonsultasiController::class, 'destroy']);
+    Route::get('/konsultasi/{id}/messages', [App\Http\Controllers\Api\KonsultasiMessageController::class, 'index']);
+    Route::post('/konsultasi/{id}/messages', [App\Http\Controllers\Api\KonsultasiMessageController::class, 'store']);
 
     // Sync offline
     Route::post('/konsultasi', [SyncController::class, 'sync']);

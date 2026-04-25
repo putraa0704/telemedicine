@@ -25,7 +25,7 @@
                 <label class="block text-xs font-medium text-slate-600 mb-1.5">Username</label>
                 <input id="f-username" type="text" placeholder="username_dokter"
                     class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition"/>
-                <p class="text-[10px] text-slate-400 mt-1">Akan disimpan sebagai akun login dengan format <span class="font-semibold">username@CareMate.id</span>.</p>
+                <p class="text-[10px] text-slate-400 mt-1">Akan disimpan sebagai akun login dengan format <span class="font-semibold">username@caremate.id</span>.</p>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
@@ -38,6 +38,11 @@
                     <input id="f-hp" type="tel" placeholder="08xxxxxxxxxx"
                         class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 transition"/>
                 </div>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1.5">Tanggal Lahir</label>
+                <input id="f-tgl-lahir" type="date" max="<?php echo date('Y-m-d'); ?>"
+                    class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 transition"/>
             </div>
             <div>
                 <label class="block text-xs font-medium text-slate-600 mb-1.5">Spesialisasi</label>
@@ -68,6 +73,13 @@
         <div class="mt-6 pt-5 border-t border-slate-100">
             <h2 class="text-[13px] font-semibold text-slate-800 mb-3">Tambah Jadwal Dokter</h2>
             <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-medium text-slate-600 mb-1.5">Spesialisasi</label>
+                    <select id="j-spesialisasi" onchange="filterDokterJadwalSelect()"
+                        class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 bg-white">
+                        <option value="all">— Semua Spesialisasi —</option>
+                    </select>
+                </div>
                 <div>
                     <label class="block text-xs font-medium text-slate-600 mb-1.5">Pilih Dokter</label>
                     <select id="j-dokter"
@@ -243,7 +255,7 @@
 
     async function loadDokter() {
         try {
-            var headers = { 'Authorization': 'Bearer ' + token };
+            var headers = { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' };
             var bust = '_=' + Date.now();
             var res = await fetch('/api/supabase/tim-dokter?' + bust, {
                 headers: headers,
@@ -262,8 +274,9 @@
                 throw new Error('Format data dokter tidak valid');
             }
             populateSpesialisasiFilter();
+            populateJadwalSpesialisFilter();
             renderDokter();
-            populateDokterSelect();
+            filterDokterJadwalSelect();
         } catch(e) {
             document.getElementById('dokter-list').innerHTML = '<div class="px-4 py-4 text-sm text-red-400">Gagal memuat</div>';
         }
@@ -293,10 +306,56 @@
         window.renderUI = loadDokter;
     }
 
-    function populateDokterSelect() {
+    function populateJadwalSpesialisFilter() {
+        var sel = document.getElementById('j-spesialisasi');
+        if (!sel) return;
+
+        var unique = Array.from(new Set(
+            dokterData
+                .map(function(d) { return normalizeSpesialisasi(d.spesialisasi); })
+                .filter(Boolean)
+        ));
+
+        unique.sort(function(a, b) {
+            if (a === 'Dokter Umum') return -1;
+            if (b === 'Dokter Umum') return 1;
+            return a.localeCompare(b, 'id');
+        });
+
+        var currentVal = sel.value;
+
+        sel.innerHTML = '<option value="all">— Semua Spesialisasi —</option>' +
+            unique.map(function(s) {
+                return '<option value="' + escapeHtml(s) + '">' + escapeHtml(s) + '</option>';
+            }).join('');
+            
+        if (currentVal && unique.includes(currentVal)) {
+            sel.value = currentVal;
+        } else {
+            sel.value = 'all';
+        }
+    }
+
+    function filterDokterJadwalSelect() {
+        var selSpesialisasi = document.getElementById('j-spesialisasi');
+        var spesialisasi = selSpesialisasi ? selSpesialisasi.value : 'all';
+        populateDokterSelect(spesialisasi);
+    }
+
+    function populateDokterSelect(spesialisasi) {
+        if (!spesialisasi) spesialisasi = 'all';
         var sel = document.getElementById('j-dokter');
+        if (!sel) return;
+
+        var filtered = dokterData;
+        if (spesialisasi !== 'all') {
+            filtered = dokterData.filter(function(d) {
+                return normalizeSpesialisasi(d.spesialisasi) === spesialisasi;
+            });
+        }
+
         sel.innerHTML = '<option value="">— Pilih Dokter —</option>' +
-            dokterData.map(d => `<option value="${d.id}">${d.nama}</option>`).join('');
+            filtered.map(d => `<option value="${d.id}">${d.nama}</option>`).join('');
     }
 
     function populateSpesialisasiFilter() {
@@ -429,8 +488,8 @@
         document.getElementById('edit-jadwal-error').classList.add('hidden');
         document.getElementById('e-dokter').value = namaDokter;
         document.getElementById('e-hari').value = hari;
-        document.getElementById('e-mulai').value = jamMulai;
-        document.getElementById('e-selesai').value = jamSelesai;
+        document.getElementById('e-mulai').value = jamMulai ? jamMulai.substring(0, 5) : '';
+        document.getElementById('e-selesai').value = jamSelesai ? jamSelesai.substring(0, 5) : '';
         document.getElementById('edit-jadwal-modal').classList.remove('hidden');
     }
 
@@ -467,13 +526,14 @@
             password:              document.getElementById('f-password').value,
             password_confirmation: document.getElementById('f-password').value,
             no_hp:                 document.getElementById('f-hp').value.trim(),
+            tanggal_lahir:         document.getElementById('f-tgl-lahir').value,
             spesialisasi:          document.getElementById('f-spesialis').value,
             no_str:                document.getElementById('f-str').value.trim(),
             role:                  'dokter',
         };
 
-        if (!payload.name || !payload.password) {
-            errEl.textContent = 'Nama, username, dan password wajib diisi.';
+        if (!payload.name || !payload.password || !payload.tanggal_lahir) {
+            errEl.textContent = 'Nama, username, tanggal lahir, dan password wajib diisi.';
             errEl.classList.remove('hidden'); return;
         }
 
@@ -481,7 +541,7 @@
             // Daftarkan via endpoint admin khusus dokter
             var res  = await fetch('/api/auth/register-dokter', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer ' + token },
                 body: JSON.stringify(payload)
             });
             var data = await res.json();
@@ -493,7 +553,7 @@
 
             sucEl.textContent = '✓ Dokter ' + payload.name + ' berhasil ditambahkan!';
             sucEl.classList.remove('hidden');
-            ['f-name','f-username','f-password','f-hp','f-str'].forEach(id => document.getElementById(id).value = '');
+            ['f-name','f-username','f-password','f-hp','f-tgl-lahir','f-str'].forEach(id => document.getElementById(id).value = '');
             await loadDokter();
         } catch(e) {
             errEl.textContent = 'Gagal terhubung ke server'; errEl.classList.remove('hidden');
@@ -529,7 +589,7 @@
         try {
             var res  = await fetch('/api/jadwal', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer ' + token },
                 body: JSON.stringify({ dokter_id: dokterId, hari, jam_mulai: mulai, jam_selesai: selesai })
             });
 
@@ -580,7 +640,7 @@
         try {
             var res = await fetch('/api/jadwal/' + editJadwalId, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer ' + token },
                 body: JSON.stringify({ hari: hari, jam_mulai: mulai, jam_selesai: selesai })
             });
             var data = await res.json();
@@ -622,7 +682,7 @@
         try {
             var res = await fetch('/api/jadwal/' + editJadwalId, {
                 method: 'DELETE',
-                headers: { 'Authorization': 'Bearer ' + token }
+                headers: { 'Accept': 'application/json', 'Authorization': 'Bearer ' + token }
             });
             var data = await res.json();
 

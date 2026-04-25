@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
-@section('title', 'Chat Konsultasi')
-@section('page_title', 'Chat Konsultasi')
-@section('page_sub', 'Konsultasi aktif Anda dengan dokter')
-@section('nav_konsultasi', 'active')
+@section('title', 'Riwayat Konsultasi Pasien')
+@section('page_title', 'Riwayat Konsultasi')
+@section('page_sub', 'Arsip percakapan konsultasi pasien yang sudah selesai')
+@section('nav_riwayat', 'active')
 
 @section('content')
 
@@ -42,30 +42,28 @@
     <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col h-[70vh]">
         <div class="px-4 py-3.5 border-b border-slate-100 flex-shrink-0">
             <div class="flex items-center justify-between mb-2">
-                <span class="text-[13px] font-semibold text-slate-800">Daftar Konsultasi (Aktif)</span>
+                <span class="text-[13px] font-semibold text-slate-800">Riwayat Selesai</span>
                 <button onclick="loadKonsultasi()" class="text-[11px] text-brand-600 border border-brand-200 hover:bg-blue-50 px-2.5 py-1 rounded-lg transition-colors">↻</button>
             </div>
-            <input id="search-chat" type="text" placeholder="Cari dokter atau keluhan..."
+            <input id="search-chat" type="text" placeholder="Cari nama pasien..."
                 class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:border-brand-600 bg-slate-50" oninput="renderChatList()" />
         </div>
         <div id="chat-list" class="flex-1 overflow-y-auto">
-            <div class="px-4 py-8 text-center text-[12px] text-slate-400">Memuat percakapan...</div>
+            <div class="px-4 py-8 text-center text-[12px] text-slate-400">Memuat riwayat...</div>
         </div>
     </div>
 
     <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col h-[70vh]">
         <div id="chat-header" class="px-5 py-3.5 border-b border-slate-100 flex justify-between items-center">
-            <span class="text-[13px] font-semibold text-slate-800">Pilih konsultasi untuk memulai chat</span>
+            <span class="text-[13px] font-semibold text-slate-800">Pilih riwayat untuk dibaca</span>
         </div>
         <div id="chat-thread" class="flex-1 p-4 space-y-3 overflow-y-auto bg-slate-50/40">
-            <div class="h-full flex items-center justify-center text-[12px] text-slate-400">Belum ada percakapan dipilih</div>
+            <div class="h-full flex items-center justify-center text-[12px] text-slate-400">Belum ada riwayat dipilih</div>
         </div>
-        <div id="chat-input" class="border-t border-slate-100 p-3 hidden flex-shrink-0">
-            <textarea id="jawaban-input" rows="2" placeholder="Tulis balasan untuk dokter..."
-                class="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-brand-600 bg-slate-50 resize-none"></textarea>
-            <div class="mt-2 flex justify-end">
-                <button onclick="kirimPesanAktif()" id="btn-kirim"
-                    class="bg-brand-600 hover:bg-brand-800 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors">Kirim Pesan</button>
+        <div id="chat-input" class="border-t border-slate-100 p-3 hidden flex-shrink-0 bg-slate-50">
+            <div class="text-center text-[11px] text-slate-400 py-1 font-semibold flex items-center justify-center gap-2">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Konsultasi ini sudah selesai dan tidak dapat dibalas.
             </div>
         </div>
     </div>
@@ -78,6 +76,7 @@
     var token = localStorage.getItem('auth_token');
     var user  = JSON.parse(localStorage.getItem('auth_user') || 'null');
     if (!token || !user) window.location.href = '/login';
+    if (user && (user.role !== 'dokter' && user.role !== 'admin')) window.location.href = '/pasien';
 
     var allData = [];
     var activeId = null;
@@ -106,16 +105,16 @@
 
     function renderChatList() {
         var q = (document.getElementById('search-chat').value || '').toLowerCase();
-        // Hanya tampilkan yang aktif (bukan done) di chat list ini
+        // Hanya tampilkan yang done di riwayat
         var items = allData.filter(function(item) {
-            if (item.status === 'done') return false;
-            var searchTxt = ((item.dokter ? item.dokter.name : '') + ' ' + (item.keluhan || '')).toLowerCase();
-            return !q || searchTxt.indexOf(q) !== -1;
+            if (item.status !== 'done') return false;
+            var name = (item.nama_pasien || item.nama || '').toLowerCase();
+            return !q || name.indexOf(q) !== -1;
         });
 
         var listEl = document.getElementById('chat-list');
         if (!items.length) {
-            listEl.innerHTML = '<div class="px-4 py-8 text-center text-[12px] text-slate-400">Tidak ada konsultasi aktif</div>';
+            listEl.innerHTML = '<div class="px-4 py-8 text-center text-[12px] text-slate-400">Tidak ada riwayat konsultasi selesai</div>';
             return;
         }
 
@@ -123,13 +122,10 @@
             var activeClass = String(item.id) === String(activeId)
                 ? 'bg-brand-50 border-brand-200'
                 : 'bg-white border-transparent hover:bg-slate-50';
-            var status = item.status === 'in_review'
-                ? '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">Ditinjau</span>'
-                : '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700">Menunggu</span>';
-            var drName = item.dokter ? escapeHtml(item.dokter.name) : 'Belum ada dokter';
+            var status = '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Selesai</span>';
             return '<button onclick="pilihChat(' + item.id + ')" class="w-full text-left px-4 py-3 border-b border-slate-100 ' + activeClass + '">' +
                 '<div class="flex items-center justify-between mb-1">' +
-                '<div class="text-[12px] font-semibold text-slate-800 truncate pr-2">' + drName + '</div>' +
+                '<div class="text-[12px] font-semibold text-slate-800 truncate pr-2">' + escapeHtml(item.nama_pasien || item.nama || '-') + '</div>' +
                 status +
                 '</div>' +
                 '<div class="text-[11px] text-slate-500 line-clamp-2">' + escapeHtml(item.keluhan || '-') + '</div>' +
@@ -157,35 +153,33 @@
         var inputWrap = document.getElementById('chat-input');
 
         if (!item) {
-            header.innerHTML = '<span class="text-[13px] font-semibold text-slate-800">Pilih konsultasi untuk memulai chat</span>';
-            thread.innerHTML = '<div class="h-full flex items-center justify-center text-[12px] text-slate-400">Belum ada percakapan dipilih</div>';
+            header.innerHTML = '<span class="text-[13px] font-semibold text-slate-800">Pilih riwayat untuk dibaca</span>';
+            thread.innerHTML = '<div class="h-full flex items-center justify-center text-[12px] text-slate-400">Belum ada riwayat dipilih</div>';
             inputWrap.classList.add('hidden');
             return;
         }
 
-        var drName = item.dokter ? escapeHtml(item.dokter.name) : 'Belum ada dokter';
-
         header.innerHTML = '<div class="flex items-center justify-between gap-2 w-full">' +
-            '<div><div class="text-[13px] font-semibold text-slate-800">' + drName + '</div>' +
-            '<div class="text-[11px] text-slate-500">#KSL-' + String(item.id).padStart(3, '0') + '</div></div>' +
+            '<div><div class="text-[13px] font-semibold text-slate-800">' + escapeHtml(item.nama_pasien || item.nama || '-') + '</div>' +
+            '<div class="text-[11px] text-slate-500">#KSL-' + String(item.id).padStart(3, '0') + ' <span class="bg-emerald-50 text-emerald-600 px-1.5 rounded text-[9px] font-bold ml-1">SELESAI</span></div></div>' +
             '<div class="flex items-center gap-2">' +
                 '<div class="text-[10px] text-slate-400">' + formatDate(item.created_at) + '</div>' +
             '</div></div>';
 
         // Tampilkan keluhan awal
-        var html = '<div class="flex justify-end mb-3">' +
-            '<div class="max-w-[85%] bg-brand-600 text-white border border-slate-200 rounded-2xl rounded-tr-md px-3.5 py-2.5 shadow-sm">' +
-                '<div class="text-[10px] font-semibold text-white/80 mb-1">Anda (Keluhan)</div>' +
-                '<div class="text-[13px] text-white leading-relaxed">' + escapeHtml(item.keluhan || '-') + '</div>' +
-                '<div class="text-[9px] text-white/60 mt-1 text-right">' + formatDate(item.created_at) + '</div>' +
+        var html = '<div class="flex justify-start mb-3">' +
+            '<div class="max-w-[85%] bg-white border border-slate-200 rounded-2xl rounded-tl-md px-3.5 py-2.5 shadow-sm">' +
+                '<div class="text-[10px] font-semibold text-slate-400 mb-1">Pasien (Keluhan)</div>' +
+                '<div class="text-[13px] text-slate-700 leading-relaxed">' + escapeHtml(item.keluhan || '-') + '</div>' +
+                '<div class="text-[9px] text-slate-400 mt-1 text-right">' + formatDate(item.created_at) + '</div>' +
             '</div></div>';
 
         // Tampilkan pesan
         currentMessages.forEach(function(msg) {
-            var isPasien = msg.sender_role === 'pasien';
-            if (isPasien) {
+            var isDokter = msg.sender_role === 'dokter';
+            if (isDokter) {
                 html += '<div class="flex justify-end mb-3">' +
-                    '<div class="max-w-[85%] bg-brand-600 text-white rounded-2xl rounded-tr-md px-3.5 py-2.5 shadow-sm">' +
+                    '<div class="max-w-[85%] bg-slate-400 text-white rounded-2xl rounded-tr-md px-3.5 py-2.5 shadow-sm">' +
                         '<div class="text-[10px] font-semibold text-white/80 mb-1">Anda</div>' +
                         '<div class="text-[13px] leading-relaxed">' + escapeHtml(msg.message) + '</div>' +
                         '<div class="text-[9px] text-white/60 mt-1 text-right">' + formatDate(msg.created_at) + '</div>' +
@@ -193,7 +187,7 @@
             } else {
                 html += '<div class="flex justify-start mb-3">' +
                     '<div class="max-w-[85%] bg-white border border-slate-200 rounded-2xl rounded-tl-md px-3.5 py-2.5 shadow-sm">' +
-                        '<div class="text-[10px] font-semibold text-slate-400 mb-1">' + drName + '</div>' +
+                        '<div class="text-[10px] font-semibold text-slate-400 mb-1">Pasien</div>' +
                         '<div class="text-[13px] text-slate-700 leading-relaxed">' + escapeHtml(msg.message) + '</div>' +
                         '<div class="text-[9px] text-slate-400 mt-1 text-right">' + formatDate(msg.created_at) + '</div>' +
                     '</div></div>';
@@ -221,14 +215,13 @@
 
     async function loadKonsultasi() {
         try {
-            var res  = await fetch('/api/konsultasi/saya', { headers: { 'Authorization': 'Bearer ' + token } });
+            var res  = await fetch('/api/dokter/konsultasi', { headers: { 'Authorization': 'Bearer ' + token } });
             allData = await res.json();
             updateStats();
             
-            // Check if activeId is still valid and not 'done'
             if (activeId) {
                 var activeItem = allData.find(d => String(d.id) === String(activeId));
-                if (!activeItem || activeItem.status === 'done') {
+                if (!activeItem || activeItem.status !== 'done') {
                     activeId = null;
                 }
             }
@@ -241,42 +234,10 @@
                 await loadMessages(activeId);
             }
         } catch(e) {
-            document.getElementById('chat-list').innerHTML = '<div class="px-4 py-8 text-center text-[12px] text-red-400">Gagal memuat percakapan</div>';
+            document.getElementById('chat-list').innerHTML = '<div class="px-4 py-8 text-center text-[12px] text-red-400">Gagal memuat riwayat</div>';
         }
     }
 
-    async function kirimPesanAktif() {
-        if (!activeId) return;
-        var inputEl = document.getElementById('jawaban-input');
-        var pesan = inputEl.value.trim();
-        if (!pesan) return alert('Pesan tidak boleh kosong');
-
-        var btn = document.getElementById('btn-kirim');
-        btn.disabled = true;
-        btn.textContent = 'Mengirim...';
-
-        try {
-            var res = await fetch('/api/konsultasi/' + activeId + '/messages', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-                body: JSON.stringify({ message: pesan })
-            });
-
-            if (res.ok) {
-                inputEl.value = '';
-                await loadMessages(activeId);
-                // Also refresh list without changing activeId to update status tags
-                var resList = await fetch('/api/konsultasi/saya', { headers: { 'Authorization': 'Bearer ' + token } });
-                allData = await resList.json();
-                updateStats();
-                renderChatList();
-            }
-        } catch(e) { alert('Gagal mengirim pesan'); }
-        btn.disabled = false;
-        btn.textContent = 'Kirim Pesan';
-    }
-
     loadKonsultasi();
-    setInterval(loadKonsultasi, 30000); // refresh list 30s
 </script>
 @endsection

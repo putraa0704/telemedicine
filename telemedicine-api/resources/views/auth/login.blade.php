@@ -85,8 +85,8 @@
 
     <div style="display:flex;flex-direction:column;gap:16px;">
         <div>
-            <label>Email</label>
-            <input id="email" type="email" placeholder="nama@email.com" autocomplete="email"/>
+            <label>Email / No. HP</label>
+            <input id="identifier" type="text" placeholder="Masukkan salah satu" autocomplete="email"/>
         </div>
         <div>
             <label>Password</label>
@@ -139,14 +139,14 @@
     }
 
     async function doLogin() {
-        var email    = document.getElementById('email').value.trim();
+        var identifier = document.getElementById('identifier').value.trim();
         var password = document.getElementById('password').value;
         var errDiv   = document.getElementById('error-msg');
         var btn      = document.getElementById('login-btn');
         errDiv.classList.remove('show');
 
-        if (!email || !password) {
-            errDiv.textContent = 'Email dan password wajib diisi.';
+        if (!identifier || !password) {
+            errDiv.textContent = 'Identifier (Email/No. HP) dan password wajib diisi.';
             errDiv.classList.add('show'); return;
         }
 
@@ -158,7 +158,7 @@
                 return fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
+                    body: JSON.stringify({ identifier, password })
                 });
             }
 

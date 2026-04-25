@@ -29,6 +29,7 @@ Route::get('/riwayat', fn() => view('pasien.riwayat'));
 // ── Dokter ──
 Route::get('/dokter', fn() => view('dokter.dashboard'));
 Route::get('/dokter/konsultasi', fn() => view('dokter.konsultasi'));
+Route::get('/dokter/riwayat', fn() => view('dokter.riwayat'));
 Route::get('/dokter/jadwal-saya', fn() => view('dokter.jadwal_saya'));
 
 // ── Shared ──

@@ -6,15 +6,10 @@
 
 @section('content')
 
-<div class="grid grid-cols-3 gap-3 sm:gap-4 mb-4">
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-4">
     <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
         <div class="flex items-center justify-between mb-3">
             <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Total</div>
-            <div class="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">
-                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                </svg>
-            </div>
         </div>
         <div class="text-2xl sm:text-3xl font-bold text-slate-800" id="stat-total">—</div>
         <div class="text-[10px] text-slate-400 mt-1">Percakapan</div>
@@ -22,57 +17,54 @@
     <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
         <div class="flex items-center justify-between mb-3">
             <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Menunggu</div>
-            <div class="w-8 h-8 rounded-xl bg-amber-50 flex items-center justify-center">
-                <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                </svg>
-            </div>
         </div>
         <div class="text-2xl sm:text-3xl font-bold text-amber-600" id="stat-pending">—</div>
         <div class="text-[10px] text-slate-400 mt-1">Belum dibalas</div>
     </div>
     <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
         <div class="flex items-center justify-between mb-3">
+            <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Aktif</div>
+        </div>
+        <div class="text-2xl sm:text-3xl font-bold text-blue-600" id="stat-active">—</div>
+        <div class="text-[10px] text-slate-400 mt-1">Ditinjau</div>
+    </div>
+    <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
             <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Selesai</div>
-            <div class="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center">
-                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
-                </svg>
-            </div>
         </div>
         <div class="text-2xl sm:text-3xl font-bold text-emerald-600" id="stat-done">—</div>
-        <div class="text-[10px] text-slate-400 mt-1">Sudah dibalas</div>
+        <div class="text-[10px] text-slate-400 mt-1">Selesai</div>
     </div>
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-4">
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div class="px-4 py-3.5 border-b border-slate-100">
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col h-[70vh]">
+        <div class="px-4 py-3.5 border-b border-slate-100 flex-shrink-0">
             <div class="flex items-center justify-between mb-2">
-                <span class="text-[13px] font-semibold text-slate-800">Daftar Pasien</span>
+                <span class="text-[13px] font-semibold text-slate-800">Daftar Pasien (Aktif)</span>
                 <button onclick="loadKonsultasi()" class="text-[11px] text-brand-600 border border-brand-200 hover:bg-blue-50 px-2.5 py-1 rounded-lg transition-colors">↻</button>
             </div>
             <input id="search-chat" type="text" placeholder="Cari nama pasien..."
                 class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:border-brand-600 bg-slate-50" oninput="renderChatList()" />
         </div>
-        <div id="chat-list" class="max-h-[66vh] overflow-y-auto">
+        <div id="chat-list" class="flex-1 overflow-y-auto">
             <div class="px-4 py-8 text-center text-[12px] text-slate-400">Memuat percakapan...</div>
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col min-h-130">
-        <div id="chat-header" class="px-5 py-3.5 border-b border-slate-100">
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col h-[70vh]">
+        <div id="chat-header" class="px-5 py-3.5 border-b border-slate-100 flex justify-between items-center">
             <span class="text-[13px] font-semibold text-slate-800">Pilih pasien untuk memulai chat</span>
         </div>
         <div id="chat-thread" class="flex-1 p-4 space-y-3 overflow-y-auto bg-slate-50/40">
             <div class="h-full flex items-center justify-center text-[12px] text-slate-400">Belum ada percakapan dipilih</div>
         </div>
-        <div id="chat-input" class="border-t border-slate-100 p-3 hidden">
-            <textarea id="jawaban-input" rows="3" placeholder="Tulis balasan untuk pasien..."
+        <div id="chat-input" class="border-t border-slate-100 p-3 hidden flex-shrink-0">
+            <textarea id="jawaban-input" rows="2" placeholder="Tulis balasan untuk pasien..."
                 class="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-brand-600 bg-slate-50 resize-none"></textarea>
             <div class="mt-2 flex justify-end">
-                <button onclick="kirimJawabanAktif()" id="btn-kirim"
-                    class="bg-brand-600 hover:bg-brand-800 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors">Kirim Balasan</button>
+                <button onclick="kirimPesanAktif()" id="btn-kirim"
+                    class="bg-brand-600 hover:bg-brand-800 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors">Kirim Pesan</button>
             </div>
         </div>
     </div>
@@ -89,6 +81,7 @@
 
     var allData = [];
     var activeId = null;
+    var currentMessages = [];
 
     function escapeHtml(str) {
         return String(str || '')
@@ -106,20 +99,23 @@
 
     function updateStats() {
         document.getElementById('stat-total').textContent = allData.length;
-        document.getElementById('stat-pending').textContent = allData.filter(function(d) { return !d.jawaban; }).length;
-        document.getElementById('stat-done').textContent = allData.filter(function(d) { return !!d.jawaban; }).length;
+        document.getElementById('stat-pending').textContent = allData.filter(function(d) { return d.status === 'received'; }).length;
+        document.getElementById('stat-active').textContent = allData.filter(function(d) { return d.status === 'in_review'; }).length;
+        document.getElementById('stat-done').textContent = allData.filter(function(d) { return d.status === 'done'; }).length;
     }
 
     function renderChatList() {
         var q = (document.getElementById('search-chat').value || '').toLowerCase();
+        // Hanya tampilkan yang aktif (bukan done) di chat list ini
         var items = allData.filter(function(item) {
+            if (item.status === 'done') return false;
             var name = (item.nama_pasien || item.nama || '').toLowerCase();
             return !q || name.indexOf(q) !== -1;
         });
 
         var listEl = document.getElementById('chat-list');
         if (!items.length) {
-            listEl.innerHTML = '<div class="px-4 py-8 text-center text-[12px] text-slate-400">Data konsultasi tidak ditemukan</div>';
+            listEl.innerHTML = '<div class="px-4 py-8 text-center text-[12px] text-slate-400">Tidak ada konsultasi aktif</div>';
             return;
         }
 
@@ -127,8 +123,8 @@
             var activeClass = String(item.id) === String(activeId)
                 ? 'bg-brand-50 border-brand-200'
                 : 'bg-white border-transparent hover:bg-slate-50';
-            var status = item.jawaban
-                ? '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">Dibalas</span>'
+            var status = item.status === 'in_review'
+                ? '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">Ditinjau</span>'
                 : '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700">Menunggu</span>';
             return '<button onclick="pilihChat(' + item.id + ')" class="w-full text-left px-4 py-3 border-b border-slate-100 ' + activeClass + '">' +
                 '<div class="flex items-center justify-between mb-1">' +
@@ -141,10 +137,16 @@
         }).join('');
     }
 
-    function pilihChat(id) {
+    async function pilihChat(id) {
         activeId = id;
         renderChatList();
-        renderThread();
+        renderThreadLoading();
+        await loadMessages(id);
+    }
+
+    function renderThreadLoading() {
+        var thread = document.getElementById('chat-thread');
+        thread.innerHTML = '<div class="h-full flex items-center justify-center text-[12px] text-slate-400">Memuat pesan...</div>';
     }
 
     function renderThread() {
@@ -160,33 +162,59 @@
             return;
         }
 
-        header.innerHTML = '<div class="flex items-center justify-between gap-2">' +
+        header.innerHTML = '<div class="flex items-center justify-between gap-2 w-full">' +
             '<div><div class="text-[13px] font-semibold text-slate-800">' + escapeHtml(item.nama_pasien || item.nama || '-') + '</div>' +
             '<div class="text-[11px] text-slate-500">#KSL-' + String(item.id).padStart(3, '0') + '</div></div>' +
-            '<div class="text-[10px] text-slate-400">' + formatDate(item.created_at) + '</div>' +
-            '</div>';
+            '<div class="flex items-center gap-2">' +
+                '<div class="text-[10px] text-slate-400">' + formatDate(item.created_at) + '</div>' +
+                '<button onclick="akhiriChat()" class="text-[11px] font-semibold px-2 py-1 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg">Akhiri Chat</button>' +
+            '</div></div>';
 
-        var pasienBubble =
-            '<div class="flex justify-start">' +
-                '<div class="max-w-[85%] bg-white border border-slate-200 rounded-2xl rounded-tl-md px-3.5 py-2.5 shadow-sm">' +
-                    '<div class="text-[10px] font-semibold text-slate-400 mb-1">Pasien</div>' +
-                    '<div class="text-[13px] text-slate-700 leading-relaxed">' + escapeHtml(item.keluhan || '-') + '</div>' +
-                '</div>' +
-            '</div>';
+        // Tampilkan keluhan awal
+        var html = '<div class="flex justify-start mb-3">' +
+            '<div class="max-w-[85%] bg-white border border-slate-200 rounded-2xl rounded-tl-md px-3.5 py-2.5 shadow-sm">' +
+                '<div class="text-[10px] font-semibold text-slate-400 mb-1">Pasien (Keluhan)</div>' +
+                '<div class="text-[13px] text-slate-700 leading-relaxed">' + escapeHtml(item.keluhan || '-') + '</div>' +
+                '<div class="text-[9px] text-slate-400 mt-1 text-right">' + formatDate(item.created_at) + '</div>' +
+            '</div></div>';
 
-        var jawabanBubble = item.jawaban
-            ? '<div class="flex justify-end">' +
-                '<div class="max-w-[85%] bg-brand-600 text-white rounded-2xl rounded-tr-md px-3.5 py-2.5 shadow-sm">' +
-                    '<div class="text-[10px] font-semibold text-white/80 mb-1">Dokter</div>' +
-                    '<div class="text-[13px] leading-relaxed">' + escapeHtml(item.jawaban) + '</div>' +
-                '</div>' +
-              '</div>'
-            : '<div class="text-center text-[11px] text-slate-400 py-1">Belum ada balasan dari dokter</div>';
+        // Tampilkan pesan
+        currentMessages.forEach(function(msg) {
+            var isDokter = msg.sender_role === 'dokter';
+            if (isDokter) {
+                html += '<div class="flex justify-end mb-3">' +
+                    '<div class="max-w-[85%] bg-brand-600 text-white rounded-2xl rounded-tr-md px-3.5 py-2.5 shadow-sm">' +
+                        '<div class="text-[10px] font-semibold text-white/80 mb-1">Anda</div>' +
+                        '<div class="text-[13px] leading-relaxed">' + escapeHtml(msg.message) + '</div>' +
+                        '<div class="text-[9px] text-white/60 mt-1 text-right">' + formatDate(msg.created_at) + '</div>' +
+                    '</div></div>';
+            } else {
+                html += '<div class="flex justify-start mb-3">' +
+                    '<div class="max-w-[85%] bg-white border border-slate-200 rounded-2xl rounded-tl-md px-3.5 py-2.5 shadow-sm">' +
+                        '<div class="text-[10px] font-semibold text-slate-400 mb-1">Pasien</div>' +
+                        '<div class="text-[13px] text-slate-700 leading-relaxed">' + escapeHtml(msg.message) + '</div>' +
+                        '<div class="text-[9px] text-slate-400 mt-1 text-right">' + formatDate(msg.created_at) + '</div>' +
+                    '</div></div>';
+            }
+        });
 
-        thread.innerHTML = pasienBubble + jawabanBubble;
+        thread.innerHTML = html;
         thread.scrollTop = thread.scrollHeight;
         inputWrap.classList.remove('hidden');
-        document.getElementById('jawaban-input').value = item.jawaban || '';
+    }
+
+    async function loadMessages(id) {
+        try {
+            var res = await fetch('/api/konsultasi/' + id + '/messages', { headers: { 'Authorization': 'Bearer ' + token } });
+            if(res.ok) {
+                currentMessages = await res.json();
+            } else {
+                currentMessages = [];
+            }
+            renderThread();
+        } catch(e) {
+            console.error(e);
+        }
     }
 
     async function loadKonsultasi() {
@@ -194,56 +222,77 @@
             var res  = await fetch('/api/dokter/konsultasi', { headers: { 'Authorization': 'Bearer ' + token } });
             allData = await res.json();
             updateStats();
+            
+            // Check if activeId is still valid and not 'done'
+            if (activeId) {
+                var activeItem = allData.find(d => String(d.id) === String(activeId));
+                if (!activeItem || activeItem.status === 'done') {
+                    activeId = null;
+                }
+            }
+            
             renderChatList();
 
-            if (!allData.length) {
-                activeId = null;
+            if (!activeId) {
                 renderThread();
-                return;
+            } else {
+                await loadMessages(activeId);
             }
-
-            if (!activeId || !allData.some(function(d) { return String(d.id) === String(activeId); })) {
-                activeId = allData[0].id;
-            }
-            renderThread();
         } catch(e) {
             document.getElementById('chat-list').innerHTML = '<div class="px-4 py-8 text-center text-[12px] text-red-400">Gagal memuat percakapan</div>';
         }
     }
 
-    async function kirimJawabanAktif() {
+    async function kirimPesanAktif() {
         if (!activeId) return;
-        var jawaban = document.getElementById('jawaban-input').value.trim();
-        if (!jawaban) return alert('Jawaban tidak boleh kosong');
+        var inputEl = document.getElementById('jawaban-input');
+        var pesan = inputEl.value.trim();
+        if (!pesan) return alert('Pesan tidak boleh kosong');
 
         var btn = document.getElementById('btn-kirim');
         btn.disabled = true;
         btn.textContent = 'Mengirim...';
 
         try {
-            var res = await fetch('/api/dokter/konsultasi/' + activeId + '/jawab', {
+            var res = await fetch('/api/konsultasi/' + activeId + '/messages', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-                body: JSON.stringify({ jawaban })
+                body: JSON.stringify({ message: pesan })
             });
 
             if (res.ok) {
-                try {
-                    await fetch('/api/dokter/konsultasi/' + activeId + '/status', {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-                        body: JSON.stringify({ status: 'done' })
-                    });
-                } catch(e) {}
+                inputEl.value = '';
+                await loadMessages(activeId);
+                // Also refresh list without changing activeId to update status tags
+                var resList = await fetch('/api/dokter/konsultasi', { headers: { 'Authorization': 'Bearer ' + token } });
+                allData = await resList.json();
+                updateStats();
+                renderChatList();
+            }
+        } catch(e) { alert('Gagal mengirim pesan'); }
+        btn.disabled = false;
+        btn.textContent = 'Kirim Pesan';
+    }
 
+    async function akhiriChat() {
+        if (!activeId) return;
+        if (!confirm('Akhiri chat ini? Pasien tidak akan bisa membalas lagi dan percakapan akan dipindah ke riwayat.')) return;
+
+        try {
+            var res = await fetch('/api/dokter/konsultasi/' + activeId + '/status', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                body: JSON.stringify({ status: 'done' })
+            });
+
+            if (res.ok) {
+                activeId = null;
                 await loadKonsultasi();
             }
-        } catch(e) { alert('Gagal mengirim jawaban'); }
-        btn.disabled = false;
-        btn.textContent = 'Kirim Balasan';
+        } catch(e) { alert('Gagal mengakhiri chat'); }
     }
 
     loadKonsultasi();
-    setInterval(loadKonsultasi, 30000);
+    setInterval(loadKonsultasi, 30000); // refresh list 30s
 </script>
 @endsection

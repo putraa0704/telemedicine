@@ -19,9 +19,10 @@ class AuthController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
+            'email' => 'required_without:no_hp|nullable|email|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'no_hp' => 'nullable|string|max:20',
+            'no_hp' => 'required_without:email|nullable|string|max:20|unique:users',
+            'tanggal_lahir' => 'required|date',
             'alamat' => 'nullable|string',
             'role' => 'nullable|in:pasien,dokter',
             'spesialisasi' => 'nullable|string|max:100',
@@ -47,6 +48,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'role' => $targetRole,
             'no_hp' => $request->no_hp,
+            'tanggal_lahir' => $request->tanggal_lahir,
             'alamat' => $request->alamat,
             'spesialisasi' => $targetRole === 'dokter' ? $request->spesialisasi : null,
             'no_str' => $targetRole === 'dokter' ? $request->no_str : null,
@@ -73,6 +75,7 @@ class AuthController extends Controller
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'no_hp' => 'nullable|string|max:20',
+            'tanggal_lahir' => 'required|date',
             'alamat' => 'nullable|string',
             'spesialisasi' => 'nullable|string|max:100',
             'no_str' => 'nullable|string|max:100',
@@ -84,6 +87,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'role' => 'dokter',
             'no_hp' => $request->no_hp,
+            'tanggal_lahir' => $request->tanggal_lahir,
             'alamat' => $request->alamat,
             'spesialisasi' => $request->spesialisasi,
             'no_str' => $request->no_str,
@@ -100,15 +104,17 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
+            'identifier' => 'required|string',
             'password' => 'required|string',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $request->identifier)
+                    ->orWhere('no_hp', $request->identifier)
+                    ->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
-                'email' => ['Email atau password salah.'],
+                'identifier' => ['Data login atau password salah.'],
             ]);
         }
 
@@ -150,6 +156,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'no_hp' => 'nullable|string|max:20',
+            'tanggal_lahir' => 'nullable|date',
             'foto_profil' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'remove_foto' => 'nullable|boolean',
         ]);
@@ -158,6 +165,9 @@ class AuthController extends Controller
         $payload = [
             'no_hp' => $request->input('no_hp'),
         ];
+        if ($request->has('tanggal_lahir')) {
+            $payload['tanggal_lahir'] = $request->input('tanggal_lahir');
+        }
 
         if ($request->hasFile('foto_profil')) {
             if ($user->foto_profil) {

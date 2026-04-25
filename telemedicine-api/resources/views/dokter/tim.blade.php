@@ -78,6 +78,26 @@
 
     var allDokter = [];
 
+    var HARI_ORDER = {
+        senin: 1,
+        selasa: 2,
+        rabu: 3,
+        kamis: 4,
+        jumat: 5,
+        sabtu: 6,
+        minggu: 7,
+    };
+
+    function hariRank(hariKey) {
+        return HARI_ORDER[String(hariKey || '').toLowerCase()] || 99;
+    }
+
+    function sortedHariPraktik(days) {
+        return (Array.isArray(days) ? days.slice() : []).sort(function(a, b) {
+            return hariRank(a) - hariRank(b);
+        });
+    }
+
     async function loadTimDokter() {
         try {
             var res  = await fetch('/api/tim-dokter', { headers: { 'Authorization': 'Bearer ' + token } });
@@ -140,7 +160,7 @@
                     </div>
                     <div class="h-8 w-px bg-slate-100"></div>
                     <div class="flex flex-wrap gap-1">
-                        ${(dr.hari_praktik || []).slice(0,4).map(h =>
+                        ${sortedHariPraktik(dr.hari_praktik).slice(0,4).map(h =>
                             '<span class="text-[9px] font-medium bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full">' + h + '</span>'
                         ).join('')}
                         ${dr.hari_praktik && dr.hari_praktik.length > 4 ? '<span class="text-[9px] text-slate-400">+' + (dr.hari_praktik.length-4) + '</span>' : ''}
@@ -170,7 +190,7 @@
             ? '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200">Sibuk</span>'
             : '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Tersedia</span>';
         document.getElementById('modal-hari').innerHTML = (dr.hari_praktik || []).length
-            ? dr.hari_praktik.map(h => '<span class="text-[10px] font-medium bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg">' + h + '</span>').join('')
+            ? sortedHariPraktik(dr.hari_praktik).map(h => '<span class="text-[10px] font-medium bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg">' + h + '</span>').join('')
             : '<span class="text-[11px] text-slate-400 italic">Belum ada jadwal</span>';
         document.getElementById('modal-overlay').classList.remove('hidden');
     }
