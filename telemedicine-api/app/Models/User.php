@@ -61,9 +61,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(JadwalDokter::class, 'dokter_id');
     }
-
-    public function bookings()
-    {
-        return $this->hasMany(BookingJadwal::class, 'pasien_id');
-    }
 }

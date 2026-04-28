@@ -25,18 +25,4 @@ class JadwalDokter extends Model
     {
         return $this->belongsTo(User::class, 'dokter_id');
     }
-
-    public function bookings()
-    {
-        return $this->hasMany(BookingJadwal::class, 'jadwal_id');
-    }
-
-    // ── Helper: cek apakah slot sudah terisi untuk tanggal tertentu ──
-    public function sudahTerisi(string $tanggal): bool
-    {
-        return $this->bookings()
-            ->where('tanggal', $tanggal)
-            ->where('status', 'booked')
-            ->exists();
-    }
 }

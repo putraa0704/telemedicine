@@ -262,13 +262,13 @@
                             <rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/>
                             <rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>
                         </svg>
-                        Dashboard
+                        <span class="nav-link-label">Dashboard</span>
                     </a>
                     <a href="/dokter/jadwal-saya" class="nav-link" data-path="/dokter/jadwal-saya">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
                             <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
                         </svg>
-                        Jadwal Saya
+                        <span class="nav-link-label">Jadwal Saya</span>
                     </a>
                     <a href="/tim" class="nav-link" data-path="/tim">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
@@ -276,19 +276,19 @@
                             <circle cx="9" cy="7" r="4"/>
                             <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
                         </svg>
-                        Jadwal Dokter
+                        <span class="nav-link-label">Jadwal Dokter</span>
                     </a>
                     <a href="/dokter/konsultasi" class="nav-link" data-path="/dokter/konsultasi">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
                             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                         </svg>
-                        Konsultasi Aktif
+                        <span class="nav-link-label">Konsultasi Aktif</span>
                     </a>
                     <a href="/dokter/riwayat" class="nav-link" data-path="/dokter/riwayat">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
                             <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                         </svg>
-                        Riwayat Konsultasi
+                        <span class="nav-link-label">Riwayat Konsultasi</span>
                     </a>
                 </div>
             </div>
@@ -305,26 +305,21 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                         </svg>
-                        Dashboard Admin
+                        <span class="nav-link-label">Dashboard Admin</span>
                     </a>
                     <a href="/admin/dokter/tambah" class="nav-link" data-path="/admin/dokter/tambah">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
                             <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/>
                             <line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>
                         </svg>
-                        Kelola Dokter
+                        <span class="nav-link-label">Kelola Dokter</span>
                     </a>
-                    <a href="/konsultasi" class="nav-link" data-path="/konsultasi">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
-                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                        </svg>
-                        Semua Konsultasi
-                    </a>
+
                     <a href="/jadwal" class="nav-link" data-path="/jadwal">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
                             <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
                         </svg>
-                        Jadwal Dokter
+                        <span class="nav-link-label">Jadwal Dokter</span>
                     </a>
                     <a href="/tim" class="nav-link" data-path="/tim">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
@@ -332,7 +327,7 @@
                             <circle cx="9" cy="7" r="4"/>
                             <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
                         </svg>
-                        Tim Dokter
+                        <span class="nav-link-label">Tim Dokter</span>
                     </a>
                 </div>
             </div>
@@ -911,7 +906,6 @@
     function renderBottomNavAdmin() {
         document.getElementById('bottom-nav').innerHTML = [
             '<a href="/admin" class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-slate-400 hover:text-brand-600 transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span class="text-[10px] font-medium">Dashboard</span></a>',
-            '<a href="/konsultasi" class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-slate-400 hover:text-brand-600 transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="text-[10px] font-medium">Konsultasi</span></a>',
             '<a href="/admin/dokter/tambah" class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-slate-400 hover:text-brand-600 transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg><span class="text-[10px] font-medium">Dokter</span></a>',
             '<a href="/jadwal" class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-slate-400 hover:text-brand-600 transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="text-[10px] font-medium">Jadwal</span></a>',
         ].join('');
