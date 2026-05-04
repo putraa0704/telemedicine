@@ -58,7 +58,7 @@ class JadwalDokterSeeder extends Seeder
             ],
             [
                 'name' => 'Dr. Maya Putri',
-                'email' => 'maya@CareMate.id',
+                'email' => 'maya@caremate.id',
                 'password' => Hash::make('password123'),
                 'role' => 'dokter',
                 'spesialisasi' => 'Dermatologi',

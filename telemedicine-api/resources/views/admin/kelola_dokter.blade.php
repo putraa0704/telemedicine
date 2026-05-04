@@ -518,7 +518,7 @@
             return;
         }
 
-        var generatedEmail = usernameSanitized + '@CareMate.id';
+        var generatedEmail = usernameSanitized + '@caremate.id';
 
         var payload = {
             name:                  document.getElementById('f-name').value.trim(),

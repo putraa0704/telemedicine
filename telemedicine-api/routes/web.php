@@ -22,6 +22,7 @@ Route::middleware('api')->group(function () {
 // ── Pasien ──
 Route::get('/welcome', fn() => view('pasien.welcome'));   // ← halaman chat baru
 Route::get('/pasien', fn() => view('pasien.dashboard'));
+Route::get('/obat-obatan', fn() => view('pasien.obat'));
 Route::get('/konsultasi', fn() => view('pasien.konsultasi'));
 Route::get('/konsultasi/baru', fn() => view('pasien.konsultasi_baru'));
 Route::get('/riwayat', fn() => view('pasien.riwayat'));

@@ -221,6 +221,13 @@
                         <span class="nav-link-label">Jadwal Dokter</span>
                         <span id="jadwal-hari-badge" class="ml-auto hari-badge text-[9px]">—</span>
                     </a>
+                    <a href="/obat-obatan" class="nav-link" data-path="/obat-obatan">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                            <path d="M7 3h10M8 3v4M16 3v4M6 7h12a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z" />
+                            <path d="M12 11v6M9 14h6" />
+                        </svg>
+                        <span class="nav-link-label">Obat-obatan</span>
+                    </a>
                 </div>
             </div>
 
@@ -890,6 +897,7 @@
             '<a href="/pasien" class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-slate-400 hover:text-brand-600 transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span class="text-[10px] font-medium">Home</span></a>',
             '<a href="/jadwal" class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-slate-400 hover:text-brand-600 transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="text-[10px] font-medium">Jadwal</span></a>',
             '<a href="/welcome" class="flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl bg-brand-600 text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="text-[10px] font-semibold">Konsul</span></a>',
+            '<a href="/obat-obatan" class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-slate-400 hover:text-brand-600 transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path d="M7 3h10M8 3v4M16 3v4M6 7h12a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z" /><path d="M12 11v6M9 14h6" /></svg><span class="text-[10px] font-medium">Obat</span></a>',
             '<a href="/riwayat" class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-slate-400 hover:text-brand-600 transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span class="text-[10px] font-medium">Riwayat</span></a>',
         ].join('');
     }
