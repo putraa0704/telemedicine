@@ -21,7 +21,7 @@
     <button onclick="filterCategory('batuk-flu', this)" class="filter-btn px-4 py-2 bg-white text-slate-600 border border-slate-200 text-[13px] font-medium rounded-full hover:bg-slate-50 transition-colors whitespace-nowrap shrink-0">Batuk & Flu</button>
         <button onclick="filterCategory('demam-nyeri', this)" class="filter-btn px-4 py-2 bg-white text-slate-600 border border-slate-200 text-[13px] font-medium rounded-full hover:bg-slate-50 transition-colors whitespace-nowrap shrink-0">Demam & Nyeri</button>
         <button onclick="filterCategory('asam-lambung', this)" class="filter-btn px-4 py-2 bg-white text-slate-600 border border-slate-200 text-[13px] font-medium rounded-full hover:bg-slate-50 transition-colors whitespace-nowrap shrink-0">Asam Lambung & GERD</button>
-        <button onclick="filterCategory('vitamin-suplemen', this)" class="filter-btn px-4 py-2 bg-white text-slate-600 border border-slate-200 text-[13px] font-medium rounded-full hover:bg-slate-50 transition-colors whitespace-nowrap shrink-0">Vitamin & Suplemen</button>
+        <button onclick="filterCategory('dermatitis-eksim', this)" class="filter-btn px-4 py-2 bg-white text-slate-600 border border-slate-200 text-[13px] font-medium rounded-full hover:bg-slate-50 transition-colors whitespace-nowrap shrink-0">Dermatitis & Eksim</button>
         <button onclick="filterCategory('kesehatan-anak', this)" class="filter-btn px-4 py-2 bg-white text-slate-600 border border-slate-200 text-[13px] font-medium rounded-full hover:bg-slate-50 transition-colors whitespace-nowrap shrink-0">Kesehatan Anak</button>
         <button onclick="filterCategory('peralatan-medis', this)" class="filter-btn px-4 py-2 bg-white text-slate-600 border border-slate-200 text-[13px] font-medium rounded-full hover:bg-slate-50 transition-colors whitespace-nowrap shrink-0">Peralatan Medis</button>
     </div>
@@ -274,6 +274,114 @@
                     <div class="flex items-center justify-between mt-4 pt-4 border-t border-slate-100">
                         <div class="text-brand-600 font-bold text-[16px]">Rp5.500</div>
                         <a href="https://shopee.co.id/Antasida-Doen-Erela-Suspensi-Botol-60-Ml-i.254167050.13069817486?extraParams=%7B%22display_model_id%22%3A151782993998%2C%22model_selection_logic%22%3A3%7D" target="_blank" class="px-4 py-1.5 bg-brand-50 hover:bg-brand-600 text-brand-600 hover:text-white border border-brand-200 hover:border-brand-600 rounded-xl text-[12px] font-bold transition-all shadow-sm hover:shadow-brand-500/30">
+                            Beli
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {{-- Card 4 --}}
+            <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col">
+                <div class="relative h-48 sm:h-44 bg-slate-100 overflow-hidden">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRRqfwUHyxCAB4qaHnjH208jC5mQicjbp07hg&s" alt="Acitral Liquid 120 ml" class="w-full h-full object-contain p-1 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1576602976047-174e57a47881?q=80&w=600&auto=format&fit=crop'">
+                </div>
+                <div class="p-4 sm:p-5 flex-1 flex flex-col">
+                    <div class="flex-1">
+                        <h4 class="text-[15px] font-bold text-slate-800 line-clamp-2 group-hover:text-brand-600 transition-colors">Acitral Liquid 120 ml</h4>
+                    </div>
+                    
+                    <div class="flex items-center justify-between mt-4 pt-4 border-t border-slate-100">
+                        <div class="text-brand-600 font-bold text-[16px]">Rp56.050</div>
+                        <a href="https://shopee.co.id/Acitral-Liquid-120-ml-Sirup-Mengatasi-Asam-Lambung-i.488079969.10046585066?extraParams=%7B%22display_model_id%22%3A77241580105%2C%22model_selection_logic%22%3A3%7D&sp_atk=9a992013-0868-41d8-b2de-ee4e9317ca08&xptdk=9a992013-0868-41d8-b2de-ee4e9317ca08" target="_blank" class="px-4 py-1.5 bg-brand-50 hover:bg-brand-600 text-brand-600 hover:text-white border border-brand-200 hover:border-brand-600 rounded-xl text-[12px] font-bold transition-all shadow-sm hover:shadow-brand-500/30">
+                            Beli
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    {{-- Section Title: Dermatitis & Eksim --}}
+    <div class="category-section" id="section-dermatitis-eksim" style="display: none;">
+        <div class="flex items-center justify-between mt-10">
+            <div class="flex items-center gap-2">
+                <div class="w-1 h-5 bg-brand-600 rounded-full"></div>
+                <h3 class="text-[15px] font-bold text-slate-800">Dermatitis & Eksim</h3>
+            </div>
+            <button class="text-[13px] font-semibold text-brand-600 hover:text-brand-800">Lihat Semua</button>
+        </div>
+
+        {{-- Products Grid: Dermatitis & Eksim --}}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mt-4">
+            
+            {{-- Card 1 --}}
+            <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col">
+                <div class="relative h-48 sm:h-44 bg-slate-100 overflow-hidden">
+                    <img src="https://down-id.img.susercontent.com/file/sg-11134201-8261d-mkbuy640g8p43e.webp" alt="Caladin Lotion Bottle 60ml" class="w-full h-full object-contain p-1 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=600&auto=format&fit=crop'">
+                </div>
+                <div class="p-4 sm:p-5 flex-1 flex flex-col">
+                    <div class="flex-1">
+                        <h4 class="text-[15px] font-bold text-slate-800 line-clamp-2 group-hover:text-brand-600 transition-colors">Caladin Lotion Bottle 60ml</h4>
+                    </div>
+                    
+                    <div class="flex items-center justify-between mt-4 pt-4 border-t border-slate-100">
+                        <div class="text-brand-600 font-bold text-[16px]">Rp25.000</div>
+                        <a href="https://shopee.co.id/Caladin-Lotion-Bottle-60ml-i.30736001.916670583?extraParams=%7B%22display_model_id%22%3A62910940807%2C%22model_selection_logic%22%3A2%7D&sp_atk=a4acabaa-16da-4d6f-8321-b692c44dd78e&xptdk=a4acabaa-16da-4d6f-8321-b692c44dd78e" target="_blank" class="px-4 py-1.5 bg-brand-50 hover:bg-brand-600 text-brand-600 hover:text-white border border-brand-200 hover:border-brand-600 rounded-xl text-[12px] font-bold transition-all shadow-sm hover:shadow-brand-500/30">
+                            Beli
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {{-- Card 2 --}}
+            <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col">
+                <div class="relative h-48 sm:h-44 bg-slate-100 overflow-hidden">
+                    <img src="https://down-id.img.susercontent.com/file/id-11134207-81zto-mfgm4cu1y9zh58@resize_w450_nl.webp" alt="Caladin Lotion Bottle 60ml" class="w-full h-full object-contain p-1 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=600&auto=format&fit=crop'">
+                </div>
+                <div class="p-4 sm:p-5 flex-1 flex flex-col">
+                    <div class="flex-1">
+                        <h4 class="text-[15px] font-bold text-slate-800 line-clamp-2 group-hover:text-brand-600 transition-colors">Ichtyol Salep Hitam 12 Gram</h4>
+                    </div>
+                    
+                    <div class="flex items-center justify-between mt-4 pt-4 border-t border-slate-100">
+                        <div class="text-brand-600 font-bold text-[16px]">Rp6.357</div>
+                        <a href="https://shopee.co.id/Ichtyol-Salep-Hitam-12-Gram-Untuk-Bisul-i.305798669.42270905640?extraParams=%7B%22display_model_id%22%3A266704166446%2C%22model_selection_logic%22%3A2%7D&sp_atk=2aa36ff9-b18c-4de2-bdfe-515495b17ff0&xptdk=2aa36ff9-b18c-4de2-bdfe-515495b17ff0" target="_blank" class="px-4 py-1.5 bg-brand-50 hover:bg-brand-600 text-brand-600 hover:text-white border border-brand-200 hover:border-brand-600 rounded-xl text-[12px] font-bold transition-all shadow-sm hover:shadow-brand-500/30">
+                            Beli
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Card 3 --}}
+            <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col">
+                <div class="relative h-48 sm:h-44 bg-slate-100 overflow-hidden">
+                    <img src="	https://i.pinimg.com/736x/20/f7/87/20f787cb81299e2ff8f611e7c1f6368f.jpg" alt="Solinfec Krim Salep 5 gram Gatal Jamur Kudis Kurap Eksim" class="w-full h-full object-contain p-1 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=600&auto=format&fit=crop'">
+                </div>
+                <div class="p-4 sm:p-5 flex-1 flex flex-col">
+                    <div class="flex-1">
+                        <h4 class="text-[15px] font-bold text-slate-800 line-clamp-2 group-hover:text-brand-600 transition-colors">Solinfec Krim Salep 5 gram Gatal Jamur Kudis Kurap Eksim</h4>
+                    </div>
+                    
+                    <div class="flex items-center justify-between mt-4 pt-4 border-t border-slate-100">
+                        <div class="text-brand-600 font-bold text-[16px]">Rp9.800</div>
+                        <a href="https://shopee.co.id/Solinfec-Krim-Salep-5-gram-Gatal-Jamur-Kudis-Kurap-Eksim-i.5305128.740868004?extraParams=%7B%22display_model_id%22%3A61163183741%2C%22model_selection_logic%22%3A2%7D&sp_atk=fd42ea71-b408-4883-a4ee-ae6025280d47&xptdk=fd42ea71-b408-4883-a4ee-ae6025280d47" target="_blank" class="px-4 py-1.5 bg-brand-50 hover:bg-brand-600 text-brand-600 hover:text-white border border-brand-200 hover:border-brand-600 rounded-xl text-[12px] font-bold transition-all shadow-sm hover:shadow-brand-500/30">
+                            Beli
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {{-- Card 4 --}}
+            <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col">
+                <div class="relative h-48 sm:h-44 bg-slate-100 overflow-hidden">
+                    <img src="https://i.pinimg.com/736x/2e/20/44/2e20445e411fa7e3a8cddecdf34e9eb9.jpg" alt="Noroid Soothing Cream" class="w-full h-full object-contain p-1 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=600&auto=format&fit=crop'">
+                </div>
+                <div class="p-4 sm:p-5 flex-1 flex flex-col">
+                    <div class="flex-1">
+                        <h4 class="text-[15px] font-bold text-slate-800 line-clamp-2 group-hover:text-brand-600 transition-colors">Noroid Soothing Cream</h4>
+                    </div>
+                    
+                    <div class="flex items-center justify-between mt-4 pt-4 border-t border-slate-100">
+                        <div class="text-brand-600 font-bold text-[16px]">Rp109.745</div>
+                        <a href="https://shopee.co.id/Noroid-Soothing-Cream-Pelembap-Moisturizer-Harian-Untuk-Kulit-Sangat-Kering-Pecah-pecah-Mengelupas-Saat-Eksim-Kambuh-Starter-Pack-40ml--i.161143541.28420465724?extraParams=%7B%22display_model_id%22%3A257236781887%2C%22model_selection_logic%22%3A3%7D&sp_atk=b7cb6525-6e73-4d58-93f8-79f8d89ed26c&xptdk=b7cb6525-6e73-4d58-93f8-79f8d89ed26c" target="_blank" class="px-4 py-1.5 bg-brand-50 hover:bg-brand-600 text-brand-600 hover:text-white border border-brand-200 hover:border-brand-600 rounded-xl text-[12px] font-bold transition-all shadow-sm hover:shadow-brand-500/30">
                             Beli
                         </a>
                     </div>
