@@ -24,7 +24,7 @@ class DokterController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Konsultasi::with('pasien', 'dokter')->latest();
+        $query = Konsultasi::with('pasien', 'dokter')->oldest();
 
         // Filter status opsional
         if ($request->has('status')) {
@@ -49,7 +49,8 @@ class DokterController extends Controller
             ->limit($request->query('limit', 50))
             ->get()
             ->map(fn($k) => [
-                'id'          => $k->id,
+                'id'            => $k->id,
+                'nomor_antrian' => $k->nomor_antrian,
                 'nama_pasien' => $k->pasien?->name ?? $k->nama,
                 'keluhan'     => $k->keluhan,
                 'status'      => $k->status,

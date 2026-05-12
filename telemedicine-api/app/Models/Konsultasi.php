@@ -18,6 +18,7 @@ class Konsultasi extends Model
         'dokter_id',
         'dijawab_at',
         'client_created_at',
+        'nomor_antrian',
     ];
 
     protected $casts = [
@@ -38,5 +39,14 @@ class Konsultasi extends Model
     public function messages()
     {
         return $this->hasMany(KonsultasiMessage::class)->orderBy('created_at', 'asc');
+    }
+
+    protected static function booted()
+    {
+        static::creating(function ($konsultasi) {
+            $today = \Carbon\Carbon::today();
+            $maxNomor = self::whereDate('created_at', $today)->max('nomor_antrian');
+            $konsultasi->nomor_antrian = $maxNomor ? $maxNomor + 1 : 1;
+        });
     }
 }

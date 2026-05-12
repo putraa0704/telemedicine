@@ -164,7 +164,7 @@
 
         header.innerHTML = '<div class="flex items-center justify-between gap-2 w-full">' +
             '<div><div class="text-[13px] font-semibold text-slate-800">' + escapeHtml(item.nama_pasien || item.nama || '-') + '</div>' +
-            '<div class="text-[11px] text-slate-500">#KSL-' + String(item.id).padStart(3, '0') + '</div></div>' +
+            '<div class="text-[11px] text-slate-500">#KSL-' + String(item.nomor_antrian || item.id).padStart(3, '0') + '</div></div>' +
             '<div class="flex items-center gap-2">' +
                 '<div class="text-[10px] text-slate-400">' + formatDate(item.created_at) + '</div>' +
                 '<button onclick="akhiriChat()" class="text-[11px] font-semibold px-2 py-1 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg">Akhiri Chat</button>' +

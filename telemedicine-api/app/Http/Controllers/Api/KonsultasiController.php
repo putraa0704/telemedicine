@@ -16,7 +16,7 @@ class KonsultasiController extends Controller
     {
         $konsultasi = Konsultasi::with('dokter')
             ->where('user_id', $request->user()->id)
-            ->latest()
+            ->oldest()
             ->get()
             ->map(fn($k) => $this->format($k));
 
@@ -111,6 +111,7 @@ class KonsultasiController extends Controller
     {
         return [
             'id'             => $k->id,
+            'nomor_antrian'  => $k->nomor_antrian,
             'local_id'       => $k->local_id,
             'nama'           => $k->nama,
             'nama_pasien'    => $k->pasien?->name ?? $k->nama,
