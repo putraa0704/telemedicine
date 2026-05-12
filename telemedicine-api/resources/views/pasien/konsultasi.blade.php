@@ -207,7 +207,7 @@
 
     async function loadMessages(id) {
         try {
-            var res = await fetch('/api/konsultasi/' + id + '/messages', { headers: { 'Authorization': 'Bearer ' + token } });
+            var res = await fetch('/api/konsultasi/' + id + '/messages', { headers: { 'Authorization': 'Bearer ' + token }, cache: 'no-store' });
             if(res.ok) {
                 currentMessages = await res.json();
             } else {
@@ -221,7 +221,7 @@
 
     async function loadKonsultasi() {
         try {
-            var res  = await fetch('/api/konsultasi/saya', { headers: { 'Authorization': 'Bearer ' + token } });
+            var res  = await fetch('/api/konsultasi/saya', { headers: { 'Authorization': 'Bearer ' + token }, cache: 'no-store' });
             allData = await res.json();
             updateStats();
             
@@ -266,7 +266,7 @@
                 inputEl.value = '';
                 await loadMessages(activeId);
                 // Also refresh list without changing activeId to update status tags
-                var resList = await fetch('/api/konsultasi/saya', { headers: { 'Authorization': 'Bearer ' + token } });
+                var resList = await fetch('/api/konsultasi/saya', { headers: { 'Authorization': 'Bearer ' + token }, cache: 'no-store' });
                 allData = await resList.json();
                 updateStats();
                 renderChatList();
