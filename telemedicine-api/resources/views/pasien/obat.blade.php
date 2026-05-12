@@ -22,8 +22,8 @@
         <button onclick="filterCategory('demam-nyeri', this)" class="filter-btn px-4 py-2 bg-white text-slate-600 border border-slate-200 text-[13px] font-medium rounded-full hover:bg-slate-50 transition-colors whitespace-nowrap shrink-0">Demam & Nyeri</button>
         <button onclick="filterCategory('asam-lambung', this)" class="filter-btn px-4 py-2 bg-white text-slate-600 border border-slate-200 text-[13px] font-medium rounded-full hover:bg-slate-50 transition-colors whitespace-nowrap shrink-0">Asam Lambung & GERD</button>
         <button onclick="filterCategory('dermatitis-eksim', this)" class="filter-btn px-4 py-2 bg-white text-slate-600 border border-slate-200 text-[13px] font-medium rounded-full hover:bg-slate-50 transition-colors whitespace-nowrap shrink-0">Dermatitis & Eksim</button>
-        <button onclick="filterCategory('kesehatan-anak', this)" class="filter-btn px-4 py-2 bg-white text-slate-600 border border-slate-200 text-[13px] font-medium rounded-full hover:bg-slate-50 transition-colors whitespace-nowrap shrink-0">Kesehatan Anak</button>
-        <button onclick="filterCategory('peralatan-medis', this)" class="filter-btn px-4 py-2 bg-white text-slate-600 border border-slate-200 text-[13px] font-medium rounded-full hover:bg-slate-50 transition-colors whitespace-nowrap shrink-0">Peralatan Medis</button>
+        <!-- <button onclick="filterCategory('kesehatan-anak', this)" class="filter-btn px-4 py-2 bg-white text-slate-600 border border-slate-200 text-[13px] font-medium rounded-full hover:bg-slate-50 transition-colors whitespace-nowrap shrink-0">Kesehatan Anak</button>
+        <button onclick="filterCategory('peralatan-medis', this)" class="filter-btn px-4 py-2 bg-white text-slate-600 border border-slate-200 text-[13px] font-medium rounded-full hover:bg-slate-50 transition-colors whitespace-nowrap shrink-0">Peralatan Medis</button> -->
     </div>
 
     {{-- Section Title --}}
@@ -134,7 +134,7 @@
         {{-- Card 1 --}}
         <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col">
             <div class="relative h-48 sm:h-44 bg-slate-100 overflow-hidden">
-                <img src="images/pamol.jpg" alt="Pamol 500 mg 10 Tablet" class="w-full h-full object-contain p-1 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=600&auto=format&fit=crop'">
+                <img src="images/pamol.jpg" alt="Pamol 500 mg 10 Tablet" class="w-full h-full object-contain p-1 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=600&auto=format&fit=crop'">
             </div>
             <div class="p-4 sm:p-5 flex-1 flex flex-col">
                 <div class="flex-1">
@@ -153,7 +153,7 @@
         {{-- Card 2 --}}
         <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col">
             <div class="relative h-48 sm:h-44 bg-slate-100 overflow-hidden">
-                <img src="images/paracetamol.jpg" alt="Paracetamol 500 mg Tablet First Medifarma" class="w-full h-full object-contain p-1 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1628771065518-0d82f1938462?q=80&w=600&auto=format&fit=crop'">
+                <img src="images/paracetamol.jpg" alt="Paracetamol 500 mg Tablet First Medifarma" class="w-full h-full object-contain p-1 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1628771065518-0d82f1938462?q=80&w=600&auto=format&fit=crop'">
             </div>
             <div class="p-4 sm:p-5 flex-1 flex flex-col">
                 <div class="flex-1">
@@ -172,7 +172,7 @@
         {{-- Card 3 --}}
         <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col">
             <div class="relative h-48 sm:h-44 bg-slate-100 overflow-hidden">
-                <img src="images/panadol.jpg" alt="Panadol Extra 1 Blister 10 Kaplet" class="w-full h-full object-contain p-1 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1576602976047-174e57a47881?q=80&w=600&auto=format&fit=crop'">
+                <img src="images/panadol.jpg" alt="Panadol Extra 1 Blister 10 Kaplet" class="w-full h-full object-contain p-1 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1576602976047-174e57a47881?q=80&w=600&auto=format&fit=crop'">
             </div>
             <div class="p-4 sm:p-5 flex-1 flex flex-col">
                 <div class="flex-1">
@@ -191,7 +191,7 @@
         {{-- Card 4 --}}
         <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col">
             <div class="relative h-48 sm:h-44 bg-slate-100 overflow-hidden">
-                <img src="	https://i.pinimg.com/736x/30/34/f2/3034f26ffbf138fcde0dba0779f2c037.jpg" alt="Sanmol Obat Penurun Panas Demam Pereda Nyeri Sakit Kepala" class="w-full h-full object-contain p-1 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1585435557343-3b092031a831?q=80&w=600&auto=format&fit=crop'">
+                <img src="	https://i.pinimg.com/736x/30/34/f2/3034f26ffbf138fcde0dba0779f2c037.jpg" alt="Sanmol Obat Penurun Panas Demam Pereda Nyeri Sakit Kepala" class="w-full h-full object-contain p-1 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1585435557343-3b092031a831?q=80&w=600&auto=format&fit=crop'">
             </div>
             <div class="p-4 sm:p-5 flex-1 flex flex-col">
                 <div class="flex-1">
@@ -226,7 +226,7 @@
             {{-- Card 1 --}}
             <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col">
                 <div class="relative h-48 sm:h-44 bg-slate-100 overflow-hidden">
-                    <img src="	https://i.pinimg.com/736x/b7/49/dd/b749ddc8f434c8f9a3380c5da5aa7989.jpg" alt="Promag 10 Tablet" class="w-full h-full object-contain p-1 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=600&auto=format&fit=crop'">
+                    <img src="	https://i.pinimg.com/736x/b7/49/dd/b749ddc8f434c8f9a3380c5da5aa7989.jpg" alt="Promag 10 Tablet" class="w-full h-full object-contain p-1 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=600&auto=format&fit=crop'">
                 </div>
                 <div class="p-4 sm:p-5 flex-1 flex flex-col">
                     <div class="flex-1">
@@ -245,7 +245,7 @@
             {{-- Card 2 --}}
             <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col">
                 <div class="relative h-48 sm:h-44 bg-slate-100 overflow-hidden">
-                    <img src="https://i.pinimg.com/736x/b8/01/a4/b801a4ae94ed9ae5a0f9f55131cc49d6.jpg" alt="Polysilane 8 Tablet" class="w-full h-full object-contain p-1 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1628771065518-0d82f1938462?q=80&w=600&auto=format&fit=crop'">
+                    <img src="https://i.pinimg.com/736x/b8/01/a4/b801a4ae94ed9ae5a0f9f55131cc49d6.jpg" alt="Polysilane 8 Tablet" class="w-full h-full object-contain p-1 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1628771065518-0d82f1938462?q=80&w=600&auto=format&fit=crop'">
                 </div>
                 <div class="p-4 sm:p-5 flex-1 flex flex-col">
                     <div class="flex-1">
@@ -264,7 +264,7 @@
             {{-- Card 3 --}}
             <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col">
                 <div class="relative h-48 sm:h-44 bg-slate-100 overflow-hidden">
-                    <img src="https://d3bbrrd0qs69m4.cloudfront.net/images/product/large/apotek_online_k24klik_20201202100803359225_antasida-doen-1.jpg" alt="Antasida Doen Erela Suspensi Botol 60 Ml" class="w-full h-full object-contain p-1 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1576602976047-174e57a47881?q=80&w=600&auto=format&fit=crop'">
+                    <img src="https://d3bbrrd0qs69m4.cloudfront.net/images/product/large/apotek_online_k24klik_20201202100803359225_antasida-doen-1.jpg" alt="Antasida Doen Erela Suspensi Botol 60 Ml" class="w-full h-full object-contain p-1 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1576602976047-174e57a47881?q=80&w=600&auto=format&fit=crop'">
                 </div>
                 <div class="p-4 sm:p-5 flex-1 flex flex-col">
                     <div class="flex-1">
@@ -282,7 +282,7 @@
             {{-- Card 4 --}}
             <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col">
                 <div class="relative h-48 sm:h-44 bg-slate-100 overflow-hidden">
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRRqfwUHyxCAB4qaHnjH208jC5mQicjbp07hg&s" alt="Acitral Liquid 120 ml" class="w-full h-full object-contain p-1 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1576602976047-174e57a47881?q=80&w=600&auto=format&fit=crop'">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRRqfwUHyxCAB4qaHnjH208jC5mQicjbp07hg&s" alt="Acitral Liquid 120 ml" class="w-full h-full object-contain p-1 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1576602976047-174e57a47881?q=80&w=600&auto=format&fit=crop'">
                 </div>
                 <div class="p-4 sm:p-5 flex-1 flex flex-col">
                     <div class="flex-1">
@@ -317,7 +317,7 @@
             {{-- Card 1 --}}
             <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col">
                 <div class="relative h-48 sm:h-44 bg-slate-100 overflow-hidden">
-                    <img src="https://down-id.img.susercontent.com/file/sg-11134201-8261d-mkbuy640g8p43e.webp" alt="Caladin Lotion Bottle 60ml" class="w-full h-full object-contain p-1 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=600&auto=format&fit=crop'">
+                    <img src="https://down-id.img.susercontent.com/file/sg-11134201-8261d-mkbuy640g8p43e.webp" alt="Caladin Lotion Bottle 60ml" class="w-full h-full object-contain p-1 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=600&auto=format&fit=crop'">
                 </div>
                 <div class="p-4 sm:p-5 flex-1 flex flex-col">
                     <div class="flex-1">
@@ -335,7 +335,7 @@
             {{-- Card 2 --}}
             <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col">
                 <div class="relative h-48 sm:h-44 bg-slate-100 overflow-hidden">
-                    <img src="https://down-id.img.susercontent.com/file/id-11134207-81zto-mfgm4cu1y9zh58@resize_w450_nl.webp" alt="Caladin Lotion Bottle 60ml" class="w-full h-full object-contain p-1 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=600&auto=format&fit=crop'">
+                    <img src="https://down-id.img.susercontent.com/file/id-11134207-81zto-mfgm4cu1y9zh58@resize_w450_nl.webp" alt="Caladin Lotion Bottle 60ml" class="w-full h-full object-contain p-1 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=600&auto=format&fit=crop'">
                 </div>
                 <div class="p-4 sm:p-5 flex-1 flex flex-col">
                     <div class="flex-1">
@@ -354,7 +354,7 @@
             {{-- Card 3 --}}
             <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col">
                 <div class="relative h-48 sm:h-44 bg-slate-100 overflow-hidden">
-                    <img src="	https://i.pinimg.com/736x/20/f7/87/20f787cb81299e2ff8f611e7c1f6368f.jpg" alt="Solinfec Krim Salep 5 gram Gatal Jamur Kudis Kurap Eksim" class="w-full h-full object-contain p-1 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=600&auto=format&fit=crop'">
+                    <img src="	https://i.pinimg.com/736x/20/f7/87/20f787cb81299e2ff8f611e7c1f6368f.jpg" alt="Solinfec Krim Salep 5 gram Gatal Jamur Kudis Kurap Eksim" class="w-full h-full object-contain p-1 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=600&auto=format&fit=crop'">
                 </div>
                 <div class="p-4 sm:p-5 flex-1 flex flex-col">
                     <div class="flex-1">
@@ -372,7 +372,7 @@
             {{-- Card 4 --}}
             <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col">
                 <div class="relative h-48 sm:h-44 bg-slate-100 overflow-hidden">
-                    <img src="https://i.pinimg.com/736x/2e/20/44/2e20445e411fa7e3a8cddecdf34e9eb9.jpg" alt="Noroid Soothing Cream" class="w-full h-full object-contain p-1 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=600&auto=format&fit=crop'">
+                    <img src="https://i.pinimg.com/736x/2e/20/44/2e20445e411fa7e3a8cddecdf34e9eb9.jpg" alt="Noroid Soothing Cream" class="w-full h-full object-contain p-1 mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=600&auto=format&fit=crop'">
                 </div>
                 <div class="p-4 sm:p-5 flex-1 flex flex-col">
                     <div class="flex-1">
