@@ -82,6 +82,8 @@
     var allData = [];
     var activeId = null;
     var currentMessages = [];
+    var lastChatListHTML = '';
+    var lastThreadHTML = '';
 
     function escapeHtml(str) {
         return String(str || '')
@@ -115,11 +117,15 @@
 
         var listEl = document.getElementById('chat-list');
         if (!items.length) {
-            listEl.innerHTML = '<div class="px-4 py-8 text-center text-[12px] text-slate-400">Tidak ada konsultasi aktif</div>';
+            var emptyHTML = '<div class="px-4 py-8 text-center text-[12px] text-slate-400">Tidak ada konsultasi aktif</div>';
+            if (lastChatListHTML !== emptyHTML) {
+                listEl.innerHTML = emptyHTML;
+                lastChatListHTML = emptyHTML;
+            }
             return;
         }
 
-        listEl.innerHTML = items.map(function(item) {
+        var newHTML = items.map(function(item) {
             var activeClass = String(item.id) === String(activeId)
                 ? 'bg-brand-50 border-brand-200'
                 : 'bg-white border-transparent hover:bg-slate-50';
@@ -136,10 +142,17 @@
                 '<div class="text-[10px] text-slate-400 mt-1">' + formatDate(item.created_at) + '</div>' +
                 '</button>';
         }).join('');
+
+        if (lastChatListHTML !== newHTML) {
+            listEl.innerHTML = newHTML;
+            lastChatListHTML = newHTML;
+        }
     }
 
     async function pilihChat(id) {
+        if (activeId === id) return;
         activeId = id;
+        lastThreadHTML = '';
         renderChatList();
         renderThreadLoading();
         await loadMessages(id);
@@ -158,7 +171,11 @@
 
         if (!item) {
             header.innerHTML = '<span class="text-[13px] font-semibold text-slate-800">Pilih konsultasi untuk memulai chat</span>';
-            thread.innerHTML = '<div class="h-full flex items-center justify-center text-[12px] text-slate-400">Belum ada percakapan dipilih</div>';
+            var emptyHTML = '<div class="h-full flex items-center justify-center text-[12px] text-slate-400">Belum ada percakapan dipilih</div>';
+            if (lastThreadHTML !== emptyHTML) {
+                thread.innerHTML = emptyHTML;
+                lastThreadHTML = emptyHTML;
+            }
             inputWrap.classList.add('hidden');
             return;
         }
@@ -200,14 +217,17 @@
             }
         });
 
-        thread.innerHTML = html;
-        thread.scrollTop = thread.scrollHeight;
+        if (lastThreadHTML !== html) {
+            thread.innerHTML = html;
+            thread.scrollTop = thread.scrollHeight;
+            lastThreadHTML = html;
+        }
         inputWrap.classList.remove('hidden');
     }
 
     async function loadMessages(id) {
         try {
-            var res = await fetch('/api/konsultasi/' + id + '/messages', { headers: { 'Authorization': 'Bearer ' + token }, cache: 'no-store' });
+            var res = await fetch('/api/konsultasi/' + id + '/messages?_t=' + new Date().getTime(), { headers: { 'Authorization': 'Bearer ' + token }, cache: 'no-store' });
             if(res.ok) {
                 currentMessages = await res.json();
             } else {
@@ -221,7 +241,7 @@
 
     async function loadKonsultasi() {
         try {
-            var res  = await fetch('/api/konsultasi/saya', { headers: { 'Authorization': 'Bearer ' + token }, cache: 'no-store' });
+            var res  = await fetch('/api/konsultasi/saya?_t=' + new Date().getTime(), { headers: { 'Authorization': 'Bearer ' + token }, cache: 'no-store' });
             allData = await res.json();
             updateStats();
             
@@ -266,7 +286,7 @@
                 inputEl.value = '';
                 await loadMessages(activeId);
                 // Also refresh list without changing activeId to update status tags
-                var resList = await fetch('/api/konsultasi/saya', { headers: { 'Authorization': 'Bearer ' + token }, cache: 'no-store' });
+                var resList = await fetch('/api/konsultasi/saya?_t=' + new Date().getTime(), { headers: { 'Authorization': 'Bearer ' + token }, cache: 'no-store' });
                 allData = await resList.json();
                 updateStats();
                 renderChatList();
@@ -277,6 +297,6 @@
     }
 
     loadKonsultasi();
-    setInterval(loadKonsultasi, 30000); // refresh list 30s
+    setInterval(loadKonsultasi, 3000); // refresh list 3s
 </script>
 @endsection
