@@ -66,7 +66,7 @@
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="text-[12px] font-semibold text-slate-800 truncate">${dr.nama}</div>
-                        <div class="text-[10px] text-slate-400">${dr.spesialisasi} · ${dr.pasien_aktif} pasien</div>
+                        <div class="text-[10px] text-slate-400">${dr.spesialisasi}</div>
                     </div>
                     <div class="flex items-center gap-2 flex-shrink-0">
                         <span class="text-[9px] font-semibold px-2 py-0.5 rounded-full ${dr.status === 'sibuk' ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}">

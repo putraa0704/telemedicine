@@ -299,8 +299,8 @@
         if (navigator.onLine) {
             try {
                 var [dokterRes, jadwalRes] = await Promise.all([
-                    fetch('/api/tim-dokter',       { headers: { 'Authorization': 'Bearer ' + token } }),
-                    fetch('/api/jadwal/mingguan',   { headers: { 'Authorization': 'Bearer ' + token } }),
+                    fetch('/api/tim-dokter?_t=' + new Date().getTime(),       { headers: { 'Authorization': 'Bearer ' + token } }),
+                    fetch('/api/jadwal/mingguan?_t=' + new Date().getTime(),   { headers: { 'Authorization': 'Bearer ' + token } }),
                 ]);
                 if (!dokterRes.ok || !jadwalRes.ok) throw new Error('HTTP error');
 
@@ -409,9 +409,8 @@
                         '<div class="text-[11px] text-slate-400">' + dr.spesialisasi + '</div>' +
                     '</div>' +
                 '</div>' +
-                '<div class="flex items-center justify-between mb-3 bg-slate-50 px-2.5 py-1.5 rounded-lg">' +
+                '<div class="flex items-center mb-3 bg-slate-50 px-2.5 py-1.5 rounded-lg">' +
                     '<span class="doctor-live-status text-[10px] font-bold text-emerald-600">● Tersedia</span>' +
-                    '<span class="text-[10px] text-slate-400">' + dr.pasien_aktif + ' Pasien</span>' +
                 '</div>' +
                 '<div class="flex flex-wrap gap-1">' +
                     (dr.hari_praktik || []).slice(0,3).map(function(h) {

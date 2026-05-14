@@ -42,10 +42,6 @@
 
             <div class="bg-slate-50 rounded-xl p-3 mb-4 space-y-2.5">
                 <div class="flex justify-between items-center text-[12px]">
-                    <span class="text-slate-500">Pasien Aktif</span>
-                    <span class="font-semibold text-slate-800" id="modal-pasien"></span>
-                </div>
-                <div class="flex justify-between items-center text-[12px]">
                     <span class="text-slate-500">No. STR</span>
                     <span class="font-semibold text-slate-700" id="modal-str"></span>
                 </div>
@@ -154,11 +150,6 @@
                 </div>
 
                 <div class="flex items-center gap-4 mb-4 py-3 border-y border-slate-50">
-                    <div class="text-center">
-                        <div class="text-xl font-bold text-slate-800">${dr.pasien_aktif}</div>
-                        <div class="text-[10px] text-slate-400">Pasien Aktif</div>
-                    </div>
-                    <div class="h-8 w-px bg-slate-100"></div>
                     <div class="flex flex-wrap gap-1">
                         ${sortedHariPraktik(dr.hari_praktik).slice(0,4).map(h =>
                             '<span class="text-[9px] font-medium bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full">' + h + '</span>'
@@ -183,7 +174,6 @@
         document.getElementById('modal-avatar').className  = 'w-14 h-14 rounded-2xl flex items-center justify-center text-lg font-bold flex-shrink-0 ' + (isSibuk ? 'bg-red-50 text-red-700' : 'bg-blue-50 text-blue-800');
         document.getElementById('modal-nama').textContent     = dr.nama;
         document.getElementById('modal-spesialis').textContent= dr.spesialisasi;
-        document.getElementById('modal-pasien').textContent   = dr.pasien_aktif + ' pasien';
         document.getElementById('modal-str').textContent      = dr.no_str || '—';
         document.getElementById('modal-hp').textContent       = dr.no_hp || '—';
         document.getElementById('modal-status').innerHTML     = isSibuk

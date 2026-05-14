@@ -36,6 +36,7 @@ Route::get('/dokter/jadwal-saya', fn() => view('dokter.jadwal_saya'));
 // ── Shared ──
 Route::get('/jadwal', fn() => view('dokter.jadwal'));
 Route::get('/tim', fn() => view('dokter.tim'));
+Route::get('/konsultasi/{id}/print', fn($id) => view('shared.print_report', ['id' => $id]));
 
 // ── Admin ──
 Route::get('/admin', fn() => view('admin.dashboard'));

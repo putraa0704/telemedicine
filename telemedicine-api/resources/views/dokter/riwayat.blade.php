@@ -7,65 +7,20 @@
 
 @section('content')
 
-<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-4">
-    <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
-        <div class="flex items-center justify-between mb-3">
-            <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Total</div>
-        </div>
-        <div class="text-2xl sm:text-3xl font-bold text-slate-800" id="stat-total">—</div>
-        <div class="text-[10px] text-slate-400 mt-1">Percakapan</div>
-    </div>
-    <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
-        <div class="flex items-center justify-between mb-3">
-            <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Menunggu</div>
-        </div>
-        <div class="text-2xl sm:text-3xl font-bold text-amber-600" id="stat-pending">—</div>
-        <div class="text-[10px] text-slate-400 mt-1">Belum dibalas</div>
-    </div>
-    <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
-        <div class="flex items-center justify-between mb-3">
-            <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Aktif</div>
-        </div>
-        <div class="text-2xl sm:text-3xl font-bold text-blue-600" id="stat-active">—</div>
-        <div class="text-[10px] text-slate-400 mt-1">Ditinjau</div>
-    </div>
-    <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
-        <div class="flex items-center justify-between mb-3">
-            <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Selesai</div>
-        </div>
-        <div class="text-2xl sm:text-3xl font-bold text-emerald-600" id="stat-done">—</div>
-        <div class="text-[10px] text-slate-400 mt-1">Selesai</div>
-    </div>
-</div>
-
-<div class="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-4">
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col h-[70vh]">
-        <div class="px-4 py-3.5 border-b border-slate-100 flex-shrink-0">
-            <div class="flex items-center justify-between mb-2">
-                <span class="text-[13px] font-semibold text-slate-800">Riwayat Selesai</span>
-                <button onclick="loadKonsultasi()" class="text-[11px] text-brand-600 border border-brand-200 hover:bg-blue-50 px-2.5 py-1 rounded-lg transition-colors">↻</button>
-            </div>
+<div class="max-w-4xl mx-auto py-2">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-lg font-bold text-slate-800">Riwayat Selesai</h2>
+        <div class="flex gap-2">
             <input id="search-chat" type="text" placeholder="Cari nama pasien..."
-                class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:border-brand-600 bg-slate-50" oninput="renderChatList()" />
-        </div>
-        <div id="chat-list" class="flex-1 overflow-y-auto">
-            <div class="px-4 py-8 text-center text-[12px] text-slate-400">Memuat riwayat...</div>
+                class="px-4 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:border-brand-600 bg-white" oninput="renderTimeline()" />
+            <button onclick="loadKonsultasi()" class="px-3 py-2 text-brand-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            </button>
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col h-[70vh]">
-        <div id="chat-header" class="px-5 py-3.5 border-b border-slate-100 flex justify-between items-center">
-            <span class="text-[13px] font-semibold text-slate-800">Pilih riwayat untuk dibaca</span>
-        </div>
-        <div id="chat-thread" class="flex-1 p-4 space-y-3 overflow-y-auto bg-slate-50/40">
-            <div class="h-full flex items-center justify-center text-[12px] text-slate-400">Belum ada riwayat dipilih</div>
-        </div>
-        <div id="chat-input" class="border-t border-slate-100 p-3 hidden flex-shrink-0 bg-slate-50">
-            <div class="text-center text-[11px] text-slate-400 py-1 font-semibold flex items-center justify-center gap-2">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                Konsultasi ini sudah selesai dan tidak dapat dibalas.
-            </div>
-        </div>
+    <div id="timeline-container" class="relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:ml-[2.25rem] md:before:translate-x-0 before:h-full before:w-0.5 before:bg-slate-200 space-y-6">
+        <div class="py-12 text-center text-sm text-slate-400">Memuat riwayat...</div>
     </div>
 </div>
 
@@ -79,10 +34,7 @@
     if (user && (user.role !== 'dokter' && user.role !== 'admin')) window.location.href = '/pasien';
 
     var allData = [];
-    var activeId = null;
-    var currentMessages = [];
-    var lastChatListHTML = '';
-    var lastThreadHTML = '';
+    var lastHTML = '';
 
     function escapeHtml(str) {
         return String(str || '')
@@ -93,143 +45,81 @@
             .replace(/'/g, '&#039;');
     }
 
-    function formatDate(s) {
+    function formatDateInfo(s) {
         if (!s) return '-';
-        return new Date(s).toLocaleString('id-ID');
+        var d = new Date(s);
+        var datePart = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        var timePart = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        return datePart + ' • ' + timePart;
     }
 
-    function updateStats() {
-        document.getElementById('stat-total').textContent = allData.length;
-        document.getElementById('stat-pending').textContent = allData.filter(function(d) { return d.status === 'received'; }).length;
-        document.getElementById('stat-active').textContent = allData.filter(function(d) { return d.status === 'in_review'; }).length;
-        document.getElementById('stat-done').textContent = allData.filter(function(d) { return d.status === 'done'; }).length;
-    }
-
-    function renderChatList() {
+    function renderTimeline() {
         var q = (document.getElementById('search-chat').value || '').toLowerCase();
-        // Hanya tampilkan yang done di riwayat
+        
         var items = allData.filter(function(item) {
             if (item.status !== 'done') return false;
             var name = (item.nama_pasien || item.nama || '').toLowerCase();
             return !q || name.indexOf(q) !== -1;
         });
 
-        var listEl = document.getElementById('chat-list');
+        var container = document.getElementById('timeline-container');
+        
         if (!items.length) {
-            var emptyHTML = '<div class="px-4 py-8 text-center text-[12px] text-slate-400">Tidak ada riwayat konsultasi selesai</div>';
-            if (lastChatListHTML !== emptyHTML) {
-                listEl.innerHTML = emptyHTML;
-                lastChatListHTML = emptyHTML;
+            var emptyHTML = '<div class="py-12 text-center text-sm text-slate-400">Tidak ada riwayat konsultasi selesai</div>';
+            if (lastHTML !== emptyHTML) {
+                container.innerHTML = emptyHTML;
+                lastHTML = emptyHTML;
             }
             return;
         }
 
         var newHTML = items.map(function(item) {
-            var activeClass = String(item.id) === String(activeId)
-                ? 'bg-brand-50 border-brand-200'
-                : 'bg-white border-transparent hover:bg-slate-50';
-            var status = '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Selesai</span>';
-            return '<button onclick="pilihChat(' + item.id + ')" class="w-full text-left px-4 py-3 border-b border-slate-100 ' + activeClass + '">' +
-                '<div class="flex items-center justify-between mb-1">' +
-                '<div class="text-[12px] font-semibold text-slate-800 truncate pr-2">' + escapeHtml(item.nama_pasien || item.nama || '-') + '</div>' +
-                status +
+            var pasName = escapeHtml(item.nama_pasien || item.nama || '-');
+            var pasInisial = pasName.replace(/[^A-Z]/ig, '').slice(0,2).toUpperCase();
+            if(!pasInisial) pasInisial = pasName.substring(0,2).toUpperCase();
+
+            return '<div class="relative flex items-start gap-4 md:gap-6">' +
+                '<div class="absolute left-0 md:relative z-10 w-10 h-10 md:w-14 md:h-14 rounded-full bg-blue-50 border-4 border-white flex items-center justify-center flex-shrink-0 shadow-sm">' +
+                    '<svg class="w-4 h-4 md:w-5 md:h-5 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>' +
                 '</div>' +
-                '<div class="text-[11px] text-slate-500 line-clamp-2">' + escapeHtml(item.keluhan || '-') + '</div>' +
-                '<div class="text-[10px] text-slate-400 mt-1">' + formatDate(item.created_at) + '</div>' +
-                '</button>';
+                '<div class="flex-1 ml-12 md:ml-0 bg-white border border-slate-200 rounded-2xl shadow-sm p-5 md:p-6 hover:shadow-md transition-shadow">' +
+                    '<div class="flex items-start justify-between mb-4">' +
+                        '<div class="flex items-center gap-4">' +
+                            '<div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center font-bold text-slate-500 overflow-hidden text-lg">' +
+                                pasInisial +
+                            '</div>' +
+                            '<div>' +
+                                '<div class="text-[10px] md:text-xs font-bold text-brand-600 tracking-wider uppercase mb-1">' +
+                                    'PASIEN • KONSULTASI' +
+                                '</div>' +
+                                '<h3 class="text-base md:text-lg font-bold text-slate-800">' + pasName + '</h3>' +
+                                '<div class="text-xs text-slate-500 mt-1 flex items-center gap-1.5">' +
+                                    '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' +
+                                    formatDateInfo(item.created_at) +
+                                '</div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="flex flex-col items-end gap-2">' +
+                            '<span class="px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-bold tracking-wide">Selesai</span>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="bg-slate-50 rounded-xl p-4 mb-5 border border-slate-100">' +
+                        '<h4 class="text-sm font-semibold text-brand-700 mb-2">Ringkasan Keluhan</h4>' +
+                        '<p class="text-sm text-slate-600 leading-relaxed">' + escapeHtml(item.keluhan || '-') + '</p>' +
+                    '</div>' +
+                    '<div class="flex items-center gap-3">' +
+                        '<a href="/konsultasi/' + item.id + '/print" target="_blank" class="flex items-center gap-2 px-4 py-2 border border-slate-200 hover:bg-slate-50 hover:border-brand-300 text-brand-600 font-semibold text-sm rounded-xl transition-all">' +
+                            '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>' +
+                            'Download Report' +
+                        '</a>' +
+                    '</div>' +
+                '</div>' +
+            '</div>';
         }).join('');
 
-        if (lastChatListHTML !== newHTML) {
-            listEl.innerHTML = newHTML;
-            lastChatListHTML = newHTML;
-        }
-    }
-
-    async function pilihChat(id) {
-        if (activeId === id) return;
-        activeId = id;
-        lastThreadHTML = '';
-        renderChatList();
-        renderThreadLoading();
-        await loadMessages(id);
-    }
-
-    function renderThreadLoading() {
-        var thread = document.getElementById('chat-thread');
-        thread.innerHTML = '<div class="h-full flex items-center justify-center text-[12px] text-slate-400">Memuat pesan...</div>';
-    }
-
-    function renderThread() {
-        var item = allData.find(function(d) { return String(d.id) === String(activeId); });
-        var header = document.getElementById('chat-header');
-        var thread = document.getElementById('chat-thread');
-        var inputWrap = document.getElementById('chat-input');
-
-        if (!item) {
-            header.innerHTML = '<span class="text-[13px] font-semibold text-slate-800">Pilih riwayat untuk dibaca</span>';
-            var emptyHTML = '<div class="h-full flex items-center justify-center text-[12px] text-slate-400">Belum ada riwayat dipilih</div>';
-            if (lastThreadHTML !== emptyHTML) {
-                thread.innerHTML = emptyHTML;
-                lastThreadHTML = emptyHTML;
-            }
-            inputWrap.classList.add('hidden');
-            return;
-        }
-
-        header.innerHTML = '<div class="flex items-center justify-between gap-2 w-full">' +
-            '<div><div class="text-[13px] font-semibold text-slate-800">' + escapeHtml(item.nama_pasien || item.nama || '-') + '</div>' +
-            '<div class="text-[11px] text-slate-500">#KSL-' + String(item.id).padStart(3, '0') + ' <span class="bg-emerald-50 text-emerald-600 px-1.5 rounded text-[9px] font-bold ml-1">SELESAI</span></div></div>' +
-            '<div class="flex items-center gap-2">' +
-                '<div class="text-[10px] text-slate-400">' + formatDate(item.created_at) + '</div>' +
-            '</div></div>';
-
-        // Tampilkan keluhan awal
-        var html = '<div class="flex justify-start mb-3">' +
-            '<div class="max-w-[85%] bg-white border border-slate-200 rounded-2xl rounded-tl-md px-3.5 py-2.5 shadow-sm">' +
-                '<div class="text-[10px] font-semibold text-slate-400 mb-1">Pasien (Keluhan)</div>' +
-                '<div class="text-[13px] text-slate-700 leading-relaxed">' + escapeHtml(item.keluhan || '-') + '</div>' +
-                '<div class="text-[9px] text-slate-400 mt-1 text-right">' + formatDate(item.created_at) + '</div>' +
-            '</div></div>';
-
-        // Tampilkan pesan
-        currentMessages.forEach(function(msg) {
-            var isDokter = msg.sender_role === 'dokter';
-            if (isDokter) {
-                html += '<div class="flex justify-end mb-3">' +
-                    '<div class="max-w-[85%] bg-slate-400 text-white rounded-2xl rounded-tr-md px-3.5 py-2.5 shadow-sm">' +
-                        '<div class="text-[10px] font-semibold text-white/80 mb-1">Anda</div>' +
-                        '<div class="text-[13px] leading-relaxed">' + escapeHtml(msg.message) + '</div>' +
-                        '<div class="text-[9px] text-white/60 mt-1 text-right">' + formatDate(msg.created_at) + '</div>' +
-                    '</div></div>';
-            } else {
-                html += '<div class="flex justify-start mb-3">' +
-                    '<div class="max-w-[85%] bg-white border border-slate-200 rounded-2xl rounded-tl-md px-3.5 py-2.5 shadow-sm">' +
-                        '<div class="text-[10px] font-semibold text-slate-400 mb-1">Pasien</div>' +
-                        '<div class="text-[13px] text-slate-700 leading-relaxed">' + escapeHtml(msg.message) + '</div>' +
-                        '<div class="text-[9px] text-slate-400 mt-1 text-right">' + formatDate(msg.created_at) + '</div>' +
-                    '</div></div>';
-            }
-        });
-
-        if (lastThreadHTML !== html) {
-            thread.innerHTML = html;
-            thread.scrollTop = thread.scrollHeight;
-            lastThreadHTML = html;
-        }
-        inputWrap.classList.remove('hidden');
-    }
-
-    async function loadMessages(id) {
-        try {
-            var res = await fetch('/api/konsultasi/' + id + '/messages?_t=' + new Date().getTime(), { headers: { 'Authorization': 'Bearer ' + token } });
-            if(res.ok) {
-                currentMessages = await res.json();
-            } else {
-                currentMessages = [];
-            }
-            renderThread();
-        } catch(e) {
-            console.error(e);
+        if (lastHTML !== newHTML) {
+            container.innerHTML = newHTML;
+            lastHTML = newHTML;
         }
     }
 
@@ -237,24 +127,9 @@
         try {
             var res  = await fetch('/api/dokter/konsultasi?_t=' + new Date().getTime(), { headers: { 'Authorization': 'Bearer ' + token } });
             allData = await res.json();
-            updateStats();
-            
-            if (activeId) {
-                var activeItem = allData.find(d => String(d.id) === String(activeId));
-                if (!activeItem || activeItem.status !== 'done') {
-                    activeId = null;
-                }
-            }
-            
-            renderChatList();
-
-            if (!activeId) {
-                renderThread();
-            } else {
-                await loadMessages(activeId);
-            }
+            renderTimeline();
         } catch(e) {
-            document.getElementById('chat-list').innerHTML = '<div class="px-4 py-8 text-center text-[12px] text-red-400">Gagal memuat riwayat</div>';
+            document.getElementById('timeline-container').innerHTML = '<div class="py-12 text-center text-[12px] text-red-400">Gagal memuat riwayat</div>';
         }
     }
 
